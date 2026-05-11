@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import EntryForm from './components/EntryForm'
 import EntryTable from './components/EntryTable'
 import { getEintraege, saveEintrag, updateEintrag, deleteEintrag } from './services/storage'
@@ -36,10 +36,30 @@ export default function App() {
     ? (({ id, createdAt, ...rest }) => rest)(eintraege.find((e) => e.id === editId)!)
     : undefined
 
+  const suggestions = useMemo(() => {
+    const unique = (vals: (string | undefined)[]) =>
+      [...new Set(vals.filter(Boolean))] as string[]
+    return {
+      auftraggeber: unique(eintraege.map((e) => e.auftraggeber)),
+      auftragsnummer: unique(eintraege.map((e) => e.auftragsnummer)),
+      auftrag: unique(eintraege.map((e) => e.auftrag)),
+      zeitkonto: unique(eintraege.map((e) => e.zeitkonto)),
+      aufgabe: unique(eintraege.map((e) => e.aufgabe)),
+      datum: unique(eintraege.map((e) => e.datum)),
+      externeId: unique(eintraege.map((e) => e.externeId)),
+    }
+  }, [eintraege])
+
   return (
     <div className={styles.app}>
       <h1>Leistungserfassung</h1>
-      <EntryForm onSave={handleSave} onCancel={handleCancel} initialData={editData} key={editId ?? 'new'} />
+      <EntryForm
+        onSave={handleSave}
+        onCancel={handleCancel}
+        initialData={editData}
+        key={editId ?? 'new'}
+        suggestions={suggestions}
+      />
       <EntryTable eintraege={eintraege} onEdit={handleEdit} onDelete={handleDelete} />
     </div>
   )
