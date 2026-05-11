@@ -26,7 +26,7 @@ export default function EntryForm({ onSave, onCancel, initialData }: Props) {
   const [form, setForm] = useState<EintragFormData>(initialData ?? emptyForm())
   const isEdit = Boolean(initialData)
 
-  const set = (field: keyof EintragFormData, value: unknown) =>
+  const set = <K extends keyof EintragFormData>(field: K, value: EintragFormData[K]) =>
     setForm((prev) => ({ ...prev, [field]: value }))
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -46,10 +46,10 @@ export default function EntryForm({ onSave, onCancel, initialData }: Props) {
           Auftragsnummer *
           <input required value={form.auftragsnummer} onChange={(e) => set('auftragsnummer', e.target.value)} />
         </label>
-        <label>
-          <span>Auftrag</span>{' '}*
-          <input required aria-label="Auftrag" value={form.auftrag} onChange={(e) => set('auftrag', e.target.value)} />
-        </label>
+        <div className={styles.auftragField}>
+          <label htmlFor="auftrag">Auftrag</label>
+          <input id="auftrag" required value={form.auftrag} onChange={(e) => set('auftrag', e.target.value)} />
+        </div>
         <label>
           Zeitkonto *
           <input required value={form.zeitkonto} onChange={(e) => set('zeitkonto', e.target.value)} />

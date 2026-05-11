@@ -1,10 +1,14 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import EntryForm from './EntryForm'
 import type { EintragFormData } from '../types/entry'
 
 const mockOnSave = vi.fn()
+
+beforeEach(() => {
+  mockOnSave.mockClear()
+})
 
 const fillForm = async () => {
   await userEvent.type(screen.getByLabelText(/Auftraggeber/i), 'Kunde A')
