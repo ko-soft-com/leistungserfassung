@@ -16,6 +16,8 @@ export interface Eintrag {
   externeId?: string
   jiraTicket?: string
   prLink?: string
+  startzeit?: string
+  endzeit?: string
   createdAt: number
 }
 

@@ -25,6 +25,8 @@ export default function EntryRow({ entry, onEdit, onDelete }: Props) {
   return (
     <tr className={styles.row}>
       <td>{formatDate(entry.datum)}</td>
+      <td>{entry.startzeit ?? ''}</td>
+      <td>{entry.endzeit ?? ''}</td>
       <td>{entry.auftraggeber}</td>
       <td>{entry.auftragsnummer}</td>
       <td>{entry.auftrag}</td>

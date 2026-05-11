@@ -19,6 +19,8 @@ export default function EntryTable({ eintraege, onEdit, onDelete }: Props) {
         <thead>
           <tr>
             <th>Datum</th>
+            <th>Startzeit</th>
+            <th>Endzeit</th>
             <th>Auftraggeber</th>
             <th>Auftragsnr.</th>
             <th>Auftrag</th>

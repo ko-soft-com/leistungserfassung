@@ -8,6 +8,12 @@
 .auftragField { display: flex; flex-direction: column; font-size: 0.85rem; font-weight: 600; gap: 0.25rem; }
 .auftragField label { font-size: 0.85rem; font-weight: 600; }
 .auftragField input { padding: 0.4rem 0.6rem; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95rem; width: 100%; box-sizing: border-box; }
+.zeitField { display: flex; flex-direction: column; font-size: 0.85rem; font-weight: 600; gap: 0.25rem; }
+.zeitField span { font-size: 0.85rem; font-weight: 600; }
+.zeitInputRow { display: flex; gap: 0.5rem; align-items: center; }
+.zeitInputRow input { flex: 1; padding: 0.4rem 0.6rem; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95rem; box-sizing: border-box; }
+.zeitBtn { white-space: nowrap; background: #059669; color: white; border: none; padding: 0.4rem 0.75rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+.zeitBtn:hover { background: #047857; }
 .actions { margin-top: 1rem; display: flex; gap: 0.5rem; }
 button[type=submit] { background: #2563eb; color: white; border: none; padding: 0.5rem 1.5rem; border-radius: 4px; cursor: pointer; font-size: 0.95rem; }
 button[type=submit]:hover { background: #1d4ed8; }

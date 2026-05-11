@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { EintragFormData } from '../types/entry'
+import { calcDauerFromZeit } from '../utils/zeit'
 import styles from './EntryForm.module.css'
 
 type Suggestions = Partial<Record<'auftraggeber' | 'auftragsnummer' | 'auftrag' | 'zeitkonto' | 'aufgabe' | 'datum' | 'externeId' | 'jiraTicket' | 'prLink', string[]>>
@@ -25,6 +26,8 @@ const emptyForm = (): EintragFormData => ({
   externeId: '',
   jiraTicket: '',
   prLink: '',
+  startzeit: '',
+  endzeit: '',
 })
 
 function Datalist({ id, options }: { id: string; options?: string[] }) {
@@ -42,6 +45,24 @@ export default function EntryForm({ onSave, onCancel, initialData, suggestions }
 
   const set = <K extends keyof EintragFormData>(field: K, value: EintragFormData[K]) =>
     setForm((prev) => ({ ...prev, [field]: value }))
+
+  const currentTime = () => {
+    const now = new Date()
+    return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+  }
+
+  const handleZeitChange = (field: 'startzeit' | 'endzeit', value: string) => {
+    setForm((prev) => {
+      const updated = { ...prev, [field]: value }
+      const start = field === 'startzeit' ? value : updated.startzeit
+      const end = field === 'endzeit' ? value : updated.endzeit
+      if (start && end) {
+        const dauer = calcDauerFromZeit(start, end)
+        if (dauer) return { ...updated, dauer }
+      }
+      return updated
+    })
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -93,6 +114,20 @@ export default function EntryForm({ onSave, onCancel, initialData, suggestions }
               onChange={(e) => set('dauer', { ...form.dauer, minuten: Number(e.target.value) })}
             />
           </label>
+        </div>
+        <div className={styles.zeitField}>
+          <span>Startzeit</span>
+          <div className={styles.zeitInputRow}>
+            <input type="time" value={form.startzeit ?? ''} onChange={(e) => handleZeitChange('startzeit', e.target.value)} />
+            <button type="button" className={styles.zeitBtn} onClick={() => handleZeitChange('startzeit', currentTime())}>Start</button>
+          </div>
+        </div>
+        <div className={styles.zeitField}>
+          <span>Endzeit</span>
+          <div className={styles.zeitInputRow}>
+            <input type="time" value={form.endzeit ?? ''} onChange={(e) => handleZeitChange('endzeit', e.target.value)} />
+            <button type="button" className={styles.zeitBtn} onClick={() => handleZeitChange('endzeit', currentTime())}>Ende</button>
+          </div>
         </div>
         <label>
           Externe-ID
