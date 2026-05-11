@@ -24,7 +24,9 @@ export default function CsvToolbar({ eintraege, onImport }: Props) {
     const a = document.createElement('a')
     a.href = url
     a.download = `leistungserfassung-${today}.csv`
+    document.body.appendChild(a)
     a.click()
+    document.body.removeChild(a)
     URL.revokeObjectURL(url)
     setMessage(`${eintraege.length} Einträge exportiert.`)
   }
@@ -33,15 +35,20 @@ export default function CsvToolbar({ eintraege, onImport }: Props) {
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
+    reader.onerror = () => setMessage('Fehler beim Lesen der Datei.')
     reader.onload = (ev) => {
-      const text = ev.target?.result as string
-      const { imported, skipped } = importFromCsv(text)
-      onImport(imported)
-      const msg =
-        skipped > 0
-          ? `${imported.length} Einträge importiert, ${skipped} übersprungen.`
-          : `${imported.length} Einträge importiert.`
-      setMessage(msg)
+      try {
+        const text = ev.target?.result as string
+        const { imported, skipped } = importFromCsv(text)
+        onImport(imported)
+        const msg =
+          skipped > 0
+            ? `${imported.length} Einträge importiert, ${skipped} übersprungen.`
+            : `${imported.length} Einträge importiert.`
+        setMessage(msg)
+      } catch {
+        setMessage('Die Datei konnte nicht importiert werden.')
+      }
     }
     reader.readAsText(file, 'utf-8')
     e.target.value = ''
@@ -63,10 +70,13 @@ export default function CsvToolbar({ eintraege, onImport }: Props) {
         ref={fileInputRef}
         type="file"
         accept=".csv"
+        aria-label="CSV-Datei importieren"
         className={styles.hiddenInput}
         onChange={handleFileChange}
       />
-      {message && <span className={styles.message}>{message}</span>}
+      <span role="status" aria-live="polite" className={styles.message}>
+        {message ?? ''}
+      </span>
     </div>
   )
 }
