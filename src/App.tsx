@@ -54,15 +54,20 @@ export default function App() {
 
   return (
     <div className={styles.app}>
-      <h1>Leistungserfassung</h1>
-      <EntryForm
-        onSave={handleSave}
-        onCancel={handleCancel}
-        initialData={editData}
-        key={editId ?? 'new'}
-        suggestions={suggestions}
-      />
-      <EntryTable eintraege={eintraege} onEdit={handleEdit} onDelete={handleDelete} />
+      <header className={styles.header}>
+        <h1>Leistungserfassung</h1>
+        <p className={styles.subtitle}>Arbeitszeiterfassung</p>
+      </header>
+      <div className={styles.content}>
+        <EntryForm
+          onSave={handleSave}
+          onCancel={handleCancel}
+          initialData={editData}
+          key={editId ?? 'new'}
+          suggestions={suggestions}
+        />
+        <EntryTable eintraege={eintraege} onEdit={handleEdit} onDelete={handleDelete} />
+      </div>
     </div>
   )
 }

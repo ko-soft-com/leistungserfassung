@@ -1,2 +1,48 @@
-.app { max-width: 1400px; margin: 0 auto; padding: 1.5rem; font-family: system-ui, sans-serif; }
-h1 { color: #1e3a5f; margin-bottom: 1.5rem; font-size: 1.75rem; }
+.app {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.header {
+  background: linear-gradient(135deg, var(--clr-header-from) 0%, var(--clr-header-to) 100%);
+  padding: var(--sp-6) var(--sp-8);
+  box-shadow: var(--shadow-primary);
+  margin-bottom: var(--sp-6);
+}
+
+.header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--clr-on-primary);
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: rgb(196 181 253);
+  margin-top: var(--sp-1);
+}
+
+/* ── Content container ──────────────────────────────────── */
+.content {
+  flex: 1;
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 var(--sp-8) var(--sp-8);
+}
+
+/* Tablet */
+@media (max-width: 1023px) {
+  .header { padding: var(--sp-4) var(--sp-6); margin-bottom: var(--sp-4); }
+  .content { padding: 0 var(--sp-4) var(--sp-6); }
+}
+
+/* Mobile */
+@media (max-width: 479px) {
+  .header { padding: var(--sp-4); margin-bottom: var(--sp-3); }
+  .header h1 { font-size: 1.375rem; }
+  .content { padding: 0 var(--sp-3) var(--sp-4); }
+}
