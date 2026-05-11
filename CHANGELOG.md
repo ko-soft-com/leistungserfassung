@@ -12,4 +12,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - [LEIS-15] Autocomplete suggestions derived from existing entries for all form fields (except Dauer and Beschreibung)
 
 ### Fixed
+- [LEIS-17] PR field is now plain text instead of a hyperlink
 - [LEIS-14] Aufgabe field is no longer required
