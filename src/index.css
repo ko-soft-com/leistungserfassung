@@ -22,6 +22,7 @@
   --clr-text-sec:       #475569;
   --clr-text-muted:     #94a3b8;
   --clr-on-primary:     #ffffff;
+  --clr-on-primary-muted: rgb(196 181 253);
 
   /* Borders & radius */
   --clr-border:         #e2e8f0;

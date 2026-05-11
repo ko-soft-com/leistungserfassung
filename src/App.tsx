@@ -58,7 +58,7 @@ export default function App() {
         <h1>Leistungserfassung</h1>
         <p className={styles.subtitle}>Arbeitszeiterfassung</p>
       </header>
-      <div className={styles.content}>
+      <main className={styles.content}>
         <EntryForm
           onSave={handleSave}
           onCancel={handleCancel}
@@ -67,7 +67,7 @@ export default function App() {
           suggestions={suggestions}
         />
         <EntryTable eintraege={eintraege} onEdit={handleEdit} onDelete={handleDelete} />
-      </div>
+      </main>
     </div>
   )
 }
