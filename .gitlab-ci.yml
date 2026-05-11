@@ -34,6 +34,21 @@ test:
       junit: test-results/results.xml
     expire_in: 7 days
 
+e2e-test:
+  stage: test
+  needs: [compile]
+  image: node:22-bookworm-slim
+  script:
+    - npm ci --silent
+    - npx playwright install chromium --with-deps
+    - npm run test:e2e
+  artifacts:
+    when: on_failure
+    paths:
+      - playwright-report/
+      - test-results/
+    expire_in: 7 days
+
 security-scan:
   stage: security-scan
   needs: [compile]
