@@ -2,10 +2,13 @@ import { useState } from 'react'
 import type { EintragFormData } from '../types/entry'
 import styles from './EntryForm.module.css'
 
+type Suggestions = Partial<Record<'auftraggeber' | 'auftragsnummer' | 'auftrag' | 'zeitkonto' | 'aufgabe' | 'datum' | 'externeId', string[]>>
+
 interface Props {
   onSave: (data: EintragFormData) => void
   onCancel?: () => void
   initialData?: EintragFormData
+  suggestions?: Suggestions
 }
 
 const today = () => new Date().toISOString().split('T')[0]
@@ -22,7 +25,16 @@ const emptyForm = (): EintragFormData => ({
   externeId: '',
 })
 
-export default function EntryForm({ onSave, onCancel, initialData }: Props) {
+function Datalist({ id, options }: { id: string; options?: string[] }) {
+  if (!options?.length) return null
+  return (
+    <datalist id={id}>
+      {options.map((o) => <option key={o} value={o} />)}
+    </datalist>
+  )
+}
+
+export default function EntryForm({ onSave, onCancel, initialData, suggestions }: Props) {
   const [form, setForm] = useState<EintragFormData>(initialData ?? emptyForm())
   const isEdit = Boolean(initialData)
 
@@ -40,27 +52,27 @@ export default function EntryForm({ onSave, onCancel, initialData }: Props) {
       <div className={styles.grid}>
         <label>
           Auftraggeber *
-          <input required value={form.auftraggeber} onChange={(e) => set('auftraggeber', e.target.value)} />
+          <input required list="dl-auftraggeber" value={form.auftraggeber} onChange={(e) => set('auftraggeber', e.target.value)} />
         </label>
         <label>
           Auftragsnummer *
-          <input required value={form.auftragsnummer} onChange={(e) => set('auftragsnummer', e.target.value)} />
+          <input required list="dl-auftragsnummer" value={form.auftragsnummer} onChange={(e) => set('auftragsnummer', e.target.value)} />
         </label>
         <div className={styles.auftragField}>
           <label htmlFor="auftrag">Auftrag</label>
-          <input id="auftrag" required value={form.auftrag} onChange={(e) => set('auftrag', e.target.value)} />
+          <input id="auftrag" required list="dl-auftrag" value={form.auftrag} onChange={(e) => set('auftrag', e.target.value)} />
         </div>
         <label>
           Zeitkonto *
-          <input required value={form.zeitkonto} onChange={(e) => set('zeitkonto', e.target.value)} />
+          <input required list="dl-zeitkonto" value={form.zeitkonto} onChange={(e) => set('zeitkonto', e.target.value)} />
         </label>
         <label>
-          Aufgabe *
-          <input required value={form.aufgabe} onChange={(e) => set('aufgabe', e.target.value)} />
+          Aufgabe
+          <input list="dl-aufgabe" value={form.aufgabe} onChange={(e) => set('aufgabe', e.target.value)} />
         </label>
         <label>
           Datum *
-          <input type="date" required value={form.datum} onChange={(e) => set('datum', e.target.value)} />
+          <input type="date" required list="dl-datum" value={form.datum} onChange={(e) => set('datum', e.target.value)} />
         </label>
         <div className={styles.dauerRow}>
           <label>
@@ -82,13 +94,20 @@ export default function EntryForm({ onSave, onCancel, initialData }: Props) {
         </div>
         <label>
           Externe-ID
-          <input value={form.externeId ?? ''} onChange={(e) => set('externeId', e.target.value)} />
+          <input list="dl-externeId" value={form.externeId ?? ''} onChange={(e) => set('externeId', e.target.value)} />
         </label>
         <label className={styles.fullWidth}>
           Beschreibung
           <textarea value={form.beschreibung ?? ''} onChange={(e) => set('beschreibung', e.target.value)} rows={3} />
         </label>
       </div>
+      <Datalist id="dl-auftraggeber" options={suggestions?.auftraggeber} />
+      <Datalist id="dl-auftragsnummer" options={suggestions?.auftragsnummer} />
+      <Datalist id="dl-auftrag" options={suggestions?.auftrag} />
+      <Datalist id="dl-zeitkonto" options={suggestions?.zeitkonto} />
+      <Datalist id="dl-aufgabe" options={suggestions?.aufgabe} />
+      <Datalist id="dl-datum" options={suggestions?.datum} />
+      <Datalist id="dl-externeId" options={suggestions?.externeId} />
       <div className={styles.actions}>
         <button type="submit">{isEdit ? 'Aktualisieren' : 'Speichern'}</button>
         {isEdit && onCancel && (
