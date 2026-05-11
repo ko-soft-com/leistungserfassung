@@ -122,4 +122,25 @@ describe('importFromCsv', () => {
     const { imported } = importFromCsv(exportToCsv([entry]))
     expect(imported[0].auftraggeber).toBe('Firma, GmbH')
   })
+
+  it('skips row with negative stunden', () => {
+    const csv = 'datum,startzeit,endzeit,auftraggeber,auftragsnummer,auftrag,zeitkonto,aufgabe,stunden,minuten,beschreibung,externeId,jiraTicket,prLink\n2026-05-11,,,Kunde A,K-001,Projekt X,Zeitkonto,Aufgabe,-1,0,,,,\n'
+    const { imported, skipped } = importFromCsv(csv)
+    expect(imported).toHaveLength(0)
+    expect(skipped).toBe(1)
+  })
+
+  it('skips row with fractional minuten', () => {
+    const csv = 'datum,startzeit,endzeit,auftraggeber,auftragsnummer,auftrag,zeitkonto,aufgabe,stunden,minuten,beschreibung,externeId,jiraTicket,prLink\n2026-05-11,,,Kunde A,K-001,Projekt X,Zeitkonto,Aufgabe,1,1.5,,,,\n'
+    const { imported, skipped } = importFromCsv(csv)
+    expect(imported).toHaveLength(0)
+    expect(skipped).toBe(1)
+  })
+
+  it('skips row with empty stunden', () => {
+    const csv = 'datum,startzeit,endzeit,auftraggeber,auftragsnummer,auftrag,zeitkonto,aufgabe,stunden,minuten,beschreibung,externeId,jiraTicket,prLink\n2026-05-11,,,Kunde A,K-001,Projekt X,Zeitkonto,Aufgabe,,0,,,,\n'
+    const { imported, skipped } = importFromCsv(csv)
+    expect(imported).toHaveLength(0)
+    expect(skipped).toBe(1)
+  })
 })

@@ -81,13 +81,17 @@ export function importFromCsv(csv: string): ImportResult {
     }
     const [datum, startzeit, endzeit, auftraggeber, auftragsnummer, auftrag, zeitkonto, aufgabe, stundenStr, minutenStr, beschreibung, externeId, jiraTicket, prLink] = f
 
-    if (!datum || !auftraggeber || !auftragsnummer || !auftrag || !zeitkonto) {
+    if (!datum || !auftraggeber || !auftragsnummer || !auftrag || !zeitkonto || !aufgabe) {
+      skipped++
+      continue
+    }
+    if (!stundenStr.trim() || !minutenStr.trim()) {
       skipped++
       continue
     }
     const stunden = Number(stundenStr)
     const minuten = Number(minutenStr)
-    if (!Number.isFinite(stunden) || !Number.isFinite(minuten)) {
+    if (!Number.isInteger(stunden) || !Number.isInteger(minuten) || stunden < 0 || minuten < 0) {
       skipped++
       continue
     }
