@@ -27,6 +27,8 @@ export default function EntryTable({ eintraege, onEdit, onDelete }: Props) {
             <th>Dauer</th>
             <th>Beschreibung</th>
             <th>Externe-ID</th>
+            <th>JIRA-Ticket</th>
+            <th>PR-Link</th>
             <th>Aktionen</th>
           </tr>
         </thead>

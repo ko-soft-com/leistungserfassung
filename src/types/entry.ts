@@ -14,6 +14,8 @@ export interface Eintrag {
   dauer: Dauer
   beschreibung?: string
   externeId?: string
+  jiraTicket?: string
+  prLink?: string
   createdAt: number
 }
 

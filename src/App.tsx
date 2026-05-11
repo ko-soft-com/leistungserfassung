@@ -47,6 +47,8 @@ export default function App() {
       aufgabe: unique(eintraege.map((e) => e.aufgabe)),
       datum: unique(eintraege.map((e) => e.datum)),
       externeId: unique(eintraege.map((e) => e.externeId)),
+      jiraTicket: unique(eintraege.map((e) => e.jiraTicket)),
+      prLink: unique(eintraege.map((e) => e.prLink)),
     }
   }, [eintraege])
 

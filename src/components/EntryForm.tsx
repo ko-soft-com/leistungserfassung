@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { EintragFormData } from '../types/entry'
 import styles from './EntryForm.module.css'
 
-type Suggestions = Partial<Record<'auftraggeber' | 'auftragsnummer' | 'auftrag' | 'zeitkonto' | 'aufgabe' | 'datum' | 'externeId', string[]>>
+type Suggestions = Partial<Record<'auftraggeber' | 'auftragsnummer' | 'auftrag' | 'zeitkonto' | 'aufgabe' | 'datum' | 'externeId' | 'jiraTicket' | 'prLink', string[]>>
 
 interface Props {
   onSave: (data: EintragFormData) => void
@@ -23,6 +23,8 @@ const emptyForm = (): EintragFormData => ({
   dauer: { stunden: 0, minuten: 0 },
   beschreibung: '',
   externeId: '',
+  jiraTicket: '',
+  prLink: '',
 })
 
 function Datalist({ id, options }: { id: string; options?: string[] }) {
@@ -96,6 +98,14 @@ export default function EntryForm({ onSave, onCancel, initialData, suggestions }
           Externe-ID
           <input list="dl-externeId" value={form.externeId ?? ''} onChange={(e) => set('externeId', e.target.value)} />
         </label>
+        <label>
+          JIRA-Ticket
+          <input list="dl-jiraTicket" value={form.jiraTicket ?? ''} onChange={(e) => set('jiraTicket', e.target.value)} />
+        </label>
+        <label>
+          PR-Link
+          <input list="dl-prLink" value={form.prLink ?? ''} onChange={(e) => set('prLink', e.target.value)} />
+        </label>
         <label className={styles.fullWidth}>
           Beschreibung
           <textarea value={form.beschreibung ?? ''} onChange={(e) => set('beschreibung', e.target.value)} rows={3} />
@@ -108,6 +118,8 @@ export default function EntryForm({ onSave, onCancel, initialData, suggestions }
       <Datalist id="dl-aufgabe" options={suggestions?.aufgabe} />
       <Datalist id="dl-datum" options={suggestions?.datum} />
       <Datalist id="dl-externeId" options={suggestions?.externeId} />
+      <Datalist id="dl-jiraTicket" options={suggestions?.jiraTicket} />
+      <Datalist id="dl-prLink" options={suggestions?.prLink} />
       <div className={styles.actions}>
         <button type="submit">{isEdit ? 'Aktualisieren' : 'Speichern'}</button>
         {isEdit && onCancel && (
