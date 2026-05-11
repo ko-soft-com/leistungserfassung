@@ -1,6 +1,4 @@
 /* ── Desktop button styles ──────────────────────────────── */
-.row {}
-
 .editBtn {
   background: var(--clr-primary);
   color: var(--clr-on-primary);

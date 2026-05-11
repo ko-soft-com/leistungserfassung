@@ -7,13 +7,17 @@ interface Props {
   onDelete: (id: string) => void
 }
 
-const formatDate = (iso: string) => {
-  const [y, m, d] = iso.split('-')
+const formatDate = (iso: string): string => {
+  const parts = iso.split('-')
+  if (parts.length !== 3) return iso
+  const [y, m, d] = parts
   return `${d}.${m}.${y}`
 }
 
-const formatDauer = (stunden: number, minuten: number) =>
-  `${stunden}h ${minuten}m`
+const formatDauer = (stunden: number, minuten: number): string => {
+  if (!Number.isFinite(stunden) || !Number.isFinite(minuten)) return '–'
+  return `${stunden}h ${String(minuten).padStart(2, '0')}m`
+}
 
 export default function EntryRow({ entry, onEdit, onDelete }: Props) {
   const handleDelete = () => {
@@ -37,9 +41,23 @@ export default function EntryRow({ entry, onEdit, onDelete }: Props) {
       <td data-label="Externe-ID">{entry.externeId ?? ''}</td>
       <td data-label="JIRA-Ticket">{entry.jiraTicket ?? ''}</td>
       <td data-label="PR">{entry.prLink ?? ''}</td>
-      <td>
-        <button onClick={() => onEdit(entry.id)} className={styles.editBtn}>Bearbeiten</button>
-        <button onClick={handleDelete} className={styles.deleteBtn}>Löschen</button>
+      <td data-label="">
+        <button
+          type="button"
+          aria-label={`Eintrag vom ${formatDate(entry.datum)} bearbeiten`}
+          onClick={() => onEdit(entry.id)}
+          className={styles.editBtn}
+        >
+          Bearbeiten
+        </button>
+        <button
+          type="button"
+          aria-label={`Eintrag vom ${formatDate(entry.datum)} löschen`}
+          onClick={handleDelete}
+          className={styles.deleteBtn}
+        >
+          Löschen
+        </button>
       </td>
     </tr>
   )
