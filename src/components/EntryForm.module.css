@@ -140,3 +140,10 @@
   background: var(--clr-bg);
   color: var(--clr-text);
 }
+
+.submitBtn:focus-visible,
+.cancel:focus-visible,
+.zeitBtn:focus-visible {
+  outline: 3px solid var(--clr-primary);
+  outline-offset: 2px;
+}

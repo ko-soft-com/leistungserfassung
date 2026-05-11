@@ -31,6 +31,12 @@
   color: var(--clr-on-primary);
 }
 
+.editBtn:focus-visible,
+.deleteBtn:focus-visible {
+  outline: 3px solid var(--clr-primary);
+  outline-offset: 2px;
+}
+
 /* ── Mobile card layout ─────────────────────────────────── */
 @media (max-width: 767px) {
   .row {

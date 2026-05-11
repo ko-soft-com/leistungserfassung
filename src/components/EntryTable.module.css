@@ -25,9 +25,6 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  position: sticky;
-  top: 0;
-  z-index: 1;
 }
 
 /* Body cells */
@@ -45,8 +42,8 @@
 .table tbody tr:nth-child(even) td { background: var(--clr-bg); }
 
 /* Hover */
-.table tbody tr:hover td {
-  background: var(--clr-primary-50);
+@media (hover: hover) {
+  .table tbody tr:hover td { background: var(--clr-primary-50); }
 }
 
 /* Empty state */
@@ -74,4 +71,7 @@
   .table,
   .table tbody,
   .table tr { display: block; }
+
+  .table tbody tr:nth-child(even) td { background: transparent; }
+  .table tbody tr:last-child td { border-bottom: 1px solid var(--clr-border); }
 }
