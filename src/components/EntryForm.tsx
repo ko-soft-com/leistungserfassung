@@ -156,7 +156,7 @@ export default function EntryForm({ onSave, onCancel, initialData, suggestions }
       <Datalist id="dl-jiraTicket" options={suggestions?.jiraTicket} />
       <Datalist id="dl-prLink" options={suggestions?.prLink} />
       <div className={styles.actions}>
-        <button type="submit">{isEdit ? 'Aktualisieren' : 'Speichern'}</button>
+        <button type="submit" className={styles.submitBtn}>{isEdit ? 'Aktualisieren' : 'Speichern'}</button>
         {isEdit && onCancel && (
           <button type="button" onClick={onCancel} className={styles.cancel}>Abbrechen</button>
         )}
