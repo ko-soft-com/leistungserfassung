@@ -1,0 +1,59 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-4);
+}
+
+.exportBtn {
+  background: var(--clr-primary);
+  color: var(--clr-on-primary);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.exportBtn:hover {
+  background: var(--clr-primary-dark);
+}
+
+.exportBtn:focus-visible {
+  outline: 3px solid var(--clr-primary);
+  outline-offset: 2px;
+}
+
+.importBtn {
+  background: transparent;
+  color: var(--clr-primary);
+  border: 1.5px solid var(--clr-primary);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: background 0.15s, color 0.15s;
+}
+
+.importBtn:hover {
+  background: var(--clr-primary);
+  color: var(--clr-on-primary);
+}
+
+.importBtn:focus-visible {
+  outline: 3px solid var(--clr-primary);
+  outline-offset: 2px;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.message {
+  font-size: 0.875rem;
+  color: var(--clr-text-sec);
+}
