@@ -36,11 +36,7 @@ export default function EntryRow({ entry, onEdit, onDelete }: Props) {
       <td>{entry.beschreibung ?? ''}</td>
       <td>{entry.externeId ?? ''}</td>
       <td>{entry.jiraTicket ?? ''}</td>
-      <td>
-        {entry.prLink
-          ? <a href={entry.prLink} target="_blank" rel="noreferrer">{entry.prLink}</a>
-          : ''}
-      </td>
+      <td>{entry.prLink ?? ''}</td>
       <td>
         <button onClick={() => onEdit(entry.id)} className={styles.editBtn}>Bearbeiten</button>
         <button onClick={handleDelete} className={styles.deleteBtn}>Löschen</button>
