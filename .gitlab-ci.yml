@@ -1,0 +1,62 @@
+image: node:22-alpine
+
+stages:
+  - compile
+  - test
+  - security-scan
+  - build
+
+compile:
+  stage: compile
+  script:
+    - npm ci --silent
+    - npx tsc --noEmit
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - node_modules/
+
+test:
+  stage: test
+  script:
+    - npm ci --silent
+    - npm run test -- --reporter=junit --outputFile=test-results/results.xml
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - node_modules/
+  artifacts:
+    reports:
+      junit: test-results/results.xml
+    expire_in: 7 days
+
+security-scan:
+  stage: security-scan
+  needs: [compile]
+  script:
+    - npm audit --audit-level=high
+  allow_failure: true
+
+build:
+  stage: build
+  needs: [test]
+  script:
+    - npm ci --silent
+    - npm run build
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - node_modules/
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 7 days
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_TAG'
