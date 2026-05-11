@@ -143,4 +143,11 @@ describe('importFromCsv', () => {
     expect(imported).toHaveLength(0)
     expect(skipped).toBe(1)
   })
+
+  it('skips row with minuten greater than 59', () => {
+    const csv = 'datum,startzeit,endzeit,auftraggeber,auftragsnummer,auftrag,zeitkonto,aufgabe,stunden,minuten,beschreibung,externeId,jiraTicket,prLink\n2026-05-11,,,Kunde A,K-001,Projekt X,Zeitkonto,Aufgabe,1,90,,,,\n'
+    const { imported, skipped } = importFromCsv(csv)
+    expect(imported).toHaveLength(0)
+    expect(skipped).toBe(1)
+  })
 })

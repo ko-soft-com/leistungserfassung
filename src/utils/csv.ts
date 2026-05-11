@@ -91,7 +91,7 @@ export function importFromCsv(csv: string): ImportResult {
     }
     const stunden = Number(stundenStr)
     const minuten = Number(minutenStr)
-    if (!Number.isInteger(stunden) || !Number.isInteger(minuten) || stunden < 0 || minuten < 0) {
+    if (!Number.isInteger(stunden) || !Number.isInteger(minuten) || stunden < 0 || minuten < 0 || minuten > 59) {
       skipped++
       continue
     }
