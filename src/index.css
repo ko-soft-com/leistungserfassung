@@ -1,5 +1,7 @@
 /* ── Design tokens ─────────────────────────────────────── */
 :root {
+  color-scheme: light dark;
+
   /* Brand colours */
   --clr-primary:        #4f46e5;
   --clr-primary-dark:   #4338ca;
@@ -57,7 +59,7 @@
     --clr-text:        #f1f5f9;
     --clr-text-sec:    #94a3b8;
     --clr-text-muted:  #64748b;
-    --clr-primary-50:  rgba(79, 70, 229, 0.15);
+    --clr-primary-50:  rgb(79 70 229 / 0.15);
   }
 }
 
