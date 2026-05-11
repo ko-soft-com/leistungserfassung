@@ -81,7 +81,7 @@ export function importFromCsv(csv: string): ImportResult {
     }
     const [datum, startzeit, endzeit, auftraggeber, auftragsnummer, auftrag, zeitkonto, aufgabe, stundenStr, minutenStr, beschreibung, externeId, jiraTicket, prLink] = f
 
-    if (!datum || !auftraggeber || !auftragsnummer || !auftrag || !zeitkonto || !aufgabe) {
+    if (!datum || !auftraggeber || !auftragsnummer || !auftrag || !zeitkonto) {
       skipped++
       continue
     }

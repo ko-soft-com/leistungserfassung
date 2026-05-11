@@ -150,4 +150,12 @@ describe('importFromCsv', () => {
     expect(imported).toHaveLength(0)
     expect(skipped).toBe(1)
   })
+
+  it('imports row with empty aufgabe', () => {
+    const csv = 'datum,startzeit,endzeit,auftraggeber,auftragsnummer,auftrag,zeitkonto,aufgabe,stunden,minuten,beschreibung,externeId,jiraTicket,prLink\n2026-05-11,,,Kunde A,K-001,Projekt X,Zeitkonto,,1,0,,,,\n'
+    const { imported, skipped } = importFromCsv(csv)
+    expect(skipped).toBe(0)
+    expect(imported).toHaveLength(1)
+    expect(imported[0].aufgabe).toBe('')
+  })
 })
