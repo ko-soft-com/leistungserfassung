@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import EntryForm from './components/EntryForm'
 import EntryTable from './components/EntryTable'
+import CsvToolbar from './components/CsvToolbar'
 import { getEintraege, saveEintrag, updateEintrag, deleteEintrag } from './services/storage'
 import type { Eintrag, EintragFormData } from './types/entry'
 import styles from './App.module.css'
@@ -32,6 +33,11 @@ export default function App() {
 
   const handleCancel = () => setEditId(null)
 
+  const handleImport = (entries: EintragFormData[]) => {
+    entries.forEach(saveEintrag)
+    setEintraege(getEintraege())
+  }
+
   const editData = editId
     ? (({ id, createdAt, ...rest }) => rest)(eintraege.find((e) => e.id === editId)!)
     : undefined
@@ -59,6 +65,7 @@ export default function App() {
         <p className={styles.subtitle}>Arbeitszeiterfassung</p>
       </header>
       <main className={styles.content}>
+        <CsvToolbar eintraege={eintraege} onImport={handleImport} />
         <EntryForm
           onSave={handleSave}
           onCancel={handleCancel}
