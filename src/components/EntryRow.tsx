@@ -8,8 +8,8 @@ interface Props {
 }
 
 const formatDate = (iso: string) => {
-  const [_y, m, d] = iso.split('-')
-  return `${d}.${m}.${_y}`
+  const [y, m, d] = iso.split('-')
+  return `${d}.${m}.${y}`
 }
 
 const formatDauer = (stunden: number, minuten: number) =>
