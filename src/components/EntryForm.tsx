@@ -138,7 +138,7 @@ export default function EntryForm({ onSave, onCancel, initialData, suggestions }
           <input list="dl-jiraTicket" value={form.jiraTicket ?? ''} onChange={(e) => set('jiraTicket', e.target.value)} />
         </label>
         <label>
-          PR-Link
+          Pull-Request
           <input list="dl-prLink" value={form.prLink ?? ''} onChange={(e) => set('prLink', e.target.value)} />
         </label>
         <label className={styles.fullWidth}>
