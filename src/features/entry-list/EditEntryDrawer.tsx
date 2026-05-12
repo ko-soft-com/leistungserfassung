@@ -32,17 +32,17 @@ export default function EditEntryDrawer({ entry, onSave, onClose }: EditEntryDra
           </div>
 
           <div className={styles.body}>
-            <Field label="Auftraggeber" required value={draft.client} onChange={v => setField('client', v)} />
-            <Field label="Auftragsnr." required value={draft.orderNo} onChange={v => setField('orderNo', v)} />
-            <Field label="Zeitkonto" required value={draft.account} onChange={v => setField('account', v)} />
+            <Field id="edit-auftraggeber" label="Auftraggeber" required value={draft.client} onChange={v => setField('client', v)} />
+            <Field id="edit-orderNo" label="Auftragsnr." required value={draft.orderNo} onChange={v => setField('orderNo', v)} />
+            <Field id="edit-zeitkonto" label="Zeitkonto" required value={draft.account} onChange={v => setField('account', v)} />
             <div className={styles.timeRow}>
-              <Field label="Start" mono value={draft.start} onChange={v => setField('start', v)} />
-              <Field label="Ende" mono value={draft.end ?? ''} onChange={v => setField('end', v || null)} />
+              <Field id="edit-start" label="Start" mono value={draft.start} onChange={v => setField('start', v)} />
+              <Field id="edit-ende" label="Ende" mono value={draft.end ?? ''} onChange={v => setField('end', v || null)} />
             </div>
-            <Field label="Beschreibung" multiline value={draft.description} onChange={v => setField('description', v)} />
+            <Field id="edit-beschreibung" label="Beschreibung" multiline value={draft.description} onChange={v => setField('description', v)} />
             <div className={styles.refRow}>
-              <Field label="JIRA-Ticket" mono value={draft.jira ?? ''} onChange={v => setField('jira', v || undefined)} />
-              <Field label="Pull-Request" mono value={draft.pr ?? ''} onChange={v => setField('pr', v || undefined)} />
+              <Field id="edit-jira" label="JIRA-Ticket" mono value={draft.jira ?? ''} onChange={v => setField('jira', v || undefined)} />
+              <Field id="edit-pr" label="Pull-Request" mono value={draft.pr ?? ''} onChange={v => setField('pr', v || undefined)} />
             </div>
           </div>
 

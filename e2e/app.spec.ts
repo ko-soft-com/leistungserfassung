@@ -56,8 +56,7 @@ test('edits an existing entry via drawer', async ({ page }) => {
   await expect(page.getByText('Eintrag bearbeiten')).toBeVisible()
 
   const dialog = page.locator('[role="dialog"]')
-  // Use #auftraggeber directly: duplicate IDs (NewEntryCard + drawer) prevent name-based lookup
-  await dialog.locator('#auftraggeber').fill('Kunde B')
+  await dialog.getByLabel('Auftraggeber').fill('Kunde B')
   await dialog.getByRole('button', { name: 'Speichern' }).click()
 
   await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Kunde B/ })).toBeVisible()
