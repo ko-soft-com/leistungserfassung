@@ -1,4 +1,4 @@
-import type { Eintrag, EintragFormData } from '../types/entry'
+import type { Eintrag, EintragFormData, TimeEntry, TaskType } from '../types/entry'
 
 const HEADERS = 'datum,startzeit,endzeit,auftraggeber,auftragsnummer,auftrag,zeitkonto,aufgabe,stunden,minuten,beschreibung,externeId,jiraTicket,prLink'
 
@@ -110,6 +110,85 @@ export function importFromCsv(csv: string): ImportResult {
       externeId: externeId || undefined,
       jiraTicket: jiraTicket || undefined,
       prLink: prLink || undefined,
+    })
+  }
+
+  return { imported, skipped }
+}
+
+// ── V2 TimeEntry CSV ──────────────────────────────────────────────────────────
+
+const TIME_HEADERS =
+  'date,start,end,client,orderNo,account,task,description,externalId,jira,pr'
+
+const VALID_TASKS: readonly TaskType[] = ['Bug-Fixing', 'Feature', 'Review', 'Meeting']
+
+export function exportTimeEntriesToCsv(entries: TimeEntry[]): string {
+  const rows = entries.map((e) =>
+    [
+      e.date,
+      e.start,
+      e.end ?? '',
+      e.client,
+      e.orderNo,
+      e.account,
+      e.task,
+      e.description,
+      e.externalId ?? '',
+      e.jira ?? '',
+      e.pr ?? '',
+    ]
+      .map(escapeField)
+      .join(',')
+  )
+  return '﻿' + [TIME_HEADERS, ...rows].join('\n')
+}
+
+export type TimeEntryImportResult = {
+  imported: Omit<TimeEntry, 'id' | 'createdAt' | 'updatedAt'>[]
+  skipped: number
+}
+
+export function importTimeEntriesFromCsv(csv: string): TimeEntryImportResult {
+  const content = csv.startsWith('﻿') ? csv.slice(1) : csv
+  const lines = content
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+  if (lines.length < 2) return { imported: [], skipped: 0 }
+
+  let skipped = 0
+  const imported: Omit<TimeEntry, 'id' | 'createdAt' | 'updatedAt'>[] = []
+
+  for (const line of lines.slice(1)) {
+    const f = parseCsvLine(line)
+    if (f.length < 8) {
+      skipped++
+      continue
+    }
+    const [date, start, end, client, orderNo, account, task, description, externalId, jira, pr] = f
+
+    if (!date || !start || !client || !orderNo || !account || !task) {
+      skipped++
+      continue
+    }
+    if (!(VALID_TASKS as readonly string[]).includes(task)) {
+      skipped++
+      continue
+    }
+
+    imported.push({
+      date,
+      start,
+      end: end || null,
+      client,
+      orderNo,
+      account,
+      task: task as TaskType,
+      description,
+      externalId: externalId || undefined,
+      jira: jira || undefined,
+      pr: pr || undefined,
     })
   }
 
