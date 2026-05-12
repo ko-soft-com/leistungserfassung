@@ -7,6 +7,7 @@ import Button from '../components/Button'
 import NewEntryCard from '../features/new-entry/NewEntryCard'
 import Toolbar from '../features/filters/Toolbar'
 import EntryTable from '../features/entry-list/EntryTable'
+import EditEntryDrawer from '../features/entry-list/EditEntryDrawer'
 import { applyFilter } from '../data/filter'
 import type { Range } from '../data/filter'
 import { getTimeEntries } from '../services/storage'
@@ -22,6 +23,7 @@ export default function ErfassungPage() {
   const [range, setRange] = useState<Range>('week')
   const [search, setSearch] = useState('')
   const [selectedClient, setSelectedClient] = useState<string | null>(null)
+  const [editingEntry, setEditingEntry] = useState<TimeEntry | null>(null)
 
   const entries: TimeEntry[] = getTimeEntries()
   const filtered = applyFilter(entries, { range, search, client: selectedClient ?? undefined })
@@ -61,9 +63,17 @@ export default function ErfassungPage() {
 
       <EntryTable
         entries={filtered}
-        onEdit={() => {}}
+        onEdit={id => { const e = entries.find(x => x.id === id); if (e) setEditingEntry(e) }}
         onDelete={() => {}}
       />
+
+      {editingEntry && (
+        <EditEntryDrawer
+          entry={editingEntry}
+          onSave={() => {}}
+          onClose={() => setEditingEntry(null)}
+        />
+      )}
     </main>
   )
 }
