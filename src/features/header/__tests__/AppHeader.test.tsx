@@ -10,7 +10,9 @@ describe('AppHeader', () => {
 
   it('renders Erfassung nav item as active', () => {
     render(<AppHeader />)
-    expect(screen.getByText('Erfassung')).toBeInTheDocument()
+    const erfassungLink = screen.getByText('Erfassung')
+    expect(erfassungLink).toBeInTheDocument()
+    expect(erfassungLink.className).toMatch(/active/)
   })
 
   it('renders all 4 nav items', () => {

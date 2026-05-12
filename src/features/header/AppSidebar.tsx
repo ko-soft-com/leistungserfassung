@@ -23,7 +23,6 @@ export default function AppSidebar({ activeRoute = '/erfassung' }: AppSidebarPro
             <Tooltip.Trigger asChild>
               <a
                 href={href}
-                role="button"
                 className={[styles.item, href === activeRoute ? styles.active : ''].filter(Boolean).join(' ')}
                 aria-label={label}
               >
