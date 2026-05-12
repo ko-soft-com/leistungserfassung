@@ -1,0 +1,18 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.bug  { background: var(--task-bug-bg);  color: var(--task-bug-fg); }
+.feat { background: var(--task-feat-bg); color: var(--task-feat-fg); }
+.rev  { background: var(--task-rev-bg);  color: var(--task-rev-fg); }
+.meet { background: var(--task-meet-bg); color: var(--task-meet-fg); }
+
+.jira { background: var(--accent-soft); color: var(--accent-text); border-radius: 5px; }
+.pr   { background: #f5f3ff; color: var(--purple); border-radius: 5px; }
+.meta { background: var(--hover); color: var(--muted); border-radius: 5px; }
