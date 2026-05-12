@@ -1,0 +1,13 @@
+# Lokales Testen mit dem GitLab Registry Image
+#
+# Voraussetzung: docker login registry.gitlab.com
+#
+# Starten:          docker compose up
+# Neuestes Image:   docker compose pull && docker compose up
+# Andere Version:   TAG=2026.05.12.3 docker compose up
+
+services:
+  leistungserfassung:
+    image: registry.gitlab.com/koppetobias/leistungserfassung:${TAG:-dev}
+    ports:
+      - "8090:80"
