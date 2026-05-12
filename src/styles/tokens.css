@@ -1,0 +1,33 @@
+:root {
+  --bg:            #fafaf9;
+  --card:          #ffffff;
+  --surface-2:     #fafaf9;
+  --border:        #e7e5e4;
+  --border-soft:   #f1efee;
+  --hover:         #f5f5f4;
+
+  --text:          #1c1917;
+  --body:          #44403c;
+  --muted:         #78716c;
+  --subtle:        #a8a29e;
+
+  --accent:        #16a34a;
+  --accent-hover:  #15803d;
+  --accent-soft:   #f0fdf4;
+  --accent-text:   #166534;
+
+  --danger:        #b91c1c;
+  --info:          #1d4ed8;
+  --purple:        #6d28d9;
+
+  --task-bug-bg:   #fef2f2;  --task-bug-fg:   #b91c1c;
+  --task-feat-bg:  #f0fdf4;  --task-feat-fg:  #15803d;
+  --task-rev-bg:   #eff6ff;  --task-rev-fg:   #1d4ed8;
+  --task-meet-bg:  #faf5ff;  --task-meet-fg:  #7e22ce;
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'JetBrains Mono', 'SF Mono', monospace;
+  --radius-sm: 5px;
+  --radius:    7px;
+  --radius-lg: 12px;
+}

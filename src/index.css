@@ -1,91 +1,15 @@
-/* ── Design tokens — Conservative variant ───────────────── */
-:root {
-  color-scheme: light dark;
+@import './styles/tokens.css';
 
-  /* Accent (emerald-600) */
-  --clr-primary:        #059669;
-  --clr-primary-dark:   #047857;
-  --clr-primary-50:     #ecfdf5;
-  --clr-accent-soft:    #ecfdf5;
-  --clr-accent-text:    #065f46;
+*, *::before, *::after { box-sizing: border-box; }
 
-  /* Danger */
-  --clr-danger:         #dc2626;
-
-  /* Surfaces */
-  --clr-bg:             #f7f8fa;
-  --clr-card:           #ffffff;
-
-  /* Text */
-  --clr-text:           #0f172a;
-  --clr-text-sec:       #475569;
-  --clr-muted:          #64748b;
-  --clr-subtle:         #94a3b8;
-  --clr-on-primary:     #ffffff;
-
-  /* Borders */
-  --clr-border:         #e5e7eb;
-  --clr-border-soft:    #eef0f3;
-
-  /* Radius */
-  --radius-sm:          5px;
-  --radius:             7px;
-  --radius-lg:          12px;
-
-  /* Shadows */
-  --shadow-sm:   0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md:   0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.04);
-
-  /* Spacing scale */
-  --sp-1: 0.25rem;
-  --sp-2: 0.5rem;
-  --sp-3: 0.75rem;
-  --sp-4: 1rem;
-  --sp-6: 1.5rem;
-  --sp-7: 1.75rem;
-  --sp-8: 2rem;
-
-  /* Typography */
-  font-family: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  color: var(--clr-text);
-  background: var(--clr-bg);
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
   -webkit-font-smoothing: antialiased;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --clr-bg:          #0f172a;
-    --clr-card:        #1e293b;
-    --clr-border:      #334155;
-    --clr-border-soft: #2d3f55;
-    --clr-text:        #f1f5f9;
-    --clr-text-sec:    #94a3b8;
-    --clr-muted:       #64748b;
-    --clr-subtle:      #475569;
-    --clr-primary-50:  rgb(5 150 105 / 0.15);
-    --clr-accent-soft: rgb(5 150 105 / 0.15);
-  }
-}
-
-/* ── Reset ─────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; }
-body  { margin: 0; }
-h1, h2, h3 { margin: 0; line-height: 1.2; }
-p { margin: 0; }
-
-/* Tabular nums for all time/number inputs */
-input[type="number"],
-input[type="time"] {
-  font-variant-numeric: tabular-nums;
-}
-
-#root {
-  min-height: 100svh;
-  width: 100%;
-  max-width: 100%;
-  text-align: left;
-  border: none;
-}
+button { font-family: inherit; }
+input, textarea, select { font-family: inherit; }
