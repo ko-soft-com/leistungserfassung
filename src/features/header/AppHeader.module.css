@@ -1,0 +1,85 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 56px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 20px;
+}
+
+.brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+.logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: var(--accent);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.wordmark {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.nav { display: flex; align-items: center; gap: 2px; flex: 1; }
+
+.navItem {
+  padding: 8px 12px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background 0.1s, color 0.1s;
+}
+
+.navItem:hover { background: var(--hover); color: var(--text); }
+.active { color: var(--text); font-weight: 600; }
+
+.right { display: flex; align-items: center; gap: 10px; margin-left: auto; flex-shrink: 0; }
+
+.searchPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: text;
+}
+
+.kbd {
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--hover);
+  color: var(--subtle);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1e3a8a;
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
