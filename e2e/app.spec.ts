@@ -6,60 +6,69 @@ test.beforeEach(async ({ page }) => {
   await page.reload()
 })
 
+async function fillNewEntry(page: Parameters<typeof test>[1], overrides: {
+  client?: string
+  orderNo?: string
+  account?: string
+  start?: string
+  end?: string
+  description?: string
+} = {}) {
+  const {
+    client = 'Kunde A',
+    orderNo = 'AU-001',
+    account = 'ZK-01',
+    start = '09:00',
+    end = '10:30',
+    description = 'Testbeschreibung',
+  } = overrides
+
+  await page.getByRole('textbox', { name: 'Auftraggeber' }).fill(client)
+  await page.getByLabel(/Auftragsnr/i).fill(orderNo)
+  await page.getByLabel('Zeitkonto').fill(account)
+  await page.getByLabel(/^Start$/i).fill(start)
+  await page.getByLabel(/^Ende$/i).fill(end)
+  await page.getByRole('textbox', { name: 'Beschreibung' }).fill(description)
+}
+
 test('shows empty state when no entries', async ({ page }) => {
-  await expect(page.getByText(/Noch keine Einträge/i)).toBeVisible()
+  await expect(page.getByText('Noch keine Zeiten erfasst')).toBeVisible()
 })
 
 test('adds a new entry and displays it in the table', async ({ page }) => {
-  await page.getByLabel('Auftraggeber', { exact: false }).fill('Kunde A')
-  await page.getByLabel('Auftragsnummer', { exact: false }).fill('AU-001')
-  await page.locator('#auftrag').fill('Website Redesign')
-  await page.getByLabel('Zeitkonto', { exact: false }).fill('ZK-01')
-  await page.getByLabel('Aufgabe', { exact: false }).fill('Frontend')
-  await page.getByLabel('Stunden', { exact: false }).fill('2')
-  await page.getByLabel('Minuten', { exact: false }).fill('30')
-
+  await fillNewEntry(page)
   await page.getByRole('button', { name: 'Speichern' }).click()
 
-  await expect(page.getByText('Kunde A')).toBeVisible()
+  // The entry row is a role="button" with aria-label "Eintrag bearbeiten: {client} – {description}"
+  await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Kunde A/ })).toBeVisible()
   await expect(page.getByText('AU-001')).toBeVisible()
-  await expect(page.getByText('2h 30m')).toBeVisible()
-  await expect(page.getByLabel('Auftraggeber', { exact: false })).toHaveValue('')
+  // Form should be reset after save
+  await expect(page.getByRole('textbox', { name: 'Auftraggeber' })).toHaveValue('')
 })
 
-test('edits an existing entry', async ({ page }) => {
-  await page.getByLabel('Auftraggeber', { exact: false }).fill('Kunde A')
-  await page.getByLabel('Auftragsnummer', { exact: false }).fill('AU-001')
-  await page.locator('#auftrag').fill('Website')
-  await page.getByLabel('Zeitkonto', { exact: false }).fill('ZK-01')
-  await page.getByLabel('Aufgabe', { exact: false }).fill('Frontend')
-  await page.getByLabel('Stunden', { exact: false }).fill('1')
-  await page.getByLabel('Minuten', { exact: false }).fill('0')
+test('edits an existing entry via drawer', async ({ page }) => {
+  await fillNewEntry(page, { client: 'Kunde A' })
   await page.getByRole('button', { name: 'Speichern' }).click()
+  await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Kunde A/ })).toBeVisible()
 
-  await page.getByRole('button', { name: 'Bearbeiten' }).click()
+  // Click the entry row to open EditEntryDrawer
+  await page.getByRole('button', { name: /Eintrag bearbeiten: Kunde A/ }).click()
+  await expect(page.getByText('Eintrag bearbeiten')).toBeVisible()
 
-  await expect(page.getByLabel('Auftraggeber', { exact: false })).toHaveValue('Kunde A')
+  const dialog = page.locator('[role="dialog"]')
+  // Use #auftraggeber directly: duplicate IDs (NewEntryCard + drawer) prevent name-based lookup
+  await dialog.locator('#auftraggeber').fill('Kunde B')
+  await dialog.getByRole('button', { name: 'Speichern' }).click()
 
-  await page.getByLabel('Auftraggeber', { exact: false }).fill('Kunde B')
-  await page.getByRole('button', { name: 'Aktualisieren' }).click()
-
-  await expect(page.getByText('Kunde B')).toBeVisible()
-  await expect(page.getByText('Kunde A')).not.toBeVisible()
+  await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Kunde B/ })).toBeVisible()
 })
 
 test('deletes an entry', async ({ page }) => {
-  await page.getByLabel('Auftraggeber', { exact: false }).fill('Zu löschen')
-  await page.getByLabel('Auftragsnummer', { exact: false }).fill('DEL-001')
-  await page.locator('#auftrag').fill('Delete Me')
-  await page.getByLabel('Zeitkonto', { exact: false }).fill('ZK-01')
-  await page.getByLabel('Aufgabe', { exact: false }).fill('Test')
-  await page.getByLabel('Stunden', { exact: false }).fill('0')
-  await page.getByLabel('Minuten', { exact: false }).fill('15')
+  await fillNewEntry(page, { client: 'Zu löschen' })
   await page.getByRole('button', { name: 'Speichern' }).click()
+  await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Zu löschen/ })).toBeVisible()
 
-  page.once('dialog', (dialog) => dialog.accept())
-  await page.getByRole('button', { name: 'Löschen' }).click()
+  await page.getByRole('button', { name: 'Löschen', exact: true }).click()
 
-  await expect(page.getByText(/Noch keine Einträge/i)).toBeVisible()
+  await expect(page.getByText('Noch keine Zeiten erfasst')).toBeVisible()
 })
