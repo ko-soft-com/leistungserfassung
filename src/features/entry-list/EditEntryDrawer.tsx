@@ -48,7 +48,7 @@ export default function EditEntryDrawer({ entry, onSave, onClose }: EditEntryDra
 
           <div className={styles.footer}>
             <Button variant="ghost" onClick={onClose}>Abbrechen</Button>
-            <Button variant="primary" onClick={() => { onSave(draft); onClose() }}>
+            <Button variant="primary" onClick={() => onSave(draft)}>
               <Check size={13} /> Speichern
             </Button>
           </div>
