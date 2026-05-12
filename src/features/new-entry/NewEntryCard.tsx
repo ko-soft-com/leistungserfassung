@@ -4,6 +4,8 @@ import { useDraft } from './useDraft'
 import { getLastUsed, setLastUsed } from './suggestions'
 import Field from '../../components/Field'
 import Button from '../../components/Button'
+import { saveTimeEntry } from '../../services/storage'
+import type { TaskType } from '../../types/entry'
 import styles from './NewEntryCard.module.css'
 
 export default function NewEntryCard() {
@@ -12,12 +14,23 @@ export default function NewEntryCard() {
 
   function handleSave() {
     if (!validate()) return
+    saveTimeEntry({
+      date: draft.date,
+      start: draft.start,
+      end: draft.end || null,
+      client: draft.client,
+      orderNo: draft.orderNo,
+      account: draft.account,
+      task: draft.task,
+      description: draft.description,
+      jira: draft.jira || undefined,
+      pr: draft.pr || undefined,
+    })
     setLastUsed({ client: draft.client, orderNo: draft.orderNo, account: draft.account })
     reset()
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleSave()
     if (e.key === 'Escape') reset()
   }
 
@@ -45,42 +58,58 @@ export default function NewEntryCard() {
         </div>
       </div>
 
-      <div className={styles.row1}>
-        <Field
-          label="Auftraggeber" required
-          value={draft.client}
-          onChange={v => setField('client', v)}
-          error={errors.client}
-          suggestion={lastUsed.client ? 'letzte' : undefined}
-        />
-        <Field
-          label="Auftragsnr." required
-          value={draft.orderNo}
-          onChange={v => setField('orderNo', v)}
-          error={errors.orderNo}
-          suggestion={lastUsed.orderNo ? 'letzte' : undefined}
-        />
-        <Field
-          label="Zeitkonto" required
-          value={draft.account}
-          onChange={v => setField('account', v)}
-          error={errors.account}
-          suggestion={lastUsed.account ? 'letzte' : undefined}
-        />
-        <Field label="Start" mono value={draft.start} onChange={v => setField('start', v)} error={errors.start} />
-        <Field label="Ende" mono value={draft.end} onChange={v => setField('end', v)} error={errors.end} />
-        <Field label="Dauer" mono readOnly value={durationStr} onChange={() => {}} />
-      </div>
-
-      <div className={styles.row2}>
-        <Field label="Beschreibung" multiline rows={2} value={draft.description} onChange={v => setField('description', v)} error={errors.description} />
-        <Field label="JIRA-Ticket" mono value={draft.jira} onChange={v => setField('jira', v)} />
-        <Field label="Pull-Request" mono value={draft.pr} onChange={v => setField('pr', v)} />
-        <div className={styles.actions}>
-          <Button variant="ghost" onClick={reset}><X size={13} /> Abbrechen</Button>
-          <Button variant="primary" onClick={handleSave}><Check size={13} /> Speichern</Button>
+      <form onSubmit={e => { e.preventDefault(); handleSave() }}>
+        <div className={styles.row1}>
+          <Field
+            label="Auftraggeber" required
+            value={draft.client}
+            onChange={v => setField('client', v)}
+            error={errors.client}
+            suggestion={lastUsed.client ? 'letzte' : undefined}
+          />
+          <Field
+            label="Auftragsnr." required
+            value={draft.orderNo}
+            onChange={v => setField('orderNo', v)}
+            error={errors.orderNo}
+            suggestion={lastUsed.orderNo ? 'letzte' : undefined}
+          />
+          <Field
+            label="Zeitkonto" required
+            value={draft.account}
+            onChange={v => setField('account', v)}
+            error={errors.account}
+            suggestion={lastUsed.account ? 'letzte' : undefined}
+          />
+          <div className={styles.taskSelect}>
+            <label className={styles.taskLabel} htmlFor="task-select">Aufgabe</label>
+            <select
+              id="task-select"
+              className={styles.taskInput}
+              value={draft.task}
+              onChange={e => setField('task', e.target.value as TaskType)}
+            >
+              <option value="Feature">Feature</option>
+              <option value="Bug-Fixing">Bug-Fixing</option>
+              <option value="Review">Review</option>
+              <option value="Meeting">Meeting</option>
+            </select>
+          </div>
+          <Field label="Start" mono value={draft.start} onChange={v => setField('start', v)} error={errors.start} />
+          <Field label="Ende" mono value={draft.end} onChange={v => setField('end', v)} error={errors.end} />
+          <Field label="Dauer" mono readOnly value={durationStr} onChange={() => {}} />
         </div>
-      </div>
+
+        <div className={styles.row2}>
+          <Field label="Beschreibung" multiline rows={2} value={draft.description} onChange={v => setField('description', v)} error={errors.description} />
+          <Field label="JIRA-Ticket" mono value={draft.jira} onChange={v => setField('jira', v)} />
+          <Field label="Pull-Request" mono value={draft.pr} onChange={v => setField('pr', v)} />
+          <div className={styles.actions}>
+            <Button variant="ghost" type="button" onClick={reset}><X size={13} /> Abbrechen</Button>
+            <Button variant="primary" type="submit"><Check size={13} /> Speichern</Button>
+          </div>
+        </div>
+      </form>
     </div>
   )
 }

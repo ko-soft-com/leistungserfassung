@@ -33,6 +33,8 @@ export default function Field({ label, value, onChange, required, mono, suggesti
             readOnly={readOnly}
             placeholder={placeholder}
             rows={rows ?? 2}
+            aria-invalid={error ? 'true' : undefined}
+            aria-describedby={error ? `${inputId}-error` : undefined}
           />
         ) : (
           <input
@@ -42,11 +44,13 @@ export default function Field({ label, value, onChange, required, mono, suggesti
             onChange={e => onChange(e.target.value)}
             readOnly={readOnly}
             placeholder={placeholder}
+            aria-invalid={error ? 'true' : undefined}
+            aria-describedby={error ? `${inputId}-error` : undefined}
           />
         )}
         {suggestion && <span className={styles.suggestion}>{suggestion}</span>}
       </div>
-      {error && <span className={styles.error}>{error}</span>}
+      {error && <span id={`${inputId}-error`} className={styles.error}>{error}</span>}
     </div>
   )
 }
