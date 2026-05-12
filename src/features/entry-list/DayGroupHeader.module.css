@@ -1,0 +1,37 @@
+.header {
+  width: 100%;
+  height: 36px;
+  background: var(--surface-2);
+  border: none;
+  border-bottom: 1px solid var(--border-soft);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  text-align: left;
+}
+
+.header:hover { background: var(--hover); }
+
+.chevron {
+  color: var(--muted);
+  flex-shrink: 0;
+  transition: transform 150ms;
+}
+.collapsed { transform: rotate(-90deg); }
+
+.dayLabel { font-size: 12px; font-weight: 600; color: var(--text); }
+.count { font-size: 12px; color: var(--subtle); }
+
+.total {
+  margin-left: auto;
+  padding: 2px 9px;
+  border-radius: 5px;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
