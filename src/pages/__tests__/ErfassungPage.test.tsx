@@ -21,7 +21,8 @@ describe('ErfassungPage', () => {
         <ErfassungPage />
       </QueryClientProvider>
     )
-    expect(screen.getByText('Heute')).toBeInTheDocument()
+    // 'Heute' appears in both KpiCard and Toolbar SegmentedControl
+    expect(screen.getAllByText('Heute').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText('Diese Woche')).toBeInTheDocument()
     expect(screen.getByText('Überstunden')).toBeInTheDocument()
     expect(screen.getByText('Offene Tickets')).toBeInTheDocument()

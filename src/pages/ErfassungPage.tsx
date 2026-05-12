@@ -1,16 +1,32 @@
+import { useState } from 'react'
 import { format, getISOWeek } from 'date-fns'
 import { de } from 'date-fns/locale'
 import { Download, Upload } from 'lucide-react'
 import KpiCard from '../components/KpiCard'
 import Button from '../components/Button'
 import NewEntryCard from '../features/new-entry/NewEntryCard'
+import Toolbar from '../features/filters/Toolbar'
+import EntryTable from '../features/entry-list/EntryTable'
+import { applyFilter } from '../data/filter'
+import { getTimeEntries } from '../services/storage'
+import type { TimeEntry } from '../types/entry'
 import styles from './ErfassungPage.module.css'
+
+type Range = 'today' | 'week' | 'month' | 'custom'
 
 export default function ErfassungPage() {
   const today = new Date()
   const kw = getISOWeek(today)
   const weekday = format(today, 'EEEE', { locale: de })
   const dateStr = format(today, 'dd.MM.yyyy')
+
+  const [range, setRange] = useState<Range>('week')
+  const [search, setSearch] = useState('')
+  const [selectedClient, setSelectedClient] = useState<string | null>(null)
+
+  const entries: TimeEntry[] = getTimeEntries()
+  const filtered = applyFilter(entries, { range, search, client: selectedClient ?? undefined })
+  const clients = [...new Set(entries.map(e => e.client))]
 
   return (
     <main className={styles.page}>
@@ -34,7 +50,21 @@ export default function ErfassungPage() {
 
       <NewEntryCard />
 
-      {/* Toolbar, EntryTable — added in later tasks */}
+      <Toolbar
+        range={range}
+        onRangeChange={setRange}
+        search={search}
+        onSearchChange={setSearch}
+        clients={clients}
+        selectedClient={selectedClient}
+        onClientChange={setSelectedClient}
+      />
+
+      <EntryTable
+        entries={filtered}
+        onEdit={id => console.log('edit', id)}
+        onDelete={id => console.log('delete', id)}
+      />
     </main>
   )
 }
