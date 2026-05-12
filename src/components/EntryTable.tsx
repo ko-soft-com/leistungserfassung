@@ -30,7 +30,7 @@ export default function EntryTable({ eintraege, onEdit, onDelete }: Props) {
           <col style={{ width: '80px' }} />
           <col style={{ width: '90px' }} />
           <col style={{ width: '110px' }} />
-          <col style={{ width: '130px' }} />
+          <col style={{ width: '160px' }} />
         </colgroup>
         <thead>
           <tr>

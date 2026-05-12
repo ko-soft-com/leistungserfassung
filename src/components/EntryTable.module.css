@@ -41,10 +41,10 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Desktop truncation */
+/* Desktop truncation — last td (actions) excluded to keep buttons clickable */
 @media (min-width: 768px) {
   .table th,
-  .table td {
+  .table td:not(:last-child) {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
