@@ -37,6 +37,7 @@ export default function ErfassungPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleExport = () => {
+    setCsvMessage(null)
     if (entries.length === 0) return
     const csv = exportTimeEntriesToCsv(entries)
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
@@ -53,6 +54,7 @@ export default function ErfassungPage() {
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCsvMessage(null)
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
