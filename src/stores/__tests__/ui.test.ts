@@ -27,5 +27,6 @@ describe('useUIStore', () => {
     expect(result.current.drawerEntryId).toBe('entry-1')
     act(() => result.current.closeDrawer())
     expect(result.current.drawerOpen).toBe(false)
+    expect(result.current.drawerEntryId).toBeNull()
   })
 })
