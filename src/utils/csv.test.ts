@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { exportToCsv, importFromCsv } from './csv'
-import type { Eintrag } from '../types/entry'
+import { exportToCsv, importFromCsv, exportTimeEntriesToCsv, importTimeEntriesFromCsv } from './csv'
+import type { Eintrag, TimeEntry } from '../types/entry'
 
 const baseEntry: Eintrag = {
   id: 'test-id',
@@ -157,5 +157,138 @@ describe('importFromCsv', () => {
     expect(skipped).toBe(0)
     expect(imported).toHaveLength(1)
     expect(imported[0].aufgabe).toBe('')
+  })
+})
+
+// ── TimeEntry CSV ──────────────────────────────────────────────────────────────
+
+const baseTimeEntry: TimeEntry = {
+  id: 'te-1',
+  date: '2026-05-12',
+  start: '09:00',
+  end: '10:30',
+  client: 'Kunde B',
+  orderNo: 'B-002',
+  account: 'Entwicklung',
+  task: 'Feature',
+  description: 'Login implementieren',
+  externalId: 'EXT-2',
+  jira: 'LEIS-42',
+  pr: 'https://github.com/org/repo/pull/7',
+  createdAt: '2026-05-12T09:00:00.000Z',
+  updatedAt: '2026-05-12T10:30:00.000Z',
+}
+
+describe('exportTimeEntriesToCsv', () => {
+  it('returns only header when array is empty', () => {
+    const result = exportTimeEntriesToCsv([])
+    const lines = result.replace('﻿', '').split('\n')
+    expect(lines).toHaveLength(1)
+    expect(lines[0]).toBe('date,start,end,client,orderNo,account,task,description,externalId,jira,pr')
+  })
+
+  it('starts with UTF-8 BOM', () => {
+    expect(exportTimeEntriesToCsv([])).toMatch(/^﻿/)
+  })
+
+  it('produces one data row for one entry', () => {
+    const result = exportTimeEntriesToCsv([baseTimeEntry])
+    const lines = result.replace('﻿', '').split('\n')
+    expect(lines).toHaveLength(2)
+    expect(lines[1]).toBe(
+      '2026-05-12,09:00,10:30,Kunde B,B-002,Entwicklung,Feature,Login implementieren,EXT-2,LEIS-42,https://github.com/org/repo/pull/7'
+    )
+  })
+
+  it('renders empty string for null end and absent optional fields', () => {
+    const entry: TimeEntry = { ...baseTimeEntry, end: null, externalId: undefined, jira: undefined, pr: undefined }
+    const row = exportTimeEntriesToCsv([entry]).replace('﻿', '').split('\n')[1]
+    expect(row).toBe('2026-05-12,09:00,,Kunde B,B-002,Entwicklung,Feature,Login implementieren,,,')
+  })
+
+  it('quotes fields that contain a comma', () => {
+    const entry: TimeEntry = { ...baseTimeEntry, client: 'Firma, GmbH' }
+    const row = exportTimeEntriesToCsv([entry]).replace('﻿', '').split('\n')[1]
+    expect(row).toContain('"Firma, GmbH"')
+  })
+})
+
+describe('importTimeEntriesFromCsv', () => {
+  it('returns empty result for empty string', () => {
+    expect(importTimeEntriesFromCsv('')).toEqual({ imported: [], skipped: 0 })
+  })
+
+  it('returns empty result for header-only CSV', () => {
+    const header = 'date,start,end,client,orderNo,account,task,description,externalId,jira,pr'
+    expect(importTimeEntriesFromCsv(header)).toEqual({ imported: [], skipped: 0 })
+  })
+
+  it('imports a valid row', () => {
+    const csv =
+      'date,start,end,client,orderNo,account,task,description,externalId,jira,pr\n' +
+      '2026-05-12,09:00,10:30,Kunde B,B-002,Entwicklung,Feature,Login implementieren,EXT-2,LEIS-42,https://github.com/org/repo/pull/7'
+    const { imported, skipped } = importTimeEntriesFromCsv(csv)
+    expect(skipped).toBe(0)
+    expect(imported).toHaveLength(1)
+    expect(imported[0]).toMatchObject({
+      date: '2026-05-12',
+      start: '09:00',
+      end: '10:30',
+      client: 'Kunde B',
+      task: 'Feature',
+    })
+  })
+
+  it('maps empty end to null', () => {
+    const csv =
+      'date,start,end,client,orderNo,account,task,description,externalId,jira,pr\n' +
+      '2026-05-12,09:00,,Kunde B,B-002,Entwicklung,Feature,Beschreibung,,,\n'
+    const { imported } = importTimeEntriesFromCsv(csv)
+    expect(imported[0].end).toBeNull()
+  })
+
+  it('maps empty optional fields to undefined', () => {
+    const csv =
+      'date,start,end,client,orderNo,account,task,description,externalId,jira,pr\n' +
+      '2026-05-12,09:00,,Kunde B,B-002,Entwicklung,Feature,Beschreibung,,,\n'
+    const { imported } = importTimeEntriesFromCsv(csv)
+    expect(imported[0].externalId).toBeUndefined()
+    expect(imported[0].jira).toBeUndefined()
+    expect(imported[0].pr).toBeUndefined()
+  })
+
+  it('skips row with missing required field (empty client)', () => {
+    const csv =
+      'date,start,end,client,orderNo,account,task,description,externalId,jira,pr\n' +
+      '2026-05-12,09:00,,,B-002,Entwicklung,Feature,Beschreibung,,,\n'
+    const { imported, skipped } = importTimeEntriesFromCsv(csv)
+    expect(imported).toHaveLength(0)
+    expect(skipped).toBe(1)
+  })
+
+  it('skips row with invalid task type', () => {
+    const csv =
+      'date,start,end,client,orderNo,account,task,description,externalId,jira,pr\n' +
+      '2026-05-12,09:00,,Kunde B,B-002,Entwicklung,InvalidTask,Beschreibung,,,\n'
+    const { imported, skipped } = importTimeEntriesFromCsv(csv)
+    expect(imported).toHaveLength(0)
+    expect(skipped).toBe(1)
+  })
+
+  it('strips UTF-8 BOM', () => {
+    const csv =
+      '﻿date,start,end,client,orderNo,account,task,description,externalId,jira,pr\n' +
+      '2026-05-12,09:00,10:30,Kunde B,B-002,Entwicklung,Feature,Beschreibung,,,\n'
+    const { imported } = importTimeEntriesFromCsv(csv)
+    expect(imported).toHaveLength(1)
+  })
+
+  it('round-trips export → import', () => {
+    const { imported } = importTimeEntriesFromCsv(exportTimeEntriesToCsv([baseTimeEntry]))
+    expect(imported).toHaveLength(1)
+    expect(imported[0].client).toBe(baseTimeEntry.client)
+    expect(imported[0].task).toBe(baseTimeEntry.task)
+    expect(imported[0].jira).toBe(baseTimeEntry.jira)
+    expect(imported[0].end).toBe(baseTimeEntry.end)
   })
 })

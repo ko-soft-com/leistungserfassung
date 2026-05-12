@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { format, getISOWeek } from 'date-fns'
 import { de } from 'date-fns/locale'
 import { Download, Upload } from 'lucide-react'
@@ -11,7 +11,8 @@ import EditEntryDrawer from '../features/entry-list/EditEntryDrawer'
 import { applyFilter } from '../data/filter'
 import { durationMinutes, fmtH } from '../data/format'
 import type { Range } from '../data/filter'
-import { getTimeEntries, updateTimeEntry, deleteTimeEntry } from '../services/storage'
+import { getTimeEntries, saveTimeEntry, updateTimeEntry, deleteTimeEntry } from '../services/storage'
+import { exportTimeEntriesToCsv, importTimeEntriesFromCsv } from '../utils/csv'
 import type { TimeEntry } from '../types/entry'
 import styles from './ErfassungPage.module.css'
 
@@ -31,6 +32,49 @@ export default function ErfassungPage() {
   const [search, setSearch] = useState('')
   const [selectedClient, setSelectedClient] = useState<string | null>(null)
   const [editingEntry, setEditingEntry] = useState<TimeEntry | null>(null)
+  const [csvMessage, setCsvMessage] = useState<string | null>(null)
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleExport = () => {
+    setCsvMessage(null)
+    if (entries.length === 0) return
+    const csv = exportTimeEntriesToCsv(entries)
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const exportDate = new Date().toISOString().split('T')[0]
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `leistungserfassung-${exportDate}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    setTimeout(() => URL.revokeObjectURL(url), 100)
+    setCsvMessage(`${entries.length} Einträge exportiert.`)
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCsvMessage(null)
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onerror = () => setCsvMessage('Fehler beim Lesen der Datei.')
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string
+      const { imported, skipped } = importTimeEntriesFromCsv(text)
+      if (imported.length === 0) {
+        setCsvMessage(skipped > 0 ? `Keine Einträge importiert (${skipped} übersprungen).` : 'Die Datei enthält keine gültigen Einträge.')
+        return
+      }
+      imported.forEach((data) => saveTimeEntry(data))
+      setEntries(getTimeEntries())
+      setCsvMessage(skipped > 0
+        ? `${imported.length} Einträge importiert, ${skipped} übersprungen.`
+        : `${imported.length} Einträge importiert.`)
+    }
+    reader.readAsText(file, 'utf-8')
+    e.target.value = ''
+  }
 
   // ── KPI computation ────────────────────────────────────────────────────────
   const todayStr = localISO(today)
@@ -86,8 +130,25 @@ export default function ErfassungPage() {
           <h1 className={styles.h1}>Zeiterfassung — {dateStr}</h1>
         </div>
         <div className={styles.titleActions}>
-          <Button variant="secondary"><Download size={14} /> CSV exportieren</Button>
-          <Button variant="secondary"><Upload size={14} /> CSV importieren</Button>
+          <Button variant="secondary" onClick={handleExport}>
+            <Download size={14} /> CSV exportieren
+          </Button>
+          <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
+            <Upload size={14} /> CSV importieren
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv"
+            aria-label="CSV-Datei importieren"
+            style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
+            onChange={handleFileChange}
+          />
+          {csvMessage && (
+            <span role="status" aria-live="polite" style={{ fontSize: '0.875rem', color: 'var(--clr-text-sec)' }}>
+              {csvMessage}
+            </span>
+          )}
         </div>
       </div>
 
