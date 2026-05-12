@@ -2,7 +2,7 @@
 .wrapper {
   overflow-x: auto;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-card);
   border: 1px solid var(--clr-border);
   background: var(--clr-card);
 }
@@ -11,21 +11,24 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   table-layout: fixed;
 }
 
 /* Header */
 .table th {
-  background: linear-gradient(to bottom, var(--clr-header-from), var(--clr-header-to));
-  color: var(--clr-on-primary);
-  padding: 0.75rem 1rem;
+  background: var(--clr-bg);
+  color: var(--clr-muted);
+  padding: 0.625rem 1rem;
   text-align: left;
-  white-space: nowrap;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  border-bottom: 2px solid var(--clr-border);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Body cells */
@@ -35,9 +38,10 @@
   color: var(--clr-text);
   vertical-align: middle;
   transition: background 0.1s;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Truncate long cell content on desktop */
+/* Desktop truncation */
 @media (min-width: 768px) {
   .table th,
   .table td {
@@ -60,13 +64,13 @@
 /* Empty state */
 .empty {
   text-align: center;
-  color: var(--clr-text-muted);
+  color: var(--clr-muted);
   padding: var(--sp-8) var(--sp-4);
   font-size: 0.9375rem;
   background: var(--clr-card);
   border-radius: var(--radius-lg);
   border: 1px solid var(--clr-border);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-card);
 }
 
 /* ── Mobile: hide thead, make wrapper transparent ───────── */
