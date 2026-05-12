@@ -1,3 +1,5 @@
+.row { cursor: pointer; }
+
 /* ── Desktop button styles ──────────────────────────────── */
 .editBtn {
   background: var(--clr-primary);
