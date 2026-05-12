@@ -27,7 +27,7 @@ export default function ErfassungPage() {
       <div className={styles.kpiRow}>
         <KpiCard label="Heute" value="0:00h" sublabel="von 8h Soll" progress={0} />
         <KpiCard label="Diese Woche" value="0:00h" sublabel="von 40h Soll" progress={0} />
-        <KpiCard label="Überstunden" value="+0:00h" sublabel="Saldo Mai" progress={0.5} />
+        <KpiCard label="Überstunden" value="+0:00h" sublabel="Saldo Mai" progress={0} />
         <KpiCard label="Offene Tickets" value="0" sublabel="Keine offenen" progress={0} />
       </div>
 
