@@ -23,7 +23,7 @@ export default function EditEntryDrawer({ entry, onSave, onClose }: EditEntryDra
     <Dialog.Root open onOpenChange={open => { if (!open) onClose() }}>
       <Dialog.Portal>
         <Dialog.Overlay className={styles.overlay} />
-        <Dialog.Content className={styles.drawer} aria-label="Eintrag bearbeiten">
+        <Dialog.Content className={styles.drawer}>
           <div className={styles.header}>
             <Dialog.Title className={styles.title}>Eintrag bearbeiten</Dialog.Title>
             <Dialog.Close asChild>
