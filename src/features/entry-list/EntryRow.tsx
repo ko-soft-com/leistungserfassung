@@ -26,7 +26,14 @@ export default function EntryRow({ entry, onEdit, onDelete }: EntryRowProps) {
   const hasRefs = entry.jira || entry.pr || entry.externalId
 
   return (
-    <div className={styles.row} onClick={() => onEdit(entry.id)}>
+    <div
+      className={styles.row}
+      role="button"
+      tabIndex={0}
+      aria-label={`Eintrag bearbeiten: ${entry.client} – ${entry.description}`}
+      onClick={() => onEdit(entry.id)}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEdit(entry.id) } }}
+    >
       {/* Col 1: tree anchor */}
       <div className={styles.anchor} />
 

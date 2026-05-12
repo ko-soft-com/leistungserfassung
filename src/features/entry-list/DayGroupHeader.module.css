@@ -28,7 +28,7 @@
 .total {
   margin-left: auto;
   padding: 2px 9px;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   background: var(--accent-soft);
   color: var(--accent-text);
   font-size: 12px;
