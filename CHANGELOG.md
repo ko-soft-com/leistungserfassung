@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- [LEIS-30] Docker-Image (Multi-Stage: node:22-alpine → nginx:1.27-alpine) mit Security-Headers, Gzip und SPA-Routing; GitLab CI baut und pusht das Image in die Registry; Portainer-Stack in `deploy/`
 - [LEIS-18] CSV-Export und -Import: Einträge als CSV herunterladen oder einlesen (Datensicherung, Browser-Transfer)
 - [LEIS-16] Optional Startzeit and Endzeit fields with "Start"/"Ende" buttons; duration auto-calculated and rounded up to next 15 minutes
 - [LEIS-13] Optional JIRA-Ticket and PR-Link fields added to entry form and table

@@ -1,0 +1,20 @@
+# Leistungserfassung – Portainer Stack
+#
+# ── Einrichtung ────────────────────────────────────────────────────────────────
+#   1. cp .env.example .env && editor .env    # REGISTRY, TAG, PORT setzen
+#   2. In Portainer: Stacks → Add stack → Repository oder direkt diese Datei
+#   3. Environment-Variablen aus .env in Portainer eintragen
+#
+# ── Update auf neue Version ────────────────────────────────────────────────────
+#   TAG=abc1234 docker compose pull && docker compose up -d
+#
+# ── Image-Quelle ───────────────────────────────────────────────────────────────
+#   REGISTRY=registry.gitlab.com/koppetobias/leistungserfassung  (Standard)
+#   TAG=dev                                                        (Standard)
+
+services:
+  leistungserfassung:
+    image: ${REGISTRY:-registry.gitlab.com/koppetobias/leistungserfassung}:${TAG:-dev}
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8090}:80"
