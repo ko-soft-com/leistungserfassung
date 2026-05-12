@@ -1,5 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { getEintraege, saveEintrag, updateEintrag, deleteEintrag } from './storage'
+import {
+  getEintraege,
+  saveEintrag,
+  updateEintrag,
+  deleteEintrag,
+  saveTimeEntry,
+  getTimeEntries,
+  updateTimeEntry,
+  deleteTimeEntry,
+} from './storage'
 import type { EintragFormData } from '../types/entry'
 
 const mockFormData: EintragFormData = {
@@ -82,5 +91,55 @@ describe('deleteEintrag', () => {
     saveEintrag(mockFormData)
     deleteEintrag('nonexistent')
     expect(getEintraege()).toHaveLength(1)
+  })
+})
+
+describe('updateTimeEntry', () => {
+  beforeEach(() => localStorage.clear())
+
+  it('updates a field on an existing entry', () => {
+    const created = saveTimeEntry({
+      date: '2026-05-12', start: '09:00', end: '10:00',
+      client: 'WASCOSA', orderNo: 'SP01', account: 'Dev',
+      task: 'Feature', description: 'Original',
+    })
+    const updated = updateTimeEntry(created.id, { client: 'Updated Client' })
+    expect(updated).not.toBeNull()
+    expect(updated!.client).toBe('Updated Client')
+    expect(updated!.description).toBe('Original')
+  })
+
+  it('returns null for unknown id', () => {
+    expect(updateTimeEntry('nonexistent', { client: 'x' })).toBeNull()
+  })
+
+  it('persists the update to storage', () => {
+    const created = saveTimeEntry({
+      date: '2026-05-12', start: '09:00', end: '10:00',
+      client: 'A', orderNo: 'X', account: 'Y',
+      task: 'Feature', description: 'test',
+    })
+    updateTimeEntry(created.id, { client: 'B' })
+    const all = getTimeEntries()
+    expect(all.find(e => e.id === created.id)?.client).toBe('B')
+  })
+})
+
+describe('deleteTimeEntry', () => {
+  beforeEach(() => localStorage.clear())
+
+  it('removes the entry from storage', () => {
+    const e1 = saveTimeEntry({ date: '2026-05-12', start: '09:00', end: '10:00', client: 'A', orderNo: 'X', account: 'Y', task: 'Feature', description: 'delete me' })
+    const e2 = saveTimeEntry({ date: '2026-05-12', start: '11:00', end: '12:00', client: 'B', orderNo: 'Z', account: 'W', task: 'Feature', description: 'keep me' })
+    deleteTimeEntry(e1.id)
+    const remaining = getTimeEntries()
+    expect(remaining.some(e => e.id === e1.id)).toBe(false)
+    expect(remaining.some(e => e.id === e2.id)).toBe(true)
+  })
+
+  it('is a noop for unknown id', () => {
+    saveTimeEntry({ date: '2026-05-12', start: '09:00', end: '10:00', client: 'A', orderNo: 'X', account: 'Y', task: 'Feature', description: 'stay' })
+    deleteTimeEntry('nonexistent')
+    expect(getTimeEntries()).toHaveLength(1)
   })
 })

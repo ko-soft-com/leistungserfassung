@@ -67,3 +67,22 @@ export function saveTimeEntry(
   localStorage.setItem(TIME_ENTRIES_KEY, JSON.stringify([...entries, entry]))
   return entry
 }
+
+export function updateTimeEntry(
+  id: string,
+  data: Partial<Omit<TimeEntry, 'id' | 'createdAt'>>
+): TimeEntry | null {
+  const entries = getTimeEntries()
+  const index = entries.findIndex(e => e.id === id)
+  if (index === -1) return null
+  const now = new Date().toISOString()
+  const updated: TimeEntry = { ...entries[index], ...data, updatedAt: now }
+  entries[index] = updated
+  localStorage.setItem(TIME_ENTRIES_KEY, JSON.stringify(entries))
+  return updated
+}
+
+export function deleteTimeEntry(id: string): void {
+  const remaining = getTimeEntries().filter(e => e.id !== id)
+  localStorage.setItem(TIME_ENTRIES_KEY, JSON.stringify(remaining))
+}
