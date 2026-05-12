@@ -1,13 +1,13 @@
-# Lokales Testen mit dem GitLab Registry Image
-#
-# Voraussetzung: docker login registry.gitlab.com
-#
-# Starten:          docker compose up
-# Neuestes Image:   docker compose pull && docker compose up
-# Andere Version:   TAG=2026.05.12.3 docker compose up
-
+networks:
+  nginx-proxy-manager_default:
+    external: true
 services:
   leistungserfassung:
-    image: registry.gitlab.com/koppetobias/leistungserfassung:${TAG:-dev}
+    image: registry.gitlab.com/ko-soft/leistungserfassung:dev
     ports:
       - "8090:80"
+    networks:
+      - nginx-proxy-manager_default
+    labels:
+      # Hiermit gibst du Watchtower grünes Licht für diesen Container
+      - "com.centurylinklabs.watchtower.enable=true"

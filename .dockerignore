@@ -3,6 +3,7 @@ dist
 .git
 .gitignore
 *.md
+!CHANGELOG.md
 docs
 e2e
 playwright-report
