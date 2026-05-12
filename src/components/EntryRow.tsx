@@ -27,7 +27,12 @@ export default function EntryRow({ entry, onEdit, onDelete }: Props) {
   }
 
   return (
-    <tr className={styles.row} onClick={() => onEdit(entry.id)}>
+    <tr
+      className={styles.row}
+      onClick={() => onEdit(entry.id)}
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onEdit(entry.id) }}
+    >
       <td data-label="Datum">{formatDate(entry.datum)}</td>
       <td data-label="Startzeit">{entry.startzeit ?? ''}</td>
       <td data-label="Endzeit">{entry.endzeit ?? ''}</td>
