@@ -5,16 +5,20 @@ import { getLastUsed, setLastUsed } from './suggestions'
 import Field from '../../components/Field'
 import Button from '../../components/Button'
 import { saveTimeEntry } from '../../services/storage'
-import type { TaskType } from '../../types/entry'
+import type { TaskType, TimeEntry } from '../../types/entry'
 import styles from './NewEntryCard.module.css'
 
-export default function NewEntryCard() {
+interface NewEntryCardProps {
+  onSaved?: (entry: TimeEntry) => void
+}
+
+export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
   const { draft, setField, errors, validate, reset } = useDraft()
   const lastUsed = getLastUsed()
 
   function handleSave() {
     if (!validate()) return
-    saveTimeEntry({
+    const saved = saveTimeEntry({
       date: draft.date,
       start: draft.start,
       end: draft.end || null,
@@ -27,6 +31,7 @@ export default function NewEntryCard() {
       pr: draft.pr || undefined,
     })
     setLastUsed({ client: draft.client, orderNo: draft.orderNo, account: draft.account })
+    onSaved?.(saved)
     reset()
   }
 
