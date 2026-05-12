@@ -1,39 +1,41 @@
-/* ── Design tokens ─────────────────────────────────────── */
+/* ── Design tokens — Conservative variant ───────────────── */
 :root {
   color-scheme: light dark;
 
-  /* Brand colours */
-  --clr-primary:        #4f46e5;
-  --clr-primary-dark:   #4338ca;
-  --clr-primary-50:     #eef2ff;
-  --clr-success:        #059669;
-  --clr-success-dark:   #047857;
-  --clr-danger:         #ef4444;
-  --clr-danger-dark:    #dc2626;
+  /* Accent (emerald-600) */
+  --clr-primary:        #059669;
+  --clr-primary-dark:   #047857;
+  --clr-primary-50:     #ecfdf5;
+  --clr-accent-soft:    #ecfdf5;
+  --clr-accent-text:    #065f46;
+
+  /* Danger */
+  --clr-danger:         #dc2626;
 
   /* Surfaces */
-  --clr-bg:             #f1f5f9;
+  --clr-bg:             #f7f8fa;
   --clr-card:           #ffffff;
-  --clr-header-from:    #1e1b4b;
-  --clr-header-to:      #4f46e5;
 
   /* Text */
   --clr-text:           #0f172a;
   --clr-text-sec:       #475569;
-  --clr-text-muted:     #94a3b8;
+  --clr-muted:          #64748b;
+  --clr-subtle:         #94a3b8;
   --clr-on-primary:     #ffffff;
-  --clr-on-primary-muted: rgb(196 181 253);
 
-  /* Borders & radius */
-  --clr-border:         #e2e8f0;
-  --radius-sm:          4px;
-  --radius:             8px;
+  /* Borders */
+  --clr-border:         #e5e7eb;
+  --clr-border-soft:    #eef0f3;
+
+  /* Radius */
+  --radius-sm:          5px;
+  --radius:             7px;
   --radius-lg:          12px;
 
   /* Shadows */
-  --shadow-sm:     0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md:     0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-primary: 0 4px 20px rgb(79 70 229 / 0.3);
+  --shadow-sm:   0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md:   0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.04);
 
   /* Spacing scale */
   --sp-1: 0.25rem;
@@ -41,10 +43,11 @@
   --sp-3: 0.75rem;
   --sp-4: 1rem;
   --sp-6: 1.5rem;
+  --sp-7: 1.75rem;
   --sp-8: 2rem;
 
   /* Typography */
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
   font-size: 16px;
   line-height: 1.5;
   color: var(--clr-text);
@@ -57,10 +60,13 @@
     --clr-bg:          #0f172a;
     --clr-card:        #1e293b;
     --clr-border:      #334155;
+    --clr-border-soft: #2d3f55;
     --clr-text:        #f1f5f9;
     --clr-text-sec:    #94a3b8;
-    --clr-text-muted:  #64748b;
-    --clr-primary-50:  rgb(79 70 229 / 0.15);
+    --clr-muted:       #64748b;
+    --clr-subtle:      #475569;
+    --clr-primary-50:  rgb(5 150 105 / 0.15);
+    --clr-accent-soft: rgb(5 150 105 / 0.15);
   }
 }
 
@@ -69,6 +75,12 @@
 body  { margin: 0; }
 h1, h2, h3 { margin: 0; line-height: 1.2; }
 p { margin: 0; }
+
+/* Tabular nums for all time/number inputs */
+input[type="number"],
+input[type="time"] {
+  font-variant-numeric: tabular-nums;
+}
 
 #root {
   min-height: 100svh;
