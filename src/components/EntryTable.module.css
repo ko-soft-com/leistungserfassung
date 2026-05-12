@@ -12,6 +12,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
+  table-layout: fixed;
 }
 
 /* Header */
@@ -34,6 +35,15 @@
   color: var(--clr-text);
   vertical-align: middle;
   transition: background 0.1s;
+}
+
+/* Truncate long cell content on desktop */
+@media (min-width: 768px) {
+  .table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .table tbody tr:last-child td { border-bottom: none; }

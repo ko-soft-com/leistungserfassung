@@ -16,6 +16,22 @@ export default function EntryTable({ eintraege, onEdit, onDelete }: Props) {
   return (
     <div className={styles.wrapper}>
       <table className={styles.table}>
+        <colgroup>
+          <col style={{ width: '90px' }} />  {/* Datum */}
+          <col style={{ width: '66px' }} />  {/* Startzeit */}
+          <col style={{ width: '66px' }} />  {/* Endzeit */}
+          <col />                             {/* Auftraggeber */}
+          <col style={{ width: '88px' }} />  {/* Auftragsnr. */}
+          <col />                             {/* Auftrag */}
+          <col />                             {/* Zeitkonto */}
+          <col />                             {/* Aufgabe */}
+          <col style={{ width: '72px' }} />  {/* Dauer */}
+          <col />                             {/* Beschreibung */}
+          <col style={{ width: '80px' }} />  {/* Externe-ID */}
+          <col style={{ width: '90px' }} />  {/* JIRA-Ticket */}
+          <col style={{ width: '110px' }} /> {/* Pull-Request */}
+          <col style={{ width: '130px' }} /> {/* Aktionen */}
+        </colgroup>
         <thead>
           <tr>
             <th>Datum</th>
