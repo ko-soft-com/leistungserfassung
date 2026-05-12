@@ -8,6 +8,11 @@ export interface FilterOptions {
   client?: string
 }
 
+const localISO = (d: Date): string => {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
 export function applyFilter(entries: TimeEntry[], opts: FilterOptions): TimeEntry[] {
   let result = entries
 
@@ -27,17 +32,18 @@ export function applyFilter(entries: TimeEntry[], opts: FilterOptions): TimeEntr
   }
 
   if (opts.range === 'today') {
-    const today = new Date().toISOString().slice(0, 10)
+    const today = localISO(new Date())
     result = result.filter(e => e.date === today)
   } else if (opts.range === 'week') {
     const now = new Date()
     const weekStart = new Date(now)
-    weekStart.setDate(now.getDate() - now.getDay() + 1)
-    const from = weekStart.toISOString().slice(0, 10)
-    const to = now.toISOString().slice(0, 10)
+    const day = now.getDay() === 0 ? 7 : now.getDay()
+    weekStart.setDate(now.getDate() - day + 1)
+    const from = localISO(weekStart)
+    const to = localISO(now)
     result = result.filter(e => e.date >= from && e.date <= to)
   } else if (opts.range === 'month') {
-    const prefix = new Date().toISOString().slice(0, 7)
+    const prefix = localISO(new Date()).slice(0, 7)
     result = result.filter(e => e.date.startsWith(prefix))
   } else if (opts.range === 'custom' && opts.from && opts.to) {
     result = result.filter(e => e.date >= opts.from! && e.date <= opts.to!)

@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
+import type { TaskType } from '../types/entry'
 import styles from './Pill.module.css'
-
-export type TaskType = 'Bug-Fixing' | 'Feature' | 'Review' | 'Meeting'
 
 type PillVariant = 'task' | 'jira' | 'pr' | 'meta'
 

@@ -28,5 +28,7 @@ export function durationMinutes(entry: Pick<TimeEntry, 'date' | 'start' | 'end'>
   const endDt = entry.end
     ? parse(base + entry.end, "yyyy-MM-dd'T'HH:mm", new Date())
     : new Date()
-  return Math.max(0, differenceInMinutes(endDt, startDt))
+  let diff = differenceInMinutes(endDt, startDt)
+  if (diff < 0) diff += 24 * 60
+  return diff
 }
