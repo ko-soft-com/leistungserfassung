@@ -29,3 +29,6 @@ test-results/
 
 # Coverage
 coverage/
+
+# Git worktrees
+.worktrees/
