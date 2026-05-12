@@ -1,8 +1,7 @@
 import { Search, Filter, ChevronDown } from 'lucide-react'
 import SegmentedControl from '../../components/SegmentedControl'
+import type { Range } from '../../data/filter'
 import styles from './Toolbar.module.css'
-
-type Range = 'today' | 'week' | 'month' | 'custom'
 
 const RANGE_OPTIONS = [
   { label: 'Heute', value: 'today' },
@@ -31,8 +30,10 @@ export default function Toolbar({ range, onRangeChange, search, onSearchChange, 
       />
 
       <label className={styles.searchLabel}>
-        <Search size={13} className={styles.searchIcon} />
+        <Search size={13} className={styles.searchIcon} aria-hidden="true" />
         <input
+          type="search"
+          aria-label="Filter nach Auftrag, JIRA, Beschreibung"
           className={styles.searchInput}
           value={search}
           onChange={e => onSearchChange(e.target.value)}

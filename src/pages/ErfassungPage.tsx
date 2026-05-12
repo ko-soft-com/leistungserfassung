@@ -8,11 +8,10 @@ import NewEntryCard from '../features/new-entry/NewEntryCard'
 import Toolbar from '../features/filters/Toolbar'
 import EntryTable from '../features/entry-list/EntryTable'
 import { applyFilter } from '../data/filter'
+import type { Range } from '../data/filter'
 import { getTimeEntries } from '../services/storage'
 import type { TimeEntry } from '../types/entry'
 import styles from './ErfassungPage.module.css'
-
-type Range = 'today' | 'week' | 'month' | 'custom'
 
 export default function ErfassungPage() {
   const today = new Date()
@@ -62,8 +61,8 @@ export default function ErfassungPage() {
 
       <EntryTable
         entries={filtered}
-        onEdit={id => console.log('edit', id)}
-        onDelete={id => console.log('delete', id)}
+        onEdit={() => {}}
+        onDelete={() => {}}
       />
     </main>
   )
