@@ -3,9 +3,25 @@
   background: var(--clr-card);
   border: 1px solid var(--clr-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-card);
   padding: var(--sp-6);
   margin-bottom: var(--sp-6);
+}
+
+/* ── Card header ─────────────────────────────────────────── */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--clr-border);
+}
+
+.cardTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--clr-text);
 }
 
 /* ── Responsive grid: 3 cols → 2 → 1 ────────────────────── */
@@ -35,10 +51,10 @@
   gap: var(--sp-1);
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--clr-text-sec);
+  color: var(--clr-muted);
 }
 
-.auftragField label { font-size: 0.8125rem; font-weight: 600; color: var(--clr-text-sec); }
+.auftragField label { font-size: 0.8125rem; font-weight: 600; color: var(--clr-muted); }
 .zeitField span     { font-size: 0.8125rem; font-weight: 600; }
 
 /* ── Inputs ─────────────────────────────────────────────── */
@@ -88,7 +104,7 @@
 
 .zeitBtn {
   white-space: nowrap;
-  background: var(--clr-success);
+  background: var(--clr-primary);
   color: var(--clr-on-primary);
   border: none;
   padding: 0.5rem 0.875rem;
@@ -100,7 +116,7 @@
   transition: background 0.15s;
 }
 
-.zeitBtn:hover { background: var(--clr-success-dark); }
+.zeitBtn:hover { background: var(--clr-primary-dark); }
 
 /* ── Action buttons ─────────────────────────────────────── */
 .actions {

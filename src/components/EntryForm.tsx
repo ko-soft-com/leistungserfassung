@@ -72,6 +72,11 @@ export default function EntryForm({ onSave, onCancel, initialData, suggestions }
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
+      <div className={styles.cardHeader}>
+        <span className={styles.cardTitle}>
+          {isEdit ? 'Eintrag bearbeiten' : 'Neuer Eintrag'}
+        </span>
+      </div>
       <div className={styles.grid}>
         <label>
           Auftraggeber *
