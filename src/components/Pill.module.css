@@ -14,5 +14,5 @@
 .meet { background: var(--task-meet-bg); color: var(--task-meet-fg); }
 
 .jira { background: var(--accent-soft); color: var(--accent-text); border-radius: 5px; }
-.pr   { background: #f5f3ff; color: var(--purple); border-radius: 5px; }
+.pr   { background: var(--purple-soft); color: var(--purple); border-radius: 5px; }
 .meta { background: var(--hover); color: var(--muted); border-radius: 5px; }

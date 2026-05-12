@@ -12,9 +12,10 @@ interface FieldProps {
   readOnly?: boolean
   placeholder?: string
   id?: string
+  rows?: number
 }
 
-export default function Field({ label, value, onChange, required, mono, suggestion, error, multiline, readOnly, placeholder, id }: FieldProps) {
+export default function Field({ label, value, onChange, required, mono, suggestion, error, multiline, readOnly, placeholder, id, rows }: FieldProps) {
   const inputId = id ?? label.toLowerCase().replace(/\s+/g, '-')
   const cls = [styles.input, mono ? styles.mono : '', error ? styles.inputError : ''].filter(Boolean).join(' ')
   return (
@@ -31,7 +32,7 @@ export default function Field({ label, value, onChange, required, mono, suggesti
             onChange={e => onChange(e.target.value)}
             readOnly={readOnly}
             placeholder={placeholder}
-            rows={1}
+            rows={rows ?? 2}
           />
         ) : (
           <input

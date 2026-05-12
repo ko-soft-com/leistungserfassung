@@ -8,7 +8,7 @@ interface KpiCardProps {
 }
 
 export default function KpiCard({ label, value, sublabel, progress }: KpiCardProps) {
-  const pct = Math.min(100, Math.round(progress * 100))
+  const pct = Math.max(0, Math.min(100, Math.round(progress * 100)))
   return (
     <div className={styles.card}>
       <div className={styles.label}>{label}</div>
