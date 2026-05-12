@@ -66,8 +66,11 @@ export default function ErfassungPage() {
   }
 
   function handleSave(updated: TimeEntry) {
-    updateTimeEntry(updated.id, updated)
-    setEntries(prev => prev.map(e => e.id === updated.id ? { ...updated, updatedAt: new Date().toISOString() } : e))
+    const stored = updateTimeEntry(updated.id, updated)
+    if (stored) {
+      setEntries(prev => prev.map(e => e.id === updated.id ? stored : e))
+      setEditingEntry(null)
+    }
   }
 
   function handleDelete(id: string) {
