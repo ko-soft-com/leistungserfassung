@@ -1,4 +1,4 @@
-import { Search, Filter, ChevronDown } from 'lucide-react'
+import { Search } from 'lucide-react'
 import SegmentedControl from '../../components/SegmentedControl'
 import type { Range } from '../../data/filter'
 import styles from './Toolbar.module.css'
@@ -42,11 +42,17 @@ export default function Toolbar({ range, onRangeChange, search, onSearchChange, 
       </label>
 
       {clients.length > 0 && (
-        <button className={styles.clientBtn} type="button" onClick={() => onClientChange(selectedClient ? null : clients[0])}>
-          <Filter size={13} />
-          {selectedClient ?? 'Auftraggeber'}
-          <ChevronDown size={12} />
-        </button>
+        <select
+          className={styles.clientSelect}
+          value={selectedClient ?? ''}
+          onChange={e => onClientChange(e.target.value || null)}
+          aria-label="Auftraggeber filtern"
+        >
+          <option value="">Alle Auftraggeber</option>
+          {clients.map(c => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
       )}
     </div>
   )

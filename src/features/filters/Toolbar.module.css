@@ -33,11 +33,9 @@
 
 .searchInput::placeholder { color: var(--subtle); }
 
-.clientBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
+.clientSelect {
+  height: 34px;
+  padding: 0 10px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--card);
@@ -49,4 +47,5 @@
   white-space: nowrap;
 }
 
-.clientBtn:hover { background: var(--hover); }
+.clientSelect:hover { background: var(--hover); }
+.clientSelect:focus { outline: 2px solid var(--accent); outline-offset: 1px; }

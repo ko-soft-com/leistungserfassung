@@ -41,6 +41,6 @@ describe('ErfassungPage', () => {
         <ErfassungPage />
       </QueryClientProvider>
     )
-    expect(screen.getByText('Testkunde')).toBeInTheDocument()
+    expect(screen.getAllByText('Testkunde').length).toBeGreaterThanOrEqual(1)
   })
 })
