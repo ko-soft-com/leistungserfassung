@@ -20,7 +20,7 @@ export function parseChangelog(raw: string): ChangelogSection[] {
 
     for (const line of lines.slice(1)) {
       if (line.startsWith('### ')) {
-        if (current) groups.push(current)
+        if (current && current.items.length > 0) groups.push(current)
         current = { heading: line.replace(/^### /, '').trim(), items: [] }
       } else if (line.startsWith('- ') && current) {
         current.items.push(line.replace(/^- /, '').trim())

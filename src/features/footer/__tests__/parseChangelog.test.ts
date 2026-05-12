@@ -54,4 +54,11 @@ describe('parseChangelog', () => {
     const result = parseChangelog(withJira)
     expect(result[0].groups[0].items[0]).toBe('[LEIS-30] Docker image added')
   })
+
+  it('excludes empty groups (headings with no items) from results', () => {
+    const withEmptyGroup = `# Changelog\n\n## [1.0.0]\n\n### Added\n\n### Fixed\n- Bug fixed\n`
+    const result = parseChangelog(withEmptyGroup)
+    expect(result[0].groups).toHaveLength(1)
+    expect(result[0].groups[0].heading).toBe('Fixed')
+  })
 })
