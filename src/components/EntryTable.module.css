@@ -39,6 +39,7 @@
 
 /* Truncate long cell content on desktop */
 @media (min-width: 768px) {
+  .table th,
   .table td {
     overflow: hidden;
     text-overflow: ellipsis;

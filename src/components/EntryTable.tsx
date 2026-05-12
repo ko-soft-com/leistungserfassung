@@ -17,20 +17,20 @@ export default function EntryTable({ eintraege, onEdit, onDelete }: Props) {
     <div className={styles.wrapper}>
       <table className={styles.table}>
         <colgroup>
-          <col style={{ width: '90px' }} />  {/* Datum */}
-          <col style={{ width: '66px' }} />  {/* Startzeit */}
-          <col style={{ width: '66px' }} />  {/* Endzeit */}
-          <col />                             {/* Auftraggeber */}
-          <col style={{ width: '88px' }} />  {/* Auftragsnr. */}
-          <col />                             {/* Auftrag */}
-          <col />                             {/* Zeitkonto */}
-          <col />                             {/* Aufgabe */}
-          <col style={{ width: '72px' }} />  {/* Dauer */}
-          <col />                             {/* Beschreibung */}
-          <col style={{ width: '80px' }} />  {/* Externe-ID */}
-          <col style={{ width: '90px' }} />  {/* JIRA-Ticket */}
-          <col style={{ width: '110px' }} /> {/* Pull-Request */}
-          <col style={{ width: '130px' }} /> {/* Aktionen */}
+          <col style={{ width: '90px' }} />
+          <col style={{ width: '66px' }} />
+          <col style={{ width: '66px' }} />
+          <col />
+          <col style={{ width: '88px' }} />
+          <col />
+          <col />
+          <col />
+          <col style={{ width: '72px' }} />
+          <col />
+          <col style={{ width: '80px' }} />
+          <col style={{ width: '90px' }} />
+          <col style={{ width: '110px' }} />
+          <col style={{ width: '130px' }} />
         </colgroup>
         <thead>
           <tr>
