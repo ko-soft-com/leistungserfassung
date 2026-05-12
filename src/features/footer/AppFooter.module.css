@@ -1,0 +1,18 @@
+.footer {
+  height: 32px;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 10;
+}
+
+.copy {
+  font-size: 12px;
+  color: var(--subtle);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1px;
+}
