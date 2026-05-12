@@ -70,7 +70,7 @@ export function saveTimeEntry(
 
 export function updateTimeEntry(
   id: string,
-  data: Partial<Omit<TimeEntry, 'id' | 'createdAt'>>
+  data: Partial<Omit<TimeEntry, 'id' | 'createdAt' | 'updatedAt'>>
 ): TimeEntry | null {
   const entries = getTimeEntries()
   const index = entries.findIndex(e => e.id === id)

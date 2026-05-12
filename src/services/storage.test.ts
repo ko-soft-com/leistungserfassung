@@ -95,7 +95,13 @@ describe('deleteEintrag', () => {
 })
 
 describe('updateTimeEntry', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => {
+    const keys = Object.keys(localStorage)
+    for (const key of keys) {
+      localStorage.removeItem(key)
+    }
+    vi.restoreAllMocks()
+  })
 
   it('updates a field on an existing entry', () => {
     const created = saveTimeEntry({
@@ -126,7 +132,13 @@ describe('updateTimeEntry', () => {
 })
 
 describe('deleteTimeEntry', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => {
+    const keys = Object.keys(localStorage)
+    for (const key of keys) {
+      localStorage.removeItem(key)
+    }
+    vi.restoreAllMocks()
+  })
 
   it('removes the entry from storage', () => {
     const e1 = saveTimeEntry({ date: '2026-05-12', start: '09:00', end: '10:00', client: 'A', orderNo: 'X', account: 'Y', task: 'Feature', description: 'delete me' })
