@@ -184,7 +184,9 @@ describe('exportTimeEntriesToCsv', () => {
     const result = exportTimeEntriesToCsv([])
     const lines = result.replace('﻿', '').split('\n')
     expect(lines).toHaveLength(1)
-    expect(lines[0]).toBe('date,start,end,client,orderNo,account,task,description,externalId,jira,pr')
+    expect(lines[0]).toBe(
+      'date,start,end,client,orderNo,account,task,hours,minutes,description,externalId,jira,pr'
+    )
   })
 
   it('starts with UTF-8 BOM', () => {
@@ -196,20 +198,47 @@ describe('exportTimeEntriesToCsv', () => {
     const lines = result.replace('﻿', '').split('\n')
     expect(lines).toHaveLength(2)
     expect(lines[1]).toBe(
-      '2026-05-12,09:00,10:30,Kunde B,B-002,Entwicklung,Feature,Login implementieren,EXT-2,LEIS-42,https://github.com/org/repo/pull/7'
+      '2026-05-12,09:00,10:30,Kunde B,B-002,Entwicklung,Feature,1,30,Login implementieren,EXT-2,LEIS-42,https://github.com/org/repo/pull/7'
     )
   })
 
   it('renders empty string for null end and absent optional fields', () => {
     const entry: TimeEntry = { ...baseTimeEntry, end: null, externalId: undefined, jira: undefined, pr: undefined }
     const row = exportTimeEntriesToCsv([entry]).replace('﻿', '').split('\n')[1]
-    expect(row).toBe('2026-05-12,09:00,,Kunde B,B-002,Entwicklung,Feature,Login implementieren,,,')
+    expect(row).toBe('2026-05-12,09:00,,Kunde B,B-002,Entwicklung,Feature,0,0,Login implementieren,,,')
   })
 
   it('quotes fields that contain a comma', () => {
     const entry: TimeEntry = { ...baseTimeEntry, client: 'Firma, GmbH' }
     const row = exportTimeEntriesToCsv([entry]).replace('﻿', '').split('\n')[1]
     expect(row).toContain('"Firma, GmbH"')
+  })
+
+  it('computes hours and minutes from start and end', () => {
+    // 08:00 → 09:45 = 105 min = 1h45m
+    const entry = { ...baseTimeEntry, start: '08:00', end: '09:45' }
+    const row = exportTimeEntriesToCsv([entry]).replace('﻿', '').split('\n')[1]
+    const cols = row.split(',')
+    expect(cols[7]).toBe('1')
+    expect(cols[8]).toBe('45')
+  })
+
+  it('computes duration for midnight-crossing entries', () => {
+    // 23:00 → 01:00 = 120 min = 2h0m
+    const entry = { ...baseTimeEntry, start: '23:00', end: '01:00' }
+    const row = exportTimeEntriesToCsv([entry]).replace('﻿', '').split('\n')[1]
+    const cols = row.split(',')
+    expect(cols[7]).toBe('2')
+    expect(cols[8]).toBe('0')
+  })
+
+  it('computes zero minutes for exact-hour durations', () => {
+    // 08:00 → 09:00 = 60 min = 1h0m
+    const entry = { ...baseTimeEntry, start: '08:00', end: '09:00' }
+    const row = exportTimeEntriesToCsv([entry]).replace('﻿', '').split('\n')[1]
+    const cols = row.split(',')
+    expect(cols[7]).toBe('1')
+    expect(cols[8]).toBe('0')
   })
 })
 

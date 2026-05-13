@@ -118,12 +118,22 @@ export function importFromCsv(csv: string): ImportResult {
 
 // ── V2 TimeEntry CSV ──────────────────────────────────────────────────────────
 
+function durationParts(start: string, end: string | null): { hours: number; minutes: number } {
+  if (!end) return { hours: 0, minutes: 0 }
+  const [sh, sm] = start.split(':').map(Number)
+  const [eh, em] = end.split(':').map(Number)
+  const rawMinutes = eh * 60 + em - (sh * 60 + sm)
+  const total = rawMinutes < 0 ? rawMinutes + 24 * 60 : rawMinutes
+  return { hours: Math.floor(total / 60), minutes: total % 60 }
+}
+
 const TIME_HEADERS =
-  'date,start,end,client,orderNo,account,task,description,externalId,jira,pr'
+  'date,start,end,client,orderNo,account,task,hours,minutes,description,externalId,jira,pr'
 
 export function exportTimeEntriesToCsv(entries: TimeEntry[]): string {
-  const rows = entries.map((e) =>
-    [
+  const rows = entries.map((e) => {
+    const { hours, minutes } = durationParts(e.start, e.end)
+    return [
       e.date,
       e.start,
       e.end ?? '',
@@ -131,6 +141,8 @@ export function exportTimeEntriesToCsv(entries: TimeEntry[]): string {
       e.orderNo,
       e.account,
       e.task,
+      String(hours),
+      String(minutes),
       e.description,
       e.externalId ?? '',
       e.jira ?? '',
@@ -138,7 +150,7 @@ export function exportTimeEntriesToCsv(entries: TimeEntry[]): string {
     ]
       .map(escapeField)
       .join(',')
-  )
+  })
   return '﻿' + [TIME_HEADERS, ...rows].join('\n')
 }
 
