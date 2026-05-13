@@ -159,6 +159,22 @@ export type TimeEntryImportResult = {
   skipped: number
 }
 
+const V1_ALIASES: Record<string, string> = {
+  datum: 'date',
+  startzeit: 'start',
+  endzeit: 'end',
+  auftraggeber: 'client',
+  auftragsnummer: 'orderNo',
+  zeitkonto: 'account',
+  aufgabe: 'task',
+  stunden: 'hours',
+  minuten: 'minutes',
+  beschreibung: 'description',
+  externeId: 'externalId',
+  jiraTicket: 'jira',
+  prLink: 'pr',
+}
+
 export function importTimeEntriesFromCsv(csv: string): TimeEntryImportResult {
   const content = csv.startsWith('﻿') ? csv.slice(1) : csv
   const lines = content
@@ -167,7 +183,8 @@ export function importTimeEntriesFromCsv(csv: string): TimeEntryImportResult {
     .filter(Boolean)
   if (lines.length < 2) return { imported: [], skipped: 0 }
 
-  const headerCols = parseCsvLine(lines[0])
+  const rawCols = parseCsvLine(lines[0])
+  const headerCols = rawCols.map((col) => V1_ALIASES[col] ?? col)
   const idx: Record<string, number> = Object.fromEntries(
     headerCols.map((col, i) => [col, i])
   )
@@ -204,6 +221,20 @@ export function importTimeEntriesFromCsv(csv: string): TimeEntryImportResult {
     const jira = get(f, 'jira')
     const pr = get(f, 'pr')
 
+    const hoursStr = get(f, 'hours')
+    const minutesStr = get(f, 'minutes')
+
+    let resolvedEnd = end
+    if (!resolvedEnd) {
+      const h = parseInt(hoursStr, 10)
+      const m = parseInt(minutesStr, 10)
+      if ((h > 0 || m > 0) && Number.isFinite(h) && Number.isFinite(m)) {
+        const [sh, sm] = start.split(':').map(Number)
+        const total = sh * 60 + sm + h * 60 + m
+        resolvedEnd = `${String(Math.floor(total / 60) % 24).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`
+      }
+    }
+
     if (!date || !start || !client || !orderNo || !account) {
       skipped++
       continue
@@ -212,7 +243,7 @@ export function importTimeEntriesFromCsv(csv: string): TimeEntryImportResult {
     imported.push({
       date,
       start,
-      end: end || null,
+      end: resolvedEnd || null,
       client,
       orderNo,
       account,

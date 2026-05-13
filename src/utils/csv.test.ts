@@ -360,13 +360,36 @@ describe('importTimeEntriesFromCsv', () => {
     expect(imported[0].pr).toBeUndefined()
   })
 
-  it('returns empty with skipped=0 when header lacks required columns', () => {
-    // V1-format CSV: header has no 'date', 'client', etc.
+  it('imports a V1 German-header CSV', () => {
     const csv =
       'datum,startzeit,endzeit,auftraggeber,auftragsnummer,auftrag,zeitkonto,aufgabe,stunden,minuten,beschreibung,externeId,jiraTicket,prLink\n' +
-      '2026-05-12,09:00,10:30,Kunde B,B-002,Auftrag,Zeitkonto,Feature,1,30,Login implementieren,,,\n'
+      '2026-05-12,09:00,10:30,Kunde B,B-002,Auftrag,Entwicklung,Feature,1,30,Login implementieren,EXT-2,LEIS-42,https://github.com/org/repo/pull/7\n'
     const { imported, skipped } = importTimeEntriesFromCsv(csv)
-    expect(imported).toHaveLength(0)
     expect(skipped).toBe(0)
+    expect(imported).toHaveLength(1)
+    expect(imported[0].client).toBe('Kunde B')
+    expect(imported[0].account).toBe('Entwicklung')
+    expect(imported[0].task).toBe('Feature')
+    expect(imported[0].description).toBe('Login implementieren')
+    expect(imported[0].end).toBe('10:30')
+    expect(imported[0].jira).toBe('LEIS-42')
+  })
+
+  it('computes end from hours/minutes when end is absent', () => {
+    const csv =
+      'date,start,end,client,orderNo,account,task,hours,minutes,description,externalId,jira,pr\n' +
+      '2026-05-12,09:00,,Kunde B,B-002,Entwicklung,Feature,1,30,Login implementieren,,,\n'
+    const { imported, skipped } = importTimeEntriesFromCsv(csv)
+    expect(skipped).toBe(0)
+    expect(imported).toHaveLength(1)
+    expect(imported[0].end).toBe('10:30')
+  })
+
+  it('leaves end as null when both end and duration are absent', () => {
+    const csv =
+      'date,start,end,client,orderNo,account,task,hours,minutes,description,externalId,jira,pr\n' +
+      '2026-05-12,09:00,,Kunde B,B-002,Entwicklung,Feature,0,0,Login implementieren,,,\n'
+    const { imported } = importTimeEntriesFromCsv(csv)
+    expect(imported[0].end).toBeNull()
   })
 })
