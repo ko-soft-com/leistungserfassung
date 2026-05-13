@@ -74,6 +74,7 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
             onChange={v => setField('client', v)}
             error={errors.client}
             suggestion={lastUsed.client ? 'letzte' : undefined}
+            onSuggestionClick={lastUsed.client ? () => setField('client', lastUsed.client) : undefined}
           />
           <Field
             label="Auftragsnr." required
@@ -81,6 +82,7 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
             onChange={v => setField('orderNo', v)}
             error={errors.orderNo}
             suggestion={lastUsed.orderNo ? 'letzte' : undefined}
+            onSuggestionClick={lastUsed.orderNo ? () => setField('orderNo', lastUsed.orderNo) : undefined}
           />
           <Field
             label="Zeitkonto" required
@@ -88,6 +90,7 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
             onChange={v => setField('account', v)}
             error={errors.account}
             suggestion={lastUsed.account ? 'letzte' : undefined}
+            onSuggestionClick={lastUsed.account ? () => setField('account', lastUsed.account) : undefined}
           />
           <Field
             label="Aufgabe"

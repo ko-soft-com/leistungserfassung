@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import NewEntryCard from '../NewEntryCard'
 
 describe('NewEntryCard', () => {
@@ -97,5 +97,50 @@ describe('NewEntryCard', () => {
 
     // Duration picker should be reset to placeholder
     expect(durationSelect).toHaveValue('')
+  })
+
+})
+
+describe('letzte suggestion button', () => {
+  afterEach(() => {
+    localStorage.removeItem('timesheet.lastClient')
+    localStorage.removeItem('timesheet.lastOrderNo')
+    localStorage.removeItem('timesheet.lastAccount')
+  })
+
+  it('clicking "letzte" fills Auftraggeber with last-used value', async () => {
+    localStorage.setItem('timesheet.lastClient', 'Letzter Kunde')
+
+    const user = userEvent.setup()
+    render(<NewEntryCard />)
+
+    const letzteBtn = screen.getByRole('button', { name: 'letzte' })
+    await user.click(letzteBtn)
+
+    expect(screen.getByLabelText(/Auftraggeber/i)).toHaveValue('Letzter Kunde')
+  })
+
+  it('clicking "letzte" fills Auftragsnr. with last-used value', async () => {
+    localStorage.setItem('timesheet.lastOrderNo', 'K-999')
+
+    const user = userEvent.setup()
+    render(<NewEntryCard />)
+
+    const letzteBtn = screen.getByRole('button', { name: 'letzte' })
+    await user.click(letzteBtn)
+
+    expect(screen.getByLabelText(/Auftragsnr/i)).toHaveValue('K-999')
+  })
+
+  it('clicking "letzte" fills Zeitkonto with last-used value', async () => {
+    localStorage.setItem('timesheet.lastAccount', 'Entwicklung')
+
+    const user = userEvent.setup()
+    render(<NewEntryCard />)
+
+    const letzteBtn = screen.getByRole('button', { name: 'letzte' })
+    await user.click(letzteBtn)
+
+    expect(screen.getByLabelText(/Zeitkonto/i)).toHaveValue('Entwicklung')
   })
 })
