@@ -119,7 +119,7 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
             onChange={v => setField('task', v)}
             placeholder="z.B. Feature, Bug, Review…"
           />
-          <Field label="Start" mono type="time" value={draft.start} onChange={v => { setField('start', v); setDurationMins('') }} error={errors.start} />
+          <Field label="Start" mono type="time" value={draft.start ?? ''} onChange={v => { setField('start', v || null); setDurationMins('') }} error={errors.start} />
           <Field label="Ende" mono type="time" value={draft.end} onChange={v => { setField('end', v); setDurationMins('') }} error={errors.end} />
           <div className={styles.taskSelect}>
             <label className={styles.taskLabel} htmlFor="duration-select">Dauer</label>
