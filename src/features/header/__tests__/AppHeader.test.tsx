@@ -8,17 +8,11 @@ describe('AppHeader', () => {
     expect(screen.getByText('Leistungserfassung')).toBeInTheDocument()
   })
 
-  it('renders Erfassung nav item as active', () => {
+  it('does not render nav links', () => {
     render(<AppHeader />)
-    const erfassungLink = screen.getByText('Erfassung')
-    expect(erfassungLink).toBeInTheDocument()
-    expect(erfassungLink.className).toMatch(/active/)
-  })
-
-  it('renders all 4 nav items', () => {
-    render(<AppHeader />)
-    expect(screen.getByText('Übersicht')).toBeInTheDocument()
-    expect(screen.getByText('Berichte')).toBeInTheDocument()
-    expect(screen.getByText('Stammdaten')).toBeInTheDocument()
+    expect(screen.queryByText('Übersicht')).not.toBeInTheDocument()
+    expect(screen.queryByText('Erfassung')).not.toBeInTheDocument()
+    expect(screen.queryByText('Berichte')).not.toBeInTheDocument()
+    expect(screen.queryByText('Stammdaten')).not.toBeInTheDocument()
   })
 })
