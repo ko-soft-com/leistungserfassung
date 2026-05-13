@@ -100,8 +100,8 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
               <option value="Meeting">Meeting</option>
             </select>
           </div>
-          <Field label="Start" mono value={draft.start} onChange={v => setField('start', v)} error={errors.start} />
-          <Field label="Ende" mono value={draft.end} onChange={v => setField('end', v)} error={errors.end} />
+          <Field label="Start" mono type="time" value={draft.start} onChange={v => setField('start', v)} error={errors.start} />
+          <Field label="Ende" mono type="time" value={draft.end} onChange={v => setField('end', v)} error={errors.end} />
           <Field label="Dauer" mono readOnly value={durationStr} onChange={() => {}} />
         </div>
 

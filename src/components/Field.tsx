@@ -7,15 +7,17 @@ interface FieldProps {
   required?: boolean
   mono?: boolean
   suggestion?: string
+  onSuggestionClick?: () => void
   error?: string
   multiline?: boolean
   readOnly?: boolean
   placeholder?: string
   id?: string
   rows?: number
+  type?: string
 }
 
-export default function Field({ label, value, onChange, required, mono, suggestion, error, multiline, readOnly, placeholder, id, rows }: FieldProps) {
+export default function Field({ label, value, onChange, required, mono, suggestion, onSuggestionClick, error, multiline, readOnly, placeholder, id, rows, type }: FieldProps) {
   const inputId = id ?? label.toLowerCase().replace(/\s+/g, '-')
   const cls = [styles.input, mono ? styles.mono : '', error ? styles.inputError : ''].filter(Boolean).join(' ')
   return (
@@ -39,6 +41,7 @@ export default function Field({ label, value, onChange, required, mono, suggesti
         ) : (
           <input
             id={inputId}
+            type={type}
             className={cls}
             value={value}
             onChange={e => onChange(e.target.value)}
@@ -48,7 +51,11 @@ export default function Field({ label, value, onChange, required, mono, suggesti
             aria-describedby={error ? `${inputId}-error` : undefined}
           />
         )}
-        {suggestion && <span className={styles.suggestion}>{suggestion}</span>}
+        {suggestion && (
+          onSuggestionClick
+            ? <button type="button" className={styles.suggestion} onClick={onSuggestionClick}>{suggestion}</button>
+            : <span className={styles.suggestion}>{suggestion}</span>
+        )}
       </div>
       {error && <span id={`${inputId}-error`} className={styles.error}>{error}</span>}
     </div>
