@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Plus, Play, Check, X } from 'lucide-react'
 import { format } from 'date-fns'
 import { useDraft } from './useDraft'
@@ -14,6 +15,7 @@ interface NewEntryCardProps {
 
 export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
   const { draft, setField, errors, validate, reset } = useDraft()
+  const [durationMins, setDurationMins] = useState('')
   const lastUsed = getLastUsed()
 
   function handleSave() {
@@ -33,19 +35,20 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
     setLastUsed({ client: draft.client, orderNo: draft.orderNo, account: draft.account })
     onSaved?.(saved)
     reset()
+    setDurationMins('')
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Escape') reset()
+    if (e.key === 'Escape') { reset(); setDurationMins('') }
   }
 
-  const durationStr = (() => {
-    if (!draft.start || !draft.end || draft.end <= draft.start) return ''
-    const [sh, sm] = draft.start.split(':').map(Number)
-    const [eh, em] = draft.end.split(':').map(Number)
-    const mins = (eh * 60 + em) - (sh * 60 + sm)
-    return `${Math.floor(mins / 60)}:${String(mins % 60).padStart(2, '0')}h`
-  })()
+  function handleDurationChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const mins = Number(e.target.value)
+    if (!mins || !draft.start) return
+    const [h, m] = draft.start.split(':').map(Number)
+    const total = h * 60 + m + mins
+    setField('end', `${String(Math.floor(total / 60) % 24).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`)
+  }
 
   return (
     <div className={styles.card} onKeyDown={handleKeyDown}>
@@ -95,7 +98,30 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
           />
           <Field label="Start" mono type="time" value={draft.start} onChange={v => setField('start', v)} error={errors.start} />
           <Field label="Ende" mono type="time" value={draft.end} onChange={v => setField('end', v)} error={errors.end} />
-          <Field label="Dauer" mono readOnly value={durationStr} onChange={() => {}} />
+          <div className={styles.taskSelect}>
+            <label className={styles.taskLabel} htmlFor="duration-select">Dauer</label>
+            <select
+              id="duration-select"
+              className={styles.taskInput}
+              value={durationMins}
+              onChange={e => {
+                setDurationMins(e.target.value)
+                handleDurationChange(e)
+              }}
+            >
+              <option value="">– wählen –</option>
+              {Array.from({ length: 32 }, (_, i) => {
+                const mins = (i + 1) * 15
+                const h = Math.floor(mins / 60)
+                const m = mins % 60
+                return (
+                  <option key={mins} value={mins}>
+                    {`${h}:${String(m).padStart(2, '0')} h`}
+                  </option>
+                )
+              })}
+            </select>
+          </div>
         </div>
 
         <div className={styles.row2}>
@@ -103,7 +129,7 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
           <Field label="JIRA-Ticket" mono value={draft.jira} onChange={v => setField('jira', v)} />
           <Field label="Pull-Request" mono value={draft.pr} onChange={v => setField('pr', v)} />
           <div className={styles.actions}>
-            <Button variant="ghost" type="button" onClick={reset}><X size={13} /> Abbrechen</Button>
+            <Button variant="ghost" type="button" onClick={() => { reset(); setDurationMins('') }}><X size={13} /> Abbrechen</Button>
             <Button variant="primary" type="submit"><Check size={13} /> Speichern</Button>
           </div>
         </div>

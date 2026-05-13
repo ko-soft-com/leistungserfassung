@@ -64,4 +64,38 @@ describe('NewEntryCard', () => {
     expect(onSaved).toHaveBeenCalledOnce()
     expect(onSaved.mock.calls[0][0]).toMatchObject({ client: 'Kunde A', orderNo: 'AU-001' })
   })
+
+  it('selecting a duration auto-fills Ende based on Start', async () => {
+    const user = userEvent.setup()
+    render(<NewEntryCard />)
+
+    // Set start to 09:00
+    const startInput = screen.getByLabelText(/^Start$/i)
+    await user.clear(startInput)
+    await user.type(startInput, '09:00')
+
+    // Select 1:30 h (90 minutes)
+    const durationSelect = screen.getByLabelText(/Dauer/i)
+    await user.selectOptions(durationSelect, '90')
+
+    // Ende should be 10:30
+    expect(screen.getByLabelText(/^Ende$/i)).toHaveValue('10:30')
+  })
+
+  it('Abbrechen resets the duration picker to placeholder', async () => {
+    const user = userEvent.setup()
+    render(<NewEntryCard />)
+
+    // Select a duration
+    const durationSelect = screen.getByLabelText(/Dauer/i)
+    await user.selectOptions(durationSelect, '60')
+    expect(durationSelect).toHaveValue('60')
+
+    // Click Abbrechen (cancel button)
+    const abbrechenBtn = screen.getByRole('button', { name: /Abbrechen/i })
+    await user.click(abbrechenBtn)
+
+    // Duration picker should be reset to placeholder
+    expect(durationSelect).toHaveValue('')
+  })
 })
