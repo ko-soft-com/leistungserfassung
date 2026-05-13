@@ -1,4 +1,4 @@
-import type { Eintrag, EintragFormData, TimeEntry, TaskType } from '../types/entry'
+import type { Eintrag, EintragFormData, TimeEntry } from '../types/entry'
 
 const HEADERS = 'datum,startzeit,endzeit,auftraggeber,auftragsnummer,auftrag,zeitkonto,aufgabe,stunden,minuten,beschreibung,externeId,jiraTicket,prLink'
 
@@ -121,8 +121,6 @@ export function importFromCsv(csv: string): ImportResult {
 const TIME_HEADERS =
   'date,start,end,client,orderNo,account,task,description,externalId,jira,pr'
 
-const VALID_TASKS: readonly TaskType[] = ['Bug-Fixing', 'Feature', 'Review', 'Meeting']
-
 export function exportTimeEntriesToCsv(entries: TimeEntry[]): string {
   const rows = entries.map((e) =>
     [
@@ -172,11 +170,6 @@ export function importTimeEntriesFromCsv(csv: string): TimeEntryImportResult {
       skipped++
       continue
     }
-    if (!(VALID_TASKS as readonly string[]).includes(task)) {
-      skipped++
-      continue
-    }
-
     imported.push({
       date,
       start,
@@ -184,7 +177,7 @@ export function importTimeEntriesFromCsv(csv: string): TimeEntryImportResult {
       client,
       orderNo,
       account,
-      task: task as TaskType,
+      task,
       description,
       externalId: externalId || undefined,
       jira: jira || undefined,

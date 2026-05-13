@@ -5,7 +5,7 @@ import { getLastUsed, setLastUsed } from './suggestions'
 import Field from '../../components/Field'
 import Button from '../../components/Button'
 import { saveTimeEntry } from '../../services/storage'
-import type { TaskType, TimeEntry } from '../../types/entry'
+import type { TimeEntry } from '../../types/entry'
 import styles from './NewEntryCard.module.css'
 
 interface NewEntryCardProps {
@@ -86,20 +86,13 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
             error={errors.account}
             suggestion={lastUsed.account ? 'letzte' : undefined}
           />
-          <div className={styles.taskSelect}>
-            <label className={styles.taskLabel} htmlFor="task-select">Aufgabe</label>
-            <select
-              id="task-select"
-              className={styles.taskInput}
-              value={draft.task}
-              onChange={e => setField('task', e.target.value as TaskType)}
-            >
-              <option value="Feature">Feature</option>
-              <option value="Bug-Fixing">Bug-Fixing</option>
-              <option value="Review">Review</option>
-              <option value="Meeting">Meeting</option>
-            </select>
-          </div>
+          <Field
+            label="Aufgabe"
+            type="text"
+            value={draft.task}
+            onChange={v => setField('task', v)}
+            placeholder="z.B. Feature, Bug, Review…"
+          />
           <Field label="Start" mono type="time" value={draft.start} onChange={v => setField('start', v)} error={errors.start} />
           <Field label="Ende" mono type="time" value={draft.end} onChange={v => setField('end', v)} error={errors.end} />
           <Field label="Dauer" mono readOnly value={durationStr} onChange={() => {}} />

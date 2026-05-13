@@ -266,13 +266,14 @@ describe('importTimeEntriesFromCsv', () => {
     expect(skipped).toBe(1)
   })
 
-  it('skips row with invalid task type', () => {
+  it('imports row with any task string (task is freetext)', () => {
     const csv =
       'date,start,end,client,orderNo,account,task,description,externalId,jira,pr\n' +
       '2026-05-12,09:00,,Kunde B,B-002,Entwicklung,InvalidTask,Beschreibung,,,\n'
     const { imported, skipped } = importTimeEntriesFromCsv(csv)
-    expect(imported).toHaveLength(0)
-    expect(skipped).toBe(1)
+    expect(imported).toHaveLength(1)
+    expect(skipped).toBe(0)
+    expect(imported[0].task).toBe('InvalidTask')
   })
 
   it('strips UTF-8 BOM', () => {

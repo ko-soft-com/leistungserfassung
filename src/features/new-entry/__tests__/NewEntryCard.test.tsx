@@ -40,6 +40,13 @@ describe('NewEntryCard', () => {
     expect(clientInput).toHaveValue('')
   })
 
+  it('renders Aufgabe as a text input (not a select)', () => {
+    render(<NewEntryCard />)
+    const aufgabeInput = screen.getByLabelText(/Aufgabe/i)
+    expect(aufgabeInput.tagName).toBe('INPUT')
+    expect(aufgabeInput).toHaveAttribute('type', 'text')
+  })
+
   it('calls onSaved with the new entry after a valid save', async () => {
     const user = userEvent.setup()
     const onSaved = vi.fn()

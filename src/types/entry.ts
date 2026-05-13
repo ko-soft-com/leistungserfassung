@@ -1,4 +1,4 @@
-export type TaskType = 'Bug-Fixing' | 'Feature' | 'Review' | 'Meeting'
+export type TaskType = string
 
 export interface TimeEntry {
   id: string

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
-import type { TaskType } from '../../types/entry'
 
 interface Draft {
   date: string
@@ -9,7 +8,7 @@ interface Draft {
   client: string
   orderNo: string
   account: string
-  task: TaskType
+  task: string
   description: string
   jira: string
   pr: string
@@ -17,7 +16,7 @@ interface Draft {
 
 type DraftErrors = Partial<Record<keyof Draft, string>>
 
-function roundTo5(date: Date): string {
+export function roundTo5(date: Date): string {
   const m = date.getMinutes()
   const rounded = Math.round(m / 5) * 5
   const d = new Date(date)
@@ -35,7 +34,7 @@ export function useDraft() {
     client: '',
     orderNo: '',
     account: '',
-    task: 'Feature',
+    task: '',
     description: '',
     jira: '',
     pr: '',
@@ -68,7 +67,7 @@ export function useDraft() {
       client: '',
       orderNo: '',
       account: '',
-      task: 'Feature',
+      task: '',
       description: '',
       jira: '',
       pr: '',
