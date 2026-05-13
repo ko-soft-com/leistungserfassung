@@ -240,6 +240,16 @@ describe('exportTimeEntriesToCsv', () => {
     expect(cols[7]).toBe('1')
     expect(cols[8]).toBe('0')
   })
+
+  it('renders empty string for null start', () => {
+    const entry: TimeEntry = { ...baseTimeEntry, start: null, end: null }
+    const row = exportTimeEntriesToCsv([entry]).replace('﻿', '').split('\n')[1]
+    const cols = row.split(',')
+    expect(cols[1]).toBe('')  // start column empty
+    expect(cols[2]).toBe('')  // end column empty
+    expect(cols[7]).toBe('0') // hours = 0
+    expect(cols[8]).toBe('0') // minutes = 0
+  })
 })
 
 describe('importTimeEntriesFromCsv', () => {
@@ -404,5 +414,25 @@ describe('importTimeEntriesFromCsv', () => {
     expect(skipped).toBe(0)
     expect(imported).toHaveLength(1)
     expect(imported[0].end).toBe('10:30')
+  })
+
+  it('imports entry with empty start as null', () => {
+    const csv =
+      'date,start,end,client,orderNo,account,task,hours,minutes,description,externalId,jira,pr\n' +
+      '2026-05-12,,10:30,Kunde B,B-002,Entwicklung,Feature,0,0,Login implementieren,,,\n'
+    const { imported, skipped } = importTimeEntriesFromCsv(csv)
+    expect(skipped).toBe(0)
+    expect(imported).toHaveLength(1)
+    expect(imported[0].start).toBeNull()
+    expect(imported[0].end).toBe('10:30')
+  })
+
+  it('skips row when date is absent even if start is present', () => {
+    const csv =
+      'date,start,end,client,orderNo,account,task,hours,minutes,description,externalId,jira,pr\n' +
+      ',09:00,10:30,Kunde B,B-002,Entwicklung,Feature,0,0,Login implementieren,,,\n'
+    const { imported, skipped } = importTimeEntriesFromCsv(csv)
+    expect(imported).toHaveLength(0)
+    expect(skipped).toBe(1)
   })
 })

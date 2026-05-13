@@ -118,8 +118,8 @@ export function importFromCsv(csv: string): ImportResult {
 
 // ── V2 TimeEntry CSV ──────────────────────────────────────────────────────────
 
-function durationParts(start: string, end: string | null): { hours: number; minutes: number } {
-  if (!end) return { hours: 0, minutes: 0 }
+function durationParts(start: string | null, end: string | null): { hours: number; minutes: number } {
+  if (!start || !end) return { hours: 0, minutes: 0 }
   const [sh, sm] = start.split(':').map(Number)
   const [eh, em] = end.split(':').map(Number)
   const rawMinutes = eh * 60 + em - (sh * 60 + sm)
@@ -135,7 +135,7 @@ export function exportTimeEntriesToCsv(entries: TimeEntry[]): string {
     const { hours, minutes } = durationParts(e.start, e.end)
     return [
       e.date,
-      e.start,
+      e.start ?? '',
       e.end ?? '',
       e.client,
       e.orderNo,
@@ -190,7 +190,7 @@ export function importTimeEntriesFromCsv(csv: string): TimeEntryImportResult {
     headerCols.map((col, i) => [col, i])
   )
 
-  const REQUIRED = ['date', 'start', 'client', 'orderNo', 'account'] as const
+  const REQUIRED = ['date', 'client', 'orderNo', 'account'] as const
   if (REQUIRED.some((col) => idx[col] === undefined)) {
     return { imported: [], skipped: 0 }
   }
@@ -226,7 +226,7 @@ export function importTimeEntriesFromCsv(csv: string): TimeEntryImportResult {
     const minutesStr = get(f, 'minutes')
 
     let resolvedEnd = end
-    if (!resolvedEnd) {
+    if (!resolvedEnd && start) {
       const h = parseInt(hoursStr, 10)
       const m = parseInt(minutesStr, 10)
       if ((h > 0 || m > 0) && Number.isFinite(h) && Number.isFinite(m)) {
@@ -236,14 +236,14 @@ export function importTimeEntriesFromCsv(csv: string): TimeEntryImportResult {
       }
     }
 
-    if (!date || !start || !client || !orderNo || !account) {
+    if (!date || !client || !orderNo || !account) {
       skipped++
       continue
     }
 
     imported.push({
       date,
-      start,
+      start: start || null,
       end: resolvedEnd || null,
       client,
       orderNo,
