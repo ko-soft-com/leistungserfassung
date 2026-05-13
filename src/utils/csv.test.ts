@@ -292,4 +292,14 @@ describe('importTimeEntriesFromCsv', () => {
     expect(imported[0].jira).toBe(baseTimeEntry.jira)
     expect(imported[0].end).toBe(baseTimeEntry.end)
   })
+
+  it('imports row with empty task string', () => {
+    const csv =
+      'date,start,end,client,orderNo,account,task,description,externalId,jira,pr\n' +
+      '2026-05-12,09:00,,Kunde B,B-002,Entwicklung,,Beschreibung,,,\n'
+    const { imported, skipped } = importTimeEntriesFromCsv(csv)
+    expect(imported).toHaveLength(1)
+    expect(skipped).toBe(0)
+    expect(imported[0].task).toBe('')
+  })
 })

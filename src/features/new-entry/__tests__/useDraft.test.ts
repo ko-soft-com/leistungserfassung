@@ -8,6 +8,11 @@ describe('useDraft', () => {
     expect(result.current.draft.client).toBe('')
   })
 
+  it('task defaults to empty string', () => {
+    const { result } = renderHook(() => useDraft())
+    expect(result.current.draft.task).toBe('')
+  })
+
   it('validate: missing client returns error', () => {
     const { result } = renderHook(() => useDraft())
     act(() => { result.current.validate() })

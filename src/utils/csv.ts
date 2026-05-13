@@ -166,7 +166,7 @@ export function importTimeEntriesFromCsv(csv: string): TimeEntryImportResult {
     }
     const [date, start, end, client, orderNo, account, task, description, externalId, jira, pr] = f
 
-    if (!date || !start || !client || !orderNo || !account || !task) {
+    if (!date || !start || !client || !orderNo || !account) {
       skipped++
       continue
     }
