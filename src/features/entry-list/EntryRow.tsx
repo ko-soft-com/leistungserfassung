@@ -20,7 +20,7 @@ interface EntryRowProps {
 
 export default function EntryRow({ entry, onEdit, onDelete }: EntryRowProps) {
   const mins = durationMinutes(entry)
-  const timeStr = `${entry.start} – ${entry.end ?? '…'}`
+  const timeStr = `${entry.start ?? '–'} – ${entry.end ?? '…'}`
   const dateShort = fmtDateDE(entry.date).slice(0, 5) // DD.MM
 
   const hasRefs = entry.jira || entry.pr || entry.externalId

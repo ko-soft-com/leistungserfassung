@@ -3,7 +3,7 @@ export type TaskType = string
 export interface TimeEntry {
   id: string
   date: string          // 'YYYY-MM-DD'
-  start: string         // 'HH:mm'
+  start: string | null   // null = no start time recorded
   end: string | null    // null = timer running
   client: string
   orderNo: string

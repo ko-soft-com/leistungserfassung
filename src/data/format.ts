@@ -23,6 +23,7 @@ export function fmtDayLabel(isoDate: string): string {
 }
 
 export function durationMinutes(entry: Pick<TimeEntry, 'date' | 'start' | 'end'>): number {
+  if (!entry.start) return 0
   const base = entry.date + 'T'
   const startDt = parse(base + entry.start, "yyyy-MM-dd'T'HH:mm", new Date())
   const endDt = entry.end

@@ -21,4 +21,14 @@ describe('format', () => {
     const mins = durationMinutes({ date: '2026-05-12', start: '00:00', end: null } as any)
     expect(mins).toBeGreaterThan(0)
   })
+
+  it('durationMinutes returns 0 when start is null', () => {
+    const mins = durationMinutes({ date: '2026-05-12', start: null, end: null } as any)
+    expect(mins).toBe(0)
+  })
+
+  it('durationMinutes returns 0 when start is null even if end is set', () => {
+    const mins = durationMinutes({ date: '2026-05-12', start: null, end: '10:30' } as any)
+    expect(mins).toBe(0)
+  })
 })

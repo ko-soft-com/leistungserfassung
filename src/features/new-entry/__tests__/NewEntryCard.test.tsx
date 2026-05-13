@@ -87,6 +87,22 @@ describe('NewEntryCard', () => {
     expect(screen.getByLabelText(/^Ende$/i)).toHaveValue('10:30')
   })
 
+  it('saves successfully without a start time', async () => {
+    const user = userEvent.setup()
+    const onSaved = vi.fn()
+    render(<NewEntryCard onSaved={onSaved} />)
+
+    await user.type(screen.getByLabelText(/Auftraggeber/i), 'Kunde A')
+    await user.type(screen.getByLabelText(/Auftragsnr/i), 'AU-001')
+    await user.type(screen.getByLabelText(/Zeitkonto/i), 'ZK-01')
+    await user.clear(screen.getByLabelText(/^Start$/i))
+    await user.type(screen.getByLabelText(/Beschreibung/i), 'Etwas wichtiges')
+    await user.click(screen.getByRole('button', { name: /Speichern/i }))
+
+    expect(onSaved).toHaveBeenCalledOnce()
+    expect(onSaved.mock.calls[0][0].start).toBeNull()
+  })
+
   it('Abbrechen resets the duration picker to placeholder', async () => {
     const user = userEvent.setup()
     render(<NewEntryCard />)

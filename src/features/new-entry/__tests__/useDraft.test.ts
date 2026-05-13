@@ -33,6 +33,19 @@ describe('useDraft', () => {
     expect(result.current.errors.description).toBeFalsy()
   })
 
+  it('validate: empty start does not produce an error', () => {
+    const { result } = renderHook(() => useDraft())
+    act(() => {
+      result.current.setField('client', 'WASCOSA')
+      result.current.setField('orderNo', 'SP 01')
+      result.current.setField('account', 'Dev')
+      result.current.setField('description', 'Testing something')
+      result.current.setField('start', '')
+    })
+    act(() => { result.current.validate() })
+    expect(result.current.errors.start).toBeFalsy()
+  })
+
   it('reset clears draft and errors', () => {
     const { result } = renderHook(() => useDraft())
     act(() => {

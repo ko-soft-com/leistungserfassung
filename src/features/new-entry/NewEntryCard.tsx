@@ -36,7 +36,7 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
     if (!validate()) return
     const saved = saveTimeEntry({
       date: draft.date,
-      start: draft.start,
+      start: draft.start || null,
       end: draft.end || null,
       client: draft.client,
       orderNo: draft.orderNo,

@@ -36,7 +36,7 @@ export default function EditEntryDrawer({ entry, onSave, onClose }: EditEntryDra
             <Field id="edit-orderNo" label="Auftragsnr." required value={draft.orderNo} onChange={v => setField('orderNo', v)} />
             <Field id="edit-zeitkonto" label="Zeitkonto" required value={draft.account} onChange={v => setField('account', v)} />
             <div className={styles.timeRow}>
-              <Field id="edit-start" label="Start" mono value={draft.start} onChange={v => setField('start', v)} />
+              <Field id="edit-start" label="Start" mono value={draft.start ?? ''} onChange={v => setField('start', v || null)} />
               <Field id="edit-ende" label="Ende" mono value={draft.end ?? ''} onChange={v => setField('end', v || null)} />
             </div>
             <Field id="edit-beschreibung" label="Beschreibung" multiline value={draft.description} onChange={v => setField('description', v)} />

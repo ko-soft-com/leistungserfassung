@@ -51,7 +51,6 @@ export function useDraft() {
     if (!draft.client.trim()) errs.client = 'Pflichtfeld'
     if (!draft.orderNo.trim()) errs.orderNo = 'Pflichtfeld'
     if (!draft.account.trim()) errs.account = 'Pflichtfeld'
-    if (!draft.start) errs.start = 'Pflichtfeld'
     if (draft.description.trim().length < 5) errs.description = 'Mindestens 5 Zeichen'
     if (draft.end && draft.end <= draft.start) errs.end = 'Ende muss nach Start liegen'
     setErrors(errs)
