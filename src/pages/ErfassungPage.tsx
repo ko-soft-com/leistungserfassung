@@ -21,6 +21,23 @@ function localISO(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
 
+export function isDuplicate(
+  candidate: Omit<TimeEntry, 'id' | 'createdAt' | 'updatedAt'>,
+  existing: TimeEntry[]
+): boolean {
+  return existing.some(
+    e =>
+      e.date === candidate.date &&
+      e.start === candidate.start &&
+      e.end === candidate.end &&
+      e.client === candidate.client &&
+      e.orderNo === candidate.orderNo &&
+      e.account === candidate.account &&
+      e.task === candidate.task &&
+      e.description === candidate.description
+  )
+}
+
 export default function ErfassungPage() {
   const today = new Date()
   const kw = getISOWeek(today)
@@ -61,16 +78,28 @@ export default function ErfassungPage() {
     reader.onerror = () => setCsvMessage('Fehler beim Lesen der Datei.')
     reader.onload = (ev) => {
       const text = ev.target?.result as string
-      const { imported, skipped } = importTimeEntriesFromCsv(text)
-      if (imported.length === 0) {
-        setCsvMessage(skipped > 0 ? `Keine Einträge importiert (${skipped} übersprungen).` : 'Die Datei enthält keine gültigen Einträge.')
-        return
+      const { imported, skipped: formatSkipped } = importTimeEntriesFromCsv(text)
+      const currentEntries = getTimeEntries()
+      let dupSkipped = 0
+      const toImport = imported.filter((data) => {
+        if (isDuplicate(data, currentEntries)) {
+          dupSkipped++
+          return false
+        }
+        return true
+      })
+      toImport.forEach((data) => saveTimeEntry(data))
+      if (toImport.length > 0) setEntries(getTimeEntries())
+
+      const parts: string[] = []
+      if (toImport.length > 0) parts.push(`${toImport.length} Einträge importiert`)
+      if (dupSkipped > 0) parts.push(`${dupSkipped} Duplikate übersprungen`)
+      if (formatSkipped > 0) parts.push(`${formatSkipped} ungültige Zeilen`)
+      if (parts.length === 0) {
+        setCsvMessage('Die Datei enthält keine neuen Einträge.')
+      } else {
+        setCsvMessage(parts.join(', ') + '.')
       }
-      imported.forEach((data) => saveTimeEntry(data))
-      setEntries(getTimeEntries())
-      setCsvMessage(skipped > 0
-        ? `${imported.length} Einträge importiert, ${skipped} übersprungen.`
-        : `${imported.length} Einträge importiert.`)
     }
     reader.readAsText(file, 'utf-8')
     e.target.value = ''
