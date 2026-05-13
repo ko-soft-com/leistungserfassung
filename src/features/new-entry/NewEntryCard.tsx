@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Plus, Play, Check, X } from 'lucide-react'
+import { Plus, Play, Square, Check, X } from 'lucide-react'
 import { format } from 'date-fns'
-import { useDraft } from './useDraft'
+import { useDraft, roundTo5 } from './useDraft'
+import { useTimerStore } from '../../stores/timer'
 import { getLastUsed, setLastUsed } from './suggestions'
 import Field from '../../components/Field'
 import Button from '../../components/Button'
@@ -17,6 +18,18 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
   const { draft, setField, errors, validate, reset } = useDraft()
   const [durationMins, setDurationMins] = useState('')
   const lastUsed = getLastUsed()
+  const { activeTimer, startTimer, stopTimer } = useTimerStore()
+
+  function handleStartTimer() {
+    setField('start', roundTo5(new Date()))
+    startTimer({ client: draft.client, orderNo: draft.orderNo, account: draft.account })
+  }
+
+  function handleStopTimer() {
+    if (!activeTimer) return
+    setField('end', roundTo5(new Date()))
+    stopTimer()
+  }
 
   function handleSave() {
     if (!validate()) return
@@ -60,9 +73,15 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
         </div>
         <div className={styles.headerRight}>
           <span className={styles.caption}>Stoppuhr</span>
-          <button className={styles.startPill} type="button">
-            <Play size={11} /> Start
-          </button>
+          {activeTimer ? (
+            <button className={styles.startPill} type="button" onClick={handleStopTimer}>
+              <Square size={11} /> Stop
+            </button>
+          ) : (
+            <button className={styles.startPill} type="button" onClick={handleStartTimer}>
+              <Play size={11} /> Start
+            </button>
+          )}
         </div>
       </div>
 

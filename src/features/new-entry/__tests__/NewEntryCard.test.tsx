@@ -1,9 +1,14 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, it, expect, vi, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 import NewEntryCard from '../NewEntryCard'
+import { useTimerStore } from '../../../stores/timer'
 
 describe('NewEntryCard', () => {
+  beforeEach(() => {
+    useTimerStore.setState({ activeTimer: null })
+  })
+
   it('renders card header title', () => {
     render(<NewEntryCard />)
     expect(screen.getByText('Neuer Eintrag')).toBeInTheDocument()
@@ -99,6 +104,41 @@ describe('NewEntryCard', () => {
     expect(durationSelect).toHaveValue('')
   })
 
+})
+
+describe('Start/Stop timer button', () => {
+  beforeEach(() => {
+    useTimerStore.setState({ activeTimer: null })
+  })
+
+  it('Start button sets the Start field to current time', async () => {
+    const user = userEvent.setup()
+    render(<NewEntryCard />)
+
+    await user.click(screen.getByRole('button', { name: /Start/i }))
+
+    const startInput = screen.getByLabelText(/^Start$/i)
+    expect((startInput as HTMLInputElement).value).toMatch(/^\d{2}:\d{2}$/)
+  })
+
+  it('Start button changes to Stop after clicking', async () => {
+    const user = userEvent.setup()
+    render(<NewEntryCard />)
+
+    await user.click(screen.getByRole('button', { name: /Start/i }))
+    expect(screen.getByRole('button', { name: /Stop/i })).toBeInTheDocument()
+  })
+
+  it('Stop button sets the Ende field to current time', async () => {
+    const user = userEvent.setup()
+    render(<NewEntryCard />)
+
+    await user.click(screen.getByRole('button', { name: /Start/i }))
+    await user.click(screen.getByRole('button', { name: /Stop/i }))
+
+    const endeInput = screen.getByLabelText(/^Ende$/i)
+    expect((endeInput as HTMLInputElement).value).toMatch(/^\d{2}:\d{2}$/)
+  })
 })
 
 describe('letzte suggestion button', () => {
