@@ -155,21 +155,48 @@ export function importTimeEntriesFromCsv(csv: string): TimeEntryImportResult {
     .filter(Boolean)
   if (lines.length < 2) return { imported: [], skipped: 0 }
 
+  const headerCols = parseCsvLine(lines[0])
+  const idx: Record<string, number> = Object.fromEntries(
+    headerCols.map((col, i) => [col, i])
+  )
+
+  const REQUIRED = ['date', 'start', 'client', 'orderNo', 'account'] as const
+  if (REQUIRED.some((col) => idx[col] === undefined)) {
+    return { imported: [], skipped: 0 }
+  }
+
+  const get = (f: string[], col: string): string =>
+    idx[col] !== undefined ? (f[idx[col]] ?? '') : ''
+
+  const REQUIRED_MAX_IDX = Math.max(...REQUIRED.map((col) => idx[col]))
+
   let skipped = 0
   const imported: Omit<TimeEntry, 'id' | 'createdAt' | 'updatedAt'>[] = []
 
   for (const line of lines.slice(1)) {
     const f = parseCsvLine(line)
-    if (f.length < 8) {
+    if (f.length <= REQUIRED_MAX_IDX) {
       skipped++
       continue
     }
-    const [date, start, end, client, orderNo, account, task, description, externalId, jira, pr] = f
+
+    const date = get(f, 'date')
+    const start = get(f, 'start')
+    const end = get(f, 'end')
+    const client = get(f, 'client')
+    const orderNo = get(f, 'orderNo')
+    const account = get(f, 'account')
+    const task = get(f, 'task')
+    const description = get(f, 'description')
+    const externalId = get(f, 'externalId')
+    const jira = get(f, 'jira')
+    const pr = get(f, 'pr')
 
     if (!date || !start || !client || !orderNo || !account) {
       skipped++
       continue
     }
+
     imported.push({
       date,
       start,

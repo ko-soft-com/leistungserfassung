@@ -302,4 +302,42 @@ describe('importTimeEntriesFromCsv', () => {
     expect(skipped).toBe(0)
     expect(imported[0].task).toBe('')
   })
+
+  it('imports correctly when columns are in a different order', () => {
+    // description and pr swapped relative to canonical order
+    const csv =
+      'date,start,end,client,orderNo,account,task,pr,externalId,jira,description\n' +
+      '2026-05-12,09:00,10:30,Kunde B,B-002,Entwicklung,Feature,https://github.com/org/repo/pull/7,EXT-2,LEIS-42,Login implementieren\n'
+    const { imported, skipped } = importTimeEntriesFromCsv(csv)
+    expect(skipped).toBe(0)
+    expect(imported).toHaveLength(1)
+    expect(imported[0].description).toBe('Login implementieren')
+    expect(imported[0].pr).toBe('https://github.com/org/repo/pull/7')
+    expect(imported[0].externalId).toBe('EXT-2')
+    expect(imported[0].jira).toBe('LEIS-42')
+  })
+
+  it('imports correctly when optional columns are absent from header', () => {
+    // Only required + description, no externalId/jira/pr columns at all
+    const csv =
+      'date,start,end,client,orderNo,account,task,description\n' +
+      '2026-05-12,09:00,10:30,Kunde B,B-002,Entwicklung,Feature,Login implementieren\n'
+    const { imported, skipped } = importTimeEntriesFromCsv(csv)
+    expect(skipped).toBe(0)
+    expect(imported).toHaveLength(1)
+    expect(imported[0].description).toBe('Login implementieren')
+    expect(imported[0].externalId).toBeUndefined()
+    expect(imported[0].jira).toBeUndefined()
+    expect(imported[0].pr).toBeUndefined()
+  })
+
+  it('returns empty with skipped=0 when header lacks required columns', () => {
+    // V1-format CSV: header has no 'date', 'client', etc.
+    const csv =
+      'datum,startzeit,endzeit,auftraggeber,auftragsnummer,auftrag,zeitkonto,aufgabe,stunden,minuten,beschreibung,externeId,jiraTicket,prLink\n' +
+      '2026-05-12,09:00,10:30,Kunde B,B-002,Auftrag,Zeitkonto,Feature,1,30,Login implementieren,,,\n'
+    const { imported, skipped } = importTimeEntriesFromCsv(csv)
+    expect(imported).toHaveLength(0)
+    expect(skipped).toBe(0)
+  })
 })
