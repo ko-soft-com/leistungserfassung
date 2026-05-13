@@ -13,29 +13,13 @@ import { durationMinutes, fmtH } from '../data/format'
 import type { Range } from '../data/filter'
 import { getTimeEntries, saveTimeEntry, updateTimeEntry, deleteTimeEntry } from '../services/storage'
 import { exportTimeEntriesToCsv, importTimeEntriesFromCsv } from '../utils/csv'
+import { isDuplicate } from '../utils/dedup'
 import type { TimeEntry } from '../types/entry'
 import styles from './ErfassungPage.module.css'
 
 function localISO(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-}
-
-export function isDuplicate(
-  candidate: Omit<TimeEntry, 'id' | 'createdAt' | 'updatedAt'>,
-  existing: TimeEntry[]
-): boolean {
-  return existing.some(
-    e =>
-      e.date === candidate.date &&
-      e.start === candidate.start &&
-      e.end === candidate.end &&
-      e.client === candidate.client &&
-      e.orderNo === candidate.orderNo &&
-      e.account === candidate.account &&
-      e.task === candidate.task &&
-      e.description === candidate.description
-  )
 }
 
 export default function ErfassungPage() {

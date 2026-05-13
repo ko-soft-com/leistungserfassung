@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isDuplicate } from '../ErfassungPage'
+import { isDuplicate } from '../../utils/dedup'
 import type { TimeEntry } from '../../types/entry'
 
 const base: TimeEntry = {
