@@ -373,6 +373,7 @@ describe('importTimeEntriesFromCsv', () => {
     expect(imported[0].description).toBe('Login implementieren')
     expect(imported[0].end).toBe('10:30')
     expect(imported[0].jira).toBe('LEIS-42')
+    expect(imported[0].orderNo).toBe('B-002')
   })
 
   it('computes end from hours/minutes when end is absent', () => {
@@ -389,7 +390,19 @@ describe('importTimeEntriesFromCsv', () => {
     const csv =
       'date,start,end,client,orderNo,account,task,hours,minutes,description,externalId,jira,pr\n' +
       '2026-05-12,09:00,,Kunde B,B-002,Entwicklung,Feature,0,0,Login implementieren,,,\n'
-    const { imported } = importTimeEntriesFromCsv(csv)
+    const { imported, skipped } = importTimeEntriesFromCsv(csv)
+    expect(skipped).toBe(0)
+    expect(imported).toHaveLength(1)
     expect(imported[0].end).toBeNull()
+  })
+
+  it('computes end from stunden/minuten when endzeit is absent in V1 CSV', () => {
+    const csv =
+      'datum,startzeit,endzeit,auftraggeber,auftragsnummer,auftrag,zeitkonto,aufgabe,stunden,minuten,beschreibung,externeId,jiraTicket,prLink\n' +
+      '2026-05-12,09:00,,Kunde B,B-002,Auftrag,Entwicklung,Feature,1,30,Login implementieren,EXT-2,LEIS-42,https://github.com/org/repo/pull/7\n'
+    const { imported, skipped } = importTimeEntriesFromCsv(csv)
+    expect(skipped).toBe(0)
+    expect(imported).toHaveLength(1)
+    expect(imported[0].end).toBe('10:30')
   })
 })

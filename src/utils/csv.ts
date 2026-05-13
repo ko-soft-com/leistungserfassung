@@ -173,6 +173,7 @@ const V1_ALIASES: Record<string, string> = {
   externeId: 'externalId',
   jiraTicket: 'jira',
   prLink: 'pr',
+  // 'auftrag' (V1 order name) has no V2 equivalent; silently ignored on import
 }
 
 export function importTimeEntriesFromCsv(csv: string): TimeEntryImportResult {
