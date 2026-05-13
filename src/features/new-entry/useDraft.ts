@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 
 interface Draft {
   date: string
-  start: string
+  start: string | null
   end: string
   client: string
   orderNo: string
@@ -52,7 +52,7 @@ export function useDraft() {
     if (!draft.orderNo.trim()) errs.orderNo = 'Pflichtfeld'
     if (!draft.account.trim()) errs.account = 'Pflichtfeld'
     if (draft.description.trim().length < 5) errs.description = 'Mindestens 5 Zeichen'
-    if (draft.end && draft.end <= draft.start) errs.end = 'Ende muss nach Start liegen'
+    if (draft.start && draft.end && draft.end <= draft.start) errs.end = 'Ende muss nach Start liegen'
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
