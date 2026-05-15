@@ -248,3 +248,49 @@ test.describe('Persistenz', () => {
     await expect(page.getByText('Noch keine Zeiten erfasst')).toBeVisible()
   })
 })
+
+async function importCsv(page: Parameters<typeof test>[1], csvContent: string) {
+  await page.locator('input[aria-label="CSV-Datei importieren"]').setInputFiles(
+    { name: 'import.csv', mimeType: 'text/csv', buffer: Buffer.from(csvContent) },
+    { force: true }
+  )
+}
+
+const V2_HEADER = 'date,start,end,client,orderNo,account,task,hours,minutes,description,externalId,jira,pr'
+const TODAY = new Date().toISOString().slice(0, 10)
+
+test.describe('CSV-Import Statusmeldungen', () => {
+  test('zeigt Erfolgsmeldung nach erfolgreichem Import', async ({ page }) => {
+    const csv = [V2_HEADER, `${TODAY},09:00,10:00,CSV Kunde,CSV-001,DEV,Feature,1,0,CSV Testbeschreibung,,,`].join('\n')
+
+    await importCsv(page, csv)
+
+    await expect(page.getByRole('status')).toContainText('1 Einträge importiert')
+  })
+
+  test('zeigt Duplikat-Meldung bei doppeltem Import', async ({ page }) => {
+    const csv = [V2_HEADER, `${TODAY},09:00,10:00,CSV Kunde,CSV-001,DEV,Feature,1,0,CSV Testbeschreibung,,,`].join('\n')
+
+    await importCsv(page, csv)
+    await expect(page.getByRole('status')).toContainText('1 Einträge importiert')
+
+    await importCsv(page, csv)
+    await expect(page.getByRole('status')).toContainText('Duplikate übersprungen')
+  })
+
+  test('zeigt "keine neuen Einträge" bei leerem CSV (nur Header)', async ({ page }) => {
+    const csv = V2_HEADER + '\n'
+
+    await importCsv(page, csv)
+
+    await expect(page.getByRole('status')).toContainText('Die Datei enthält keine neuen Einträge.')
+  })
+
+  test('zeigt ungültige Zeilen-Meldung bei fehlendem Pflichtfeld', async ({ page }) => {
+    const csv = [V2_HEADER, `${TODAY},09:00,10:00,,CSV-001,DEV,Feature,1,0,Beschreibung hier,,,`].join('\n')
+
+    await importCsv(page, csv)
+
+    await expect(page.getByRole('status')).toContainText('ungültige Zeilen')
+  })
+})
