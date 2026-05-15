@@ -103,6 +103,6 @@
 .elapsed {
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  color: var(--clr-text-sec);
+  color: var(--muted);
   letter-spacing: 0.05em;
 }
