@@ -99,3 +99,10 @@
 @media (max-width: 480px) {
   .row1, .row2 { grid-template-columns: 1fr; }
 }
+
+.elapsed {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--clr-text-sec);
+  letter-spacing: 0.05em;
+}

@@ -10,6 +10,7 @@ import { saveTimeEntry } from '../../services/storage'
 import type { TimeEntry } from '../../types/entry'
 import { TASK_TYPES } from '../../types/entry'
 import styles from './NewEntryCard.module.css'
+import { useElapsedTime } from '../../hooks/useElapsedTime'
 
 interface NewEntryCardProps {
   onSaved?: (entry: TimeEntry) => void
@@ -20,6 +21,7 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
   const [durationMins, setDurationMins] = useState('')
   const lastUsed = getLastUsed()
   const { activeTimer, startTimer, stopTimer } = useTimerStore()
+  const elapsed = useElapsedTime(activeTimer?.startedAt ?? null)
 
   function handleStartTimer() {
     setField('start', roundTo5(new Date()))
@@ -75,6 +77,7 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
         </div>
         <div className={styles.headerRight}>
           <span className={styles.caption}>Stoppuhr</span>
+          {activeTimer && <span className={styles.elapsed}>{elapsed}</span>}
           {activeTimer ? (
             <button className={styles.startPill} type="button" onClick={handleStopTimer}>
               <Square size={11} /> Stop
