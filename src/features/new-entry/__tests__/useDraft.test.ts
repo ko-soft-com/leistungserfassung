@@ -8,9 +8,16 @@ describe('useDraft', () => {
     expect(result.current.draft.client).toBe('')
   })
 
-  it('task defaults to empty string', () => {
+  it('initializes task as Feature', () => {
     const { result } = renderHook(() => useDraft())
-    expect(result.current.draft.task).toBe('')
+    expect(result.current.draft.task).toBe('Feature')
+  })
+
+  it('resets task to Feature', () => {
+    const { result } = renderHook(() => useDraft())
+    act(() => result.current.setField('task', 'Bug-Fixing' as any))
+    act(() => result.current.reset())
+    expect(result.current.draft.task).toBe('Feature')
   })
 
   it('validate: missing client returns error', () => {

@@ -1,4 +1,6 @@
-export type TaskType = string
+export type TaskType = 'Bug-Fixing' | 'Feature' | 'Review' | 'Meeting'
+
+export const TASK_TYPES: readonly TaskType[] = ['Bug-Fixing', 'Feature', 'Review', 'Meeting']
 
 export interface TimeEntry {
   id: string

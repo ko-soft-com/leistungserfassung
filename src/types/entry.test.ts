@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import type { Eintrag, Dauer, EintragFormData } from './entry'
+import type { Eintrag, Dauer, EintragFormData, TaskType } from './entry'
 
 describe('Eintrag types', () => {
   it('Dauer has stunden and minuten', () => {
@@ -36,5 +36,14 @@ describe('Eintrag types', () => {
       dauer: { stunden: 1, minuten: 0 },
     }
     expect(formData.auftraggeber).toBe('Kunde B')
+  })
+
+  const TASK_TYPES = ['Bug-Fixing', 'Feature', 'Review', 'Meeting'] as const
+
+  it('TaskType has exactly 4 valid values', () => {
+    const tasks: TaskType[] = [...TASK_TYPES]
+    expect(tasks).toHaveLength(4)
+    expect(tasks).toContain('Feature')
+    expect(tasks).toContain('Bug-Fixing')
   })
 })

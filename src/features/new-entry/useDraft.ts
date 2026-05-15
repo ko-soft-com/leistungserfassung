@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
+import type { TaskType } from '../../types/entry'
 
 interface Draft {
   date: string
@@ -8,7 +9,7 @@ interface Draft {
   client: string
   orderNo: string
   account: string
-  task: string
+  task: TaskType
   description: string
   jira: string
   pr: string
@@ -34,7 +35,7 @@ export function useDraft() {
     client: '',
     orderNo: '',
     account: '',
-    task: '',
+    task: 'Feature',
     description: '',
     jira: '',
     pr: '',
@@ -66,7 +67,7 @@ export function useDraft() {
       client: '',
       orderNo: '',
       account: '',
-      task: '',
+      task: 'Feature',
       description: '',
       jira: '',
       pr: '',
