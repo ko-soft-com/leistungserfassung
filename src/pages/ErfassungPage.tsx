@@ -14,6 +14,7 @@ import type { Range } from '../data/filter'
 import { getTimeEntries, saveTimeEntry, updateTimeEntry, deleteTimeEntry } from '../services/storage'
 import { exportTimeEntriesToCsv, importTimeEntriesFromCsv } from '../utils/csv'
 import { isDuplicate } from '../utils/dedup'
+import { setLastUsed } from '../features/new-entry/suggestions'
 import type { TimeEntry } from '../types/entry'
 import styles from './ErfassungPage.module.css'
 
@@ -73,7 +74,11 @@ export default function ErfassungPage() {
         return true
       })
       toImport.forEach((data) => saveTimeEntry(data))
-      if (toImport.length > 0) setEntries(getTimeEntries())
+      if (toImport.length > 0) {
+        setEntries(getTimeEntries())
+        const newest = [...toImport].sort((a, b) => b.date.localeCompare(a.date))[0]
+        setLastUsed({ client: newest.client, orderNo: newest.orderNo, account: newest.account })
+      }
 
       const parts: string[] = []
       if (toImport.length > 0) parts.push(`${toImport.length} Einträge importiert`)
