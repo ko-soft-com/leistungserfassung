@@ -71,3 +71,32 @@ test('deletes an entry', async ({ page }) => {
 
   await expect(page.getByText('Noch keine Zeiten erfasst')).toBeVisible()
 })
+
+test.describe('Formular-Validierung', () => {
+  test('zeigt Pflichtfeld-Fehler bei leerem Formular', async ({ page }) => {
+    await page.getByRole('button', { name: 'Speichern' }).click()
+
+    const pflichtfeldErrors = page.getByText('Pflichtfeld')
+    await expect(pflichtfeldErrors).toHaveCount(3)
+    await expect(page.getByText('Mindestens 5 Zeichen')).toBeVisible()
+  })
+
+  test('zeigt Fehler bei zu kurzer Beschreibung', async ({ page }) => {
+    await page.getByRole('textbox', { name: 'Auftraggeber' }).fill('Kunde A')
+    await page.getByLabel(/Auftragsnr/i).fill('AU-001')
+    await page.getByLabel('Zeitkonto').fill('ZK-01')
+    await page.getByRole('textbox', { name: 'Beschreibung' }).fill('Hi')
+    await page.getByRole('button', { name: 'Speichern' }).click()
+
+    await expect(page.getByText('Mindestens 5 Zeichen')).toBeVisible()
+    await expect(page.getByText('Noch keine Zeiten erfasst')).toBeVisible()
+  })
+
+  test('zeigt Fehler wenn Ende vor Start liegt', async ({ page }) => {
+    await fillNewEntry(page, { start: '10:00', end: '09:00' })
+    await page.getByRole('button', { name: 'Speichern' }).click()
+
+    await expect(page.getByText('Ende muss nach Start liegen')).toBeVisible()
+    await expect(page.getByText('Noch keine Zeiten erfasst')).toBeVisible()
+  })
+})
