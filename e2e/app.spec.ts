@@ -100,3 +100,47 @@ test.describe('Formular-Validierung', () => {
     await expect(page.getByText('Noch keine Zeiten erfasst')).toBeVisible()
   })
 })
+
+test.describe('Formular-UX', () => {
+  test('Abbrechen setzt das Formular zurück', async ({ page }) => {
+    await page.getByRole('textbox', { name: 'Auftraggeber' }).fill('Test Kunde')
+    await page.getByLabel(/Auftragsnr/i).fill('AU-999')
+    await page.getByLabel('Zeitkonto').fill('ZK-99')
+
+    await page.getByRole('button', { name: 'Abbrechen' }).click()
+
+    await expect(page.getByRole('textbox', { name: 'Auftraggeber' })).toHaveValue('')
+    await expect(page.getByLabel(/Auftragsnr/i)).toHaveValue('')
+    await expect(page.getByLabel('Zeitkonto')).toHaveValue('')
+  })
+
+  test('zeigt letzte-Vorschläge nach dem Speichern', async ({ page }) => {
+    await fillNewEntry(page, {
+      client: 'Stamm GmbH',
+      orderNo: 'SG-001',
+      account: 'DEV-01',
+    })
+    await page.getByRole('button', { name: 'Speichern' }).click()
+    await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Stamm GmbH/ })).toBeVisible()
+
+    const letzteButtons = page.getByRole('button', { name: 'letzte' })
+    await expect(letzteButtons).toHaveCount(3)
+
+    await letzteButtons.first().click()
+    await expect(page.getByRole('textbox', { name: 'Auftraggeber' })).toHaveValue('Stamm GmbH')
+  })
+
+  test('Abbrechen im Bearbeiten-Drawer schließt den Drawer', async ({ page }) => {
+    await fillNewEntry(page, { client: 'Edit Kandidat', description: 'Wird bearbeitet' })
+    await page.getByRole('button', { name: 'Speichern' }).click()
+
+    await page.getByRole('button', { name: /Eintrag bearbeiten: Edit Kandidat/ }).click()
+    await expect(page.getByText('Eintrag bearbeiten')).toBeVisible()
+
+    const dialog = page.locator('[role="dialog"]')
+    await dialog.getByRole('button', { name: 'Abbrechen' }).click()
+
+    await expect(page.locator('[role="dialog"]')).not.toBeVisible()
+    await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Edit Kandidat/ })).toBeVisible()
+  })
+})

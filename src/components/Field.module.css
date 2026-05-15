@@ -45,6 +45,12 @@
   padding: 2px 6px;
   border-radius: 4px;
   pointer-events: none;
+  border: none;
+}
+
+.suggestionButton {
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .error {

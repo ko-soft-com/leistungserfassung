@@ -53,7 +53,7 @@ export default function Field({ label, value, onChange, required, mono, suggesti
         )}
         {suggestion && (
           onSuggestionClick
-            ? <button type="button" className={styles.suggestion} onClick={onSuggestionClick}>{suggestion}</button>
+            ? <button type="button" className={`${styles.suggestion} ${styles.suggestionButton}`} onClick={onSuggestionClick}>{suggestion}</button>
             : <span className={styles.suggestion}>{suggestion}</span>
         )}
       </div>
