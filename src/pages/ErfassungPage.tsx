@@ -16,6 +16,8 @@ import { exportTimeEntriesToCsv, importTimeEntriesFromCsv } from '../utils/csv'
 import { isDuplicate } from '../utils/dedup'
 import { setLastUsed } from '../features/new-entry/suggestions'
 import type { TimeEntry } from '../types/entry'
+import { useGlobalShortcuts } from '../hooks/useGlobalShortcuts'
+import HelpDialog from '../components/HelpDialog'
 import styles from './ErfassungPage.module.css'
 
 function localISO(d: Date): string {
@@ -36,6 +38,7 @@ export default function ErfassungPage() {
   const [editingEntry, setEditingEntry] = useState<TimeEntry | null>(null)
   const [csvMessage, setCsvMessage] = useState<string | null>(null)
   const [pendingDelete, setPendingDelete] = useState<{ id: string; entry: TimeEntry; timer: ReturnType<typeof setTimeout> } | null>(null)
+  const [showHelp, setShowHelp] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -172,6 +175,18 @@ export default function ErfassungPage() {
     }
   }, [])
 
+  useGlobalShortcuts({
+    onFocusNew: () => {
+      const input = document.querySelector<HTMLInputElement>('[aria-label="Auftraggeber"]')
+      input?.focus()
+    },
+    onFocusSearch: () => {
+      const input = document.querySelector<HTMLInputElement>('[aria-label="Filter nach Auftrag, JIRA, Beschreibung"]')
+      input?.focus()
+    },
+    onToggleHelp: () => setShowHelp(prev => !prev),
+  })
+
   return (
     <main className={styles.page}>
       <div className={styles.pageTitle}>
@@ -266,6 +281,7 @@ export default function ErfassungPage() {
           onClose={() => setEditingEntry(null)}
         />
       )}
+      {showHelp && <HelpDialog onClose={() => setShowHelp(false)} />}
     </main>
   )
 }
