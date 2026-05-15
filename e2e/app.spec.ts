@@ -144,3 +144,17 @@ test.describe('Formular-UX', () => {
     await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Edit Kandidat/ })).toBeVisible()
   })
 })
+
+test.describe('Zeit und Dauer', () => {
+  test('Dauer-Dropdown berechnet Endzeit aus Startzeit', async ({ page }) => {
+    await page.getByLabel(/^Start$/i).fill('09:00')
+    await page.locator('#duration-select').selectOption('60')
+    await expect(page.getByLabel(/^Ende$/i)).toHaveValue('10:00')
+  })
+
+  test('Dauer-Dropdown 0:15 h setzt Ende auf Start + 15 Minuten', async ({ page }) => {
+    await page.getByLabel(/^Start$/i).fill('08:00')
+    await page.locator('#duration-select').selectOption('15')
+    await expect(page.getByLabel(/^Ende$/i)).toHaveValue('08:15')
+  })
+})
