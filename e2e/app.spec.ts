@@ -158,3 +158,56 @@ test.describe('Zeit und Dauer', () => {
     await expect(page.getByLabel(/^Ende$/i)).toHaveValue('08:15')
   })
 })
+
+test.describe('Filter und Suche', () => {
+  test('Textsuche filtert Einträge nach Beschreibung', async ({ page }) => {
+    await fillNewEntry(page, { client: 'Alpha AG', description: 'Wichtige Aufgabe' })
+    await page.getByRole('button', { name: 'Speichern' }).click()
+    await fillNewEntry(page, { client: 'Beta GmbH', description: 'Andere Tätigkeit' })
+    await page.getByRole('button', { name: 'Speichern' }).click()
+
+    await page.locator('input[type="search"]').fill('Wichtige')
+
+    await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Alpha AG/ })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Beta GmbH/ })).not.toBeVisible()
+  })
+
+  test('Auftraggeber-Dropdown filtert Einträge', async ({ page }) => {
+    await fillNewEntry(page, { client: 'Alpha AG', description: 'Erster Eintrag' })
+    await page.getByRole('button', { name: 'Speichern' }).click()
+    await fillNewEntry(page, { client: 'Beta GmbH', description: 'Zweiter Eintrag' })
+    await page.getByRole('button', { name: 'Speichern' }).click()
+
+    await page.getByLabel('Auftraggeber filtern').selectOption('Alpha AG')
+
+    await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Alpha AG/ })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Beta GmbH/ })).not.toBeVisible()
+  })
+
+  test('Leeres Suchfeld zeigt alle Einträge', async ({ page }) => {
+    await fillNewEntry(page, { client: 'Alpha AG', description: 'Erster Eintrag' })
+    await page.getByRole('button', { name: 'Speichern' }).click()
+    await fillNewEntry(page, { client: 'Beta GmbH', description: 'Zweiter Eintrag' })
+    await page.getByRole('button', { name: 'Speichern' }).click()
+
+    await page.locator('input[type="search"]').fill('Alpha')
+    await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Beta GmbH/ })).not.toBeVisible()
+
+    await page.locator('input[type="search"]').fill('')
+    await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Alpha AG/ })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Beta GmbH/ })).toBeVisible()
+  })
+
+  test('Bereichs-Buttons wechseln zwischen Heute, Woche und Monat', async ({ page }) => {
+    await fillNewEntry(page, { client: 'Range Kunde', description: 'Eintrag für Bereichstest' })
+    await page.getByRole('button', { name: 'Speichern' }).click()
+
+    await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Range Kunde/ })).toBeVisible()
+
+    await page.getByRole('button', { name: 'Heute' }).click()
+    await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Range Kunde/ })).toBeVisible()
+
+    await page.getByRole('button', { name: 'Monat' }).click()
+    await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Range Kunde/ })).toBeVisible()
+  })
+})
