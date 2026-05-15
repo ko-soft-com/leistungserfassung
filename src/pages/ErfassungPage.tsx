@@ -35,6 +35,7 @@ export default function ErfassungPage() {
   const [selectedClient, setSelectedClient] = useState<string | null>(null)
   const [editingEntry, setEditingEntry] = useState<TimeEntry | null>(null)
   const [csvMessage, setCsvMessage] = useState<string | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; entry: TimeEntry; timer: ReturnType<typeof setTimeout> } | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -136,8 +137,28 @@ export default function ErfassungPage() {
   }
 
   function handleDelete(id: string) {
-    deleteTimeEntry(id)
+    if (pendingDelete) {
+      clearTimeout(pendingDelete.timer)
+      deleteTimeEntry(pendingDelete.id)
+      setPendingDelete(null)
+    }
+    const entry = entries.find(e => e.id === id)
+    if (!entry) return
     setEntries(prev => prev.filter(e => e.id !== id))
+    const timer = setTimeout(() => {
+      deleteTimeEntry(id)
+      setPendingDelete(null)
+    }, 5000)
+    setPendingDelete({ id, entry, timer })
+  }
+
+  function handleUndoDelete() {
+    if (!pendingDelete) return
+    clearTimeout(pendingDelete.timer)
+    setEntries(prev => [...prev, pendingDelete.entry].sort((a, b) =>
+      b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt)
+    ))
+    setPendingDelete(null)
   }
 
   return (
@@ -162,7 +183,19 @@ export default function ErfassungPage() {
             style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
             onChange={handleFileChange}
           />
-          {csvMessage && (
+          {pendingDelete && (
+            <span role="status" aria-live="polite" style={{ fontSize: '0.875rem', color: 'var(--clr-text-sec)' }}>
+              Eintrag gelöscht.{' '}
+              <button
+                type="button"
+                onClick={handleUndoDelete}
+                style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: 'inherit', textDecoration: 'underline', padding: 0 }}
+              >
+                Rückgängig
+              </button>
+            </span>
+          )}
+          {!pendingDelete && csvMessage && (
             <span role="status" aria-live="polite" style={{ fontSize: '0.875rem', color: 'var(--clr-text-sec)' }}>
               {csvMessage}
             </span>
