@@ -3,6 +3,7 @@ import type { TimeEntry } from '../../types/entry'
 import { durationMinutes, fmtH, fmtDateDE } from '../../data/format'
 import Pill from '../../components/Pill'
 import styles from './EntryRow.module.css'
+import * as config from '../../config'
 
 const CLIENT_COLORS = ['#16a34a','#1d4ed8','#b91c1c','#7e22ce','#0e7490','#c05621','#065f46','#1e40af']
 
@@ -22,6 +23,8 @@ export default function EntryRow({ entry, onEdit, onDelete }: EntryRowProps) {
   const mins = durationMinutes(entry)
   const timeStr = `${entry.start ?? '–'} – ${entry.end ?? '…'}`
   const dateShort = fmtDateDE(entry.date).slice(0, 5) // DD.MM
+  const jiraBaseUrl = config.JIRA_BASE_URL
+  const prBaseUrl = config.PR_BASE_URL
 
   const hasRefs = entry.jira || entry.pr || entry.externalId
 
@@ -58,8 +61,16 @@ export default function EntryRow({ entry, onEdit, onDelete }: EntryRowProps) {
         <div data-line="3" className={styles.refs}>
           {hasRefs ? (
             <>
-              {entry.jira && <span className={styles.jiraRef}>{entry.jira}</span>}
-              {entry.pr && <span className={styles.prRef}>#{entry.pr}</span>}
+              {entry.jira && (
+                jiraBaseUrl
+                  ? <a href={`${jiraBaseUrl}${entry.jira}`} className={styles.jiraRef} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}>{entry.jira}</a>
+                  : <span className={styles.jiraRef}>{entry.jira}</span>
+              )}
+              {entry.pr && (
+                prBaseUrl
+                  ? <a href={`${prBaseUrl}${entry.pr}`} className={styles.prRef} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}>#{entry.pr}</a>
+                  : <span className={styles.prRef}>#{entry.pr}</span>
+              )}
               {entry.externalId && <span className={styles.extRef}>Ext: {entry.externalId}</span>}
             </>
           ) : (
