@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { format, getISOWeek } from 'date-fns'
 import { de } from 'date-fns/locale'
 import { Download, Upload } from 'lucide-react'
@@ -160,6 +160,17 @@ export default function ErfassungPage() {
     ))
     setPendingDelete(null)
   }
+
+  const pendingDeleteRef = useRef(pendingDelete)
+  pendingDeleteRef.current = pendingDelete
+  useEffect(() => {
+    return () => {
+      if (pendingDeleteRef.current) {
+        clearTimeout(pendingDeleteRef.current.timer)
+        deleteTimeEntry(pendingDeleteRef.current.id)
+      }
+    }
+  }, [])
 
   return (
     <main className={styles.page}>

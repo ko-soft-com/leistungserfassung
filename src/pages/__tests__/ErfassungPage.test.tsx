@@ -78,45 +78,52 @@ describe('ErfassungPage', () => {
   })
 
   describe('delete with undo', () => {
-    beforeEach(() => {
-      vi.useFakeTimers({ shouldAdvanceTime: true })
+    afterEach(() => {
+      vi.useRealTimers()
       localStorage.clear()
     })
-    afterEach(() => vi.useRealTimers())
 
     it('removes entry from UI immediately on delete', async () => {
       saveTimeEntry({ date: '2026-05-15', start: '09:00', end: '10:00', client: 'Kunde X', orderNo: 'X-1', account: 'Dev', task: 'Feature', description: 'Undo test entry' })
       render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><ErfassungPage /></QueryClientProvider>)
-      await screen.findByText('Undo test entry')
+      expect(screen.getByText('Undo test entry')).toBeInTheDocument()
+      vi.useFakeTimers()
       fireEvent.click(screen.getByRole('button', { name: 'Löschen' }))
       expect(screen.queryByText('Undo test entry')).not.toBeInTheDocument()
+      vi.useRealTimers()
     })
 
     it('shows undo toast after delete', async () => {
       saveTimeEntry({ date: '2026-05-15', start: '09:00', end: '10:00', client: 'Kunde X', orderNo: 'X-1', account: 'Dev', task: 'Feature', description: 'Undo test entry' })
       render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><ErfassungPage /></QueryClientProvider>)
-      await screen.findByText('Undo test entry')
+      expect(screen.getByText('Undo test entry')).toBeInTheDocument()
+      vi.useFakeTimers()
       fireEvent.click(screen.getByRole('button', { name: 'Löschen' }))
       expect(screen.getByRole('button', { name: 'Rückgängig' })).toBeInTheDocument()
+      vi.useRealTimers()
     })
 
     it('does not delete from storage until 5 seconds pass', async () => {
       const saved = saveTimeEntry({ date: '2026-05-15', start: '09:00', end: '10:00', client: 'Kunde X', orderNo: 'X-1', account: 'Dev', task: 'Feature', description: 'Undo test entry' })
       render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><ErfassungPage /></QueryClientProvider>)
-      await screen.findByText('Undo test entry')
+      expect(screen.getByText('Undo test entry')).toBeInTheDocument()
+      vi.useFakeTimers()
       fireEvent.click(screen.getByRole('button', { name: 'Löschen' }))
       expect(getTimeEntries().find(e => e.id === saved.id)).toBeDefined()
       act(() => vi.advanceTimersByTime(5001))
       expect(getTimeEntries().find(e => e.id === saved.id)).toBeUndefined()
+      vi.useRealTimers()
     })
 
     it('restores entry on undo click', async () => {
       const saved = saveTimeEntry({ date: '2026-05-15', start: '09:00', end: '10:00', client: 'Kunde X', orderNo: 'X-1', account: 'Dev', task: 'Feature', description: 'Undo test entry' })
       render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><ErfassungPage /></QueryClientProvider>)
-      await screen.findByText('Undo test entry')
+      expect(screen.getByText('Undo test entry')).toBeInTheDocument()
+      vi.useFakeTimers()
       fireEvent.click(screen.getByRole('button', { name: 'Löschen' }))
-      fireEvent.click(screen.getByRole('button', { name: 'Rückgängig' }))
-      expect(await screen.findByText('Undo test entry')).toBeInTheDocument()
+      act(() => fireEvent.click(screen.getByRole('button', { name: 'Rückgängig' })))
+      vi.useRealTimers()
+      expect(screen.getByText('Undo test entry')).toBeInTheDocument()
       expect(getTimeEntries().find(e => e.id === saved.id)).toBeDefined()
     })
   })
