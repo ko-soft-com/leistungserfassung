@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import styles from './HelpDialog.module.css'
 
 const SHORTCUTS = [
@@ -12,6 +13,14 @@ interface HelpDialogProps {
 }
 
 export default function HelpDialog({ onClose }: HelpDialogProps) {
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
+
   return (
     <div className={styles.overlay} onClick={onClose} role="presentation">
       <dialog

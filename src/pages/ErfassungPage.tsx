@@ -177,7 +177,7 @@ export default function ErfassungPage() {
 
   useGlobalShortcuts({
     onFocusNew: () => {
-      const input = document.querySelector<HTMLInputElement>('[aria-label="Auftraggeber"]')
+      const input = document.getElementById('auftraggeber') as HTMLInputElement | null
       input?.focus()
     },
     onFocusSearch: () => {
