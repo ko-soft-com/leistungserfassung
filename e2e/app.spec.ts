@@ -211,3 +211,40 @@ test.describe('Filter und Suche', () => {
     await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Range Kunde/ })).toBeVisible()
   })
 })
+
+test.describe('Persistenz', () => {
+  test('Einträge bleiben nach Seitenreload erhalten', async ({ page }) => {
+    await fillNewEntry(page, { client: 'Persistent Kunde', description: 'Bleibt nach Reload' })
+    await page.getByRole('button', { name: 'Speichern' }).click()
+    await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Persistent Kunde/ })).toBeVisible()
+
+    await page.reload()
+
+    await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Persistent Kunde/ })).toBeVisible()
+  })
+
+  test('Bearbeitung wird nach Reload gespeichert', async ({ page }) => {
+    await fillNewEntry(page, { client: 'Vor Edit', description: 'Wird gleich geändert' })
+    await page.getByRole('button', { name: 'Speichern' }).click()
+
+    await page.getByRole('button', { name: /Eintrag bearbeiten: Vor Edit/ }).click()
+    const dialog = page.locator('[role="dialog"]')
+    await dialog.getByLabel('Auftraggeber').fill('Nach Edit')
+    await dialog.getByRole('button', { name: 'Speichern' }).click()
+
+    await page.reload()
+
+    await expect(page.getByRole('button', { name: /Eintrag bearbeiten: Nach Edit/ })).toBeVisible()
+  })
+
+  test('Gelöschter Eintrag bleibt nach Reload gelöscht', async ({ page }) => {
+    await fillNewEntry(page, { client: 'Wird gelöscht', description: 'Nur kurz hier' })
+    await page.getByRole('button', { name: 'Speichern' }).click()
+    await page.getByRole('button', { name: 'Löschen', exact: true }).click()
+    await expect(page.getByText('Noch keine Zeiten erfasst')).toBeVisible()
+
+    await page.reload()
+
+    await expect(page.getByText('Noch keine Zeiten erfasst')).toBeVisible()
+  })
+})
