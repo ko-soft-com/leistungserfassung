@@ -1,6 +1,6 @@
 import type { TimeEntry } from '../types/entry'
 
-export type Range = 'today' | 'week' | 'month' | 'custom'
+export type Range = 'today' | 'week' | 'month' | 'all' | 'custom'
 
 export interface FilterOptions {
   range?: Range

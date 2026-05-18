@@ -7,6 +7,7 @@ const RANGE_OPTIONS = [
   { label: 'Heute', value: 'today' },
   { label: 'Woche', value: 'week' },
   { label: 'Monat', value: 'month' },
+  { label: 'Alle', value: 'all' },
   { label: 'Eigener Zeitraum', value: 'custom' },
 ]
 

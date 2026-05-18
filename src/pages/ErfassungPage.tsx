@@ -86,12 +86,18 @@ export default function ErfassungPage() {
 
       const parts: string[] = []
       if (toImport.length > 0) parts.push(`${toImport.length} Einträge importiert`)
-      if (dupSkipped > 0) parts.push(`${dupSkipped} Duplikate übersprungen`)
       if (formatSkipped > 0) parts.push(`${formatSkipped} ungültige Zeilen`)
-      if (parts.length === 0) {
-        setCsvMessage('Die Datei enthält keine neuen Einträge.')
+
+      if (toImport.length === 0 && dupSkipped > 0) {
+        setRange('all')
+        setCsvMessage(`${dupSkipped} ${dupSkipped === 1 ? 'Eintrag' : 'Einträge'} bereits vorhanden — alle Einträge werden jetzt angezeigt.`)
       } else {
-        setCsvMessage(parts.join(', ') + '.')
+        if (dupSkipped > 0) parts.push(`${dupSkipped} Duplikate übersprungen`)
+        if (parts.length === 0) {
+          setCsvMessage('Die Datei enthält keine neuen Einträge.')
+        } else {
+          setCsvMessage(parts.join(', ') + '.')
+        }
       }
     }
     reader.readAsText(file, 'utf-8')

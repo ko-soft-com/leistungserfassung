@@ -128,3 +128,40 @@ describe('ErfassungPage', () => {
     })
   })
 })
+
+describe('CSV import duplicate handling', () => {
+  afterEach(() => {
+    localStorage.clear()
+  })
+
+  it('switches to Alle and shows duplicate message when all CSV entries already exist', async () => {
+    saveTimeEntry({
+      date: '2026-01-01', start: '09:00', end: '10:00',
+      client: 'AltKunde', orderNo: 'ALT-1', account: 'Dev',
+      task: 'Feature', description: 'Schon vorhanden',
+    })
+
+    render(
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <ErfassungPage />
+      </QueryClientProvider>
+    )
+
+    const csvContent = [
+      'date,start,end,client,orderNo,account,task,hours,minutes,description,externalId,jira,pr',
+      '2026-01-01,09:00,10:00,AltKunde,ALT-1,Dev,Feature,1,0,Schon vorhanden,,,',
+    ].join('\n')
+
+    const file = new File([csvContent], 'test.csv', { type: 'text/csv' })
+    const input = screen.getByLabelText('CSV-Datei importieren')
+    Object.defineProperty(input, 'files', { value: [file], configurable: true })
+    input.dispatchEvent(new Event('change', { bubbles: true }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('status')).toHaveTextContent(/bereits vorhanden/)
+    })
+
+    // 'Alle' button is now rendered and active in the SegmentedControl
+    expect(screen.getByRole('button', { name: 'Alle' })).toBeInTheDocument()
+  })
+})
