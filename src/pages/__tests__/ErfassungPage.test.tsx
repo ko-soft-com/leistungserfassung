@@ -161,7 +161,7 @@ describe('CSV import duplicate handling', () => {
       expect(screen.getByRole('status')).toHaveTextContent(/bereits vorhanden/)
     })
 
-    // 'Alle' button is now rendered and active in the SegmentedControl
-    expect(screen.getByRole('button', { name: 'Alle' })).toBeInTheDocument()
+    // Entry from 2026-01-01 (outside current week) is now visible — proves range switched to 'all'
+    expect(screen.getByText('Schon vorhanden')).toBeInTheDocument()
   })
 })
