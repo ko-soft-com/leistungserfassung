@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Plus, Play, Square, Check, X } from 'lucide-react'
-import { format } from 'date-fns'
 import { useDraft, roundTo5 } from './useDraft'
 import { useTimerStore } from '../../stores/timer'
 import { getLastUsed, setLastUsed } from './suggestions'
@@ -73,7 +72,13 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
         <div className={styles.headerLeft}>
           <Plus size={15} color="var(--accent)" />
           <span className={styles.title}>Neuer Eintrag</span>
-          <span className={styles.subtitle}>· {format(new Date(), 'dd.MM.yyyy')}</span>
+          <input
+            type="date"
+            aria-label="Datum"
+            className={styles.dateInput}
+            value={draft.date}
+            onChange={e => setField('date', e.target.value)}
+          />
         </div>
         <div className={styles.headerRight}>
           <span className={styles.caption}>Stoppuhr</span>

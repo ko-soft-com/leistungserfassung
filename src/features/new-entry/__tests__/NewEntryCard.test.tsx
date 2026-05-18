@@ -123,6 +123,23 @@ describe('NewEntryCard', () => {
     expect(durationSelect).toHaveValue('')
   })
 
+  it('renders a date input defaulting to today', () => {
+    render(<NewEntryCard />)
+    const today = new Date().toISOString().slice(0, 10)
+    const dateInput = screen.getByLabelText('Datum') as HTMLInputElement
+    expect(dateInput).toBeInTheDocument()
+    expect(dateInput.value).toBe(today)
+  })
+
+  it('updates draft.date when date input changes', async () => {
+    const user = userEvent.setup()
+    render(<NewEntryCard />)
+    const dateInput = screen.getByLabelText('Datum') as HTMLInputElement
+    await user.clear(dateInput)
+    await user.type(dateInput, '2026-05-10')
+    expect(dateInput.value).toBe('2026-05-10')
+  })
+
 })
 
 describe('Start/Stop timer button', () => {
