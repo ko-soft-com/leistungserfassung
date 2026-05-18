@@ -32,6 +32,7 @@ export default function EditEntryDrawer({ entry, onSave, onClose }: EditEntryDra
           </div>
 
           <div className={styles.body}>
+            <Field id="edit-date" label="Datum" type="date" value={draft.date} onChange={v => setField('date', v)} />
             <Field id="edit-auftraggeber" label="Auftraggeber" required value={draft.client} onChange={v => setField('client', v)} />
             <Field id="edit-orderNo" label="Auftragsnr." required value={draft.orderNo} onChange={v => setField('orderNo', v)} />
             <Field id="edit-zeitkonto" label="Zeitkonto" required value={draft.account} onChange={v => setField('account', v)} />
