@@ -67,4 +67,26 @@ describe('EditEntryDrawer', () => {
     fireEvent.change(screen.getByLabelText('Ende'), { target: { value: '10:00' } })
     expect((screen.getByLabelText('Dauer') as HTMLInputElement).value).toBe('2:00')
   })
+
+  it('typing duration then setting start computes end for null/null entry', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    const nullEntry: TimeEntry = { ...entry, start: null, end: null }
+    render(<EditEntryDrawer entry={nullEntry} onSave={onSave} onClose={() => {}} />)
+    fireEvent.change(screen.getByLabelText('Dauer'), { target: { value: '2:00' } })
+    fireEvent.change(screen.getByLabelText('Start'), { target: { value: '09:00' } })
+    await user.click(screen.getByText('Speichern'))
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ end: '11:00' }))
+  })
+
+  it('typing duration then setting end computes start for null/null entry', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    const nullEntry: TimeEntry = { ...entry, start: null, end: null }
+    render(<EditEntryDrawer entry={nullEntry} onSave={onSave} onClose={() => {}} />)
+    fireEvent.change(screen.getByLabelText('Dauer'), { target: { value: '1:30' } })
+    fireEvent.change(screen.getByLabelText('Ende'), { target: { value: '11:00' } })
+    await user.click(screen.getByText('Speichern'))
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ start: '09:30' }))
+  })
 })

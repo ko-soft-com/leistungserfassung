@@ -59,6 +59,9 @@ export default function EditEntryDrawer({ entry, onSave, onClose }: EditEntryDra
     setField('start', newStart)
     if (newStart && draft.end) {
       setDurationStr(fmtDuration(diffMinutes(newStart, draft.end)))
+    } else if (newStart && !draft.end) {
+      const mins = parseDuration(durationStr)
+      if (mins && mins > 0) setField('end', addMinutes(newStart, mins))
     }
   }
 
@@ -67,6 +70,9 @@ export default function EditEntryDrawer({ entry, onSave, onClose }: EditEntryDra
     setField('end', newEnd)
     if (draft.start && newEnd) {
       setDurationStr(fmtDuration(diffMinutes(draft.start, newEnd)))
+    } else if (!draft.start && newEnd) {
+      const mins = parseDuration(durationStr)
+      if (mins && mins > 0) setField('start', addMinutes(newEnd, -mins))
     }
   }
 
