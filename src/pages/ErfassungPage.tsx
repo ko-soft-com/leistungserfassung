@@ -13,6 +13,8 @@ import { durationMinutes, fmtH } from '../data/format'
 import type { Range } from '../data/filter'
 import { getTimeEntries, saveTimeEntry, updateTimeEntry, deleteTimeEntry } from '../services/storage'
 import { exportTimeEntriesToCsv, importTimeEntriesFromCsv } from '../utils/csv'
+import { exportToJson, importFromJson } from '../utils/backup'
+import { getAllDayRecords, saveDayRecord } from '../services/dayRecords'
 import { isDuplicate } from '../utils/dedup'
 import { setLastUsed } from '../features/new-entry/suggestions'
 import type { TimeEntry } from '../types/entry'
@@ -41,6 +43,7 @@ export default function ErfassungPage() {
   const [showHelp, setShowHelp] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const jsonFileInputRef = useRef<HTMLInputElement>(null)
 
   const handleExport = () => {
     setCsvMessage(null)
@@ -98,6 +101,67 @@ export default function ErfassungPage() {
         } else {
           setCsvMessage(parts.join(', ') + '.')
         }
+      }
+    }
+    reader.readAsText(file, 'utf-8')
+    e.target.value = ''
+  }
+
+  const handleJsonExport = () => {
+    setCsvMessage(null)
+    const dayRecords = getAllDayRecords()
+    const json = exportToJson(entries, dayRecords)
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const exportDate = new Date().toISOString().split('T')[0]
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `leistungserfassung-backup-${exportDate}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    setTimeout(() => URL.revokeObjectURL(url), 100)
+    const dayCount = Object.keys(dayRecords).length
+    setCsvMessage(`Backup exportiert (${entries.length} Einträge, ${dayCount} Tageszeiten).`)
+  }
+
+  const handleJsonFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCsvMessage(null)
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onerror = () => setCsvMessage('Fehler beim Lesen der Datei.')
+    reader.onload = (ev) => {
+      try {
+        const text = ev.target?.result as string
+        const { entries: importedEntries, dayRecords: importedDayRecords } = importFromJson(text)
+        const currentEntries = getTimeEntries()
+        let dupSkipped = 0
+        const toImport = importedEntries.filter((data) => {
+          if (isDuplicate(data, currentEntries)) {
+            dupSkipped++
+            return false
+          }
+          return true
+        })
+        toImport.forEach((data) => saveTimeEntry(data))
+        Object.entries(importedDayRecords).forEach(([date, record]) => {
+          const { date: _date, ...rest } = record
+          saveDayRecord(date, rest)
+        })
+        if (toImport.length > 0) setEntries(getTimeEntries())
+        const dayCount = Object.keys(importedDayRecords).length
+        const parts: string[] = []
+        if (toImport.length > 0) parts.push(`${toImport.length} Einträge`)
+        if (dayCount > 0) parts.push(`${dayCount} Tageszeiten`)
+        if (dupSkipped > 0) parts.push(`${dupSkipped} Duplikate übersprungen`)
+        setCsvMessage(
+          parts.length > 0
+            ? `Backup importiert: ${parts.join(', ')}.`
+            : 'Backup enthält keine neuen Daten.'
+        )
+      } catch (err) {
+        setCsvMessage(err instanceof Error ? err.message : 'Die Datei konnte nicht importiert werden.')
       }
     }
     reader.readAsText(file, 'utf-8')
@@ -233,6 +297,20 @@ export default function ErfassungPage() {
             aria-label="CSV-Datei importieren"
             style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
             onChange={handleFileChange}
+          />
+          <Button variant="secondary" onClick={handleJsonExport}>
+            <Download size={14} /> JSON exportieren
+          </Button>
+          <Button variant="secondary" onClick={() => jsonFileInputRef.current?.click()}>
+            <Upload size={14} /> JSON importieren
+          </Button>
+          <input
+            ref={jsonFileInputRef}
+            type="file"
+            accept=".json"
+            aria-label="JSON-Backup importieren"
+            style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
+            onChange={handleJsonFileChange}
           />
           {pendingDelete && (
             <span role="status" aria-live="polite" style={{ fontSize: '0.875rem', color: 'var(--clr-text-sec)' }}>
