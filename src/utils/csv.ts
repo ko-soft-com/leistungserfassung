@@ -1,4 +1,5 @@
 import type { Eintrag, EintragFormData, TimeEntry, JiraIssueType } from '../types/entry'
+import { JIRA_ISSUE_TYPES } from '../types/entry'
 
 const HEADERS = 'datum,startzeit,endzeit,auftraggeber,auftragsnummer,auftrag,zeitkonto,aufgabe,stunden,minuten,beschreibung,externeId,jiraTicket,prLink'
 
@@ -254,7 +255,9 @@ export function importTimeEntriesFromCsv(csv: string): TimeEntryImportResult {
       description,
       externalId: externalId || undefined,
       jira: jira || undefined,
-      jiraIssueType: (jiraIssueType as JiraIssueType) || undefined,
+      jiraIssueType: (JIRA_ISSUE_TYPES as readonly string[]).includes(jiraIssueType)
+        ? (jiraIssueType as JiraIssueType)
+        : undefined,
       pr: pr || undefined,
     })
   }
