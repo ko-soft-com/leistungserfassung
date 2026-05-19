@@ -26,11 +26,8 @@ export default function DayPresenceRow({ date, bookedMinutes }: DayPresenceRowPr
   function update(changes: Partial<Omit<DayRecord, 'date'>>) {
     const next = { ...record, ...changes }
     setRecord(next)
-    saveDayRecord(date, {
-      workStart: next.workStart,
-      workEnd: next.workEnd,
-      pauseMinutes: next.pauseMinutes,
-    })
+    const { date: _date, ...rest } = next
+    saveDayRecord(date, rest)
   }
 
   const actualMinutes = computeActualMinutes(record)
@@ -53,7 +50,7 @@ export default function DayPresenceRow({ date, bookedMinutes }: DayPresenceRowPr
           value={record.workStart ?? ''}
           onChange={e => update({ workStart: e.target.value || undefined })}
         />
-        <span className={styles.sep}>→</span>
+        <span className={styles.sep} aria-hidden="true">→</span>
         <label className={styles.label} htmlFor={`pe-${date}`}>bis</label>
         <input
           id={`pe-${date}`}
