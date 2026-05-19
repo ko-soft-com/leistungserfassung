@@ -89,4 +89,20 @@ describe('EditEntryDrawer', () => {
     await user.click(screen.getByText('Speichern'))
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ start: '09:30' }))
   })
+
+  it('renders Epic, Story, Task radio buttons', () => {
+    render(<EditEntryDrawer entry={entry} onSave={() => {}} onClose={() => {}} />)
+    expect(screen.getByLabelText('Epic')).toBeInTheDocument()
+    expect(screen.getByLabelText('Story')).toBeInTheDocument()
+    expect(screen.getByLabelText('Task')).toBeInTheDocument()
+  })
+
+  it('saves selected jiraIssueType when Speichern is clicked', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    render(<EditEntryDrawer entry={entry} onSave={onSave} onClose={() => {}} />)
+    fireEvent.click(screen.getByLabelText('Story'))
+    await user.click(screen.getByText('Speichern'))
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ jiraIssueType: 'Story' }))
+  })
 })

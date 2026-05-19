@@ -5,6 +5,7 @@ import type { TimeEntry } from '../../types/entry'
 import { durationMinutes } from '../../data/format'
 import Field from '../../components/Field'
 import Button from '../../components/Button'
+import IssueTypeSelector from '../../components/IssueTypeSelector'
 import styles from './EditEntryDrawer.module.css'
 
 interface EditEntryDrawerProps {
@@ -114,6 +115,10 @@ export default function EditEntryDrawer({ entry, onSave, onClose }: EditEntryDra
               <Field id="edit-jira" label="JIRA-Ticket" mono value={draft.jira ?? ''} onChange={v => setField('jira', v || undefined)} />
               <Field id="edit-pr" label="Pull-Request" mono value={draft.pr ?? ''} onChange={v => setField('pr', v || undefined)} />
             </div>
+            <IssueTypeSelector
+              value={draft.jiraIssueType}
+              onChange={v => setField('jiraIssueType', v)}
+            />
           </div>
 
           <div className={styles.footer}>
