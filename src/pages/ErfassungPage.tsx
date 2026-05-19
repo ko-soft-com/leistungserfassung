@@ -157,7 +157,7 @@ export default function ErfassungPage() {
       externalId: entry.externalId,
       jira: entry.jira,
       pr: entry.pr,
-      date: new Date().toISOString().slice(0, 10),
+      date: localISO(new Date()),
       start: null,
       end: null,
     })
