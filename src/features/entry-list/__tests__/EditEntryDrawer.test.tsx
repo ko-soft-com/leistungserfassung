@@ -17,9 +17,10 @@ describe('EditEntryDrawer', () => {
   })
 
   it('calls onClose when Abbrechen clicked', async () => {
+    const user = userEvent.setup()
     const onClose = vi.fn()
     render(<EditEntryDrawer entry={entry} onSave={() => {}} onClose={onClose} />)
-    await userEvent.click(screen.getByText('Abbrechen'))
+    await user.click(screen.getByText('Abbrechen'))
     expect(onClose).toHaveBeenCalledOnce()
   })
 
@@ -31,11 +32,12 @@ describe('EditEntryDrawer', () => {
   })
 
   it('passes updated date to onSave', async () => {
+    const user = userEvent.setup()
     const onSave = vi.fn()
     render(<EditEntryDrawer entry={entry} onSave={onSave} onClose={() => {}} />)
     const dateInput = screen.getByLabelText('Datum') as HTMLInputElement
     fireEvent.change(dateInput, { target: { value: '2026-05-13' } })
-    await userEvent.click(screen.getByText('Speichern'))
+    await user.click(screen.getByText('Speichern'))
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ date: '2026-05-13' }))
   })
 
@@ -46,10 +48,11 @@ describe('EditEntryDrawer', () => {
   })
 
   it('updating duration updates end when start is set', async () => {
+    const user = userEvent.setup()
     const onSave = vi.fn()
     render(<EditEntryDrawer entry={entry} onSave={onSave} onClose={() => {}} />)
     fireEvent.change(screen.getByLabelText('Dauer'), { target: { value: '2:00' } })
-    await userEvent.click(screen.getByText('Speichern'))
+    await user.click(screen.getByText('Speichern'))
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ end: '10:00' }))
   })
 

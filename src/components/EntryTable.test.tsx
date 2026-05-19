@@ -31,17 +31,19 @@ describe('EntryTable', () => {
   })
 
   it('calls onEdit with entry id when Bearbeiten clicked', async () => {
+    const user = userEvent.setup()
     const onEdit = vi.fn()
     render(<EntryTable eintraege={[mockEntry]} onEdit={onEdit} onDelete={vi.fn()} />)
-    await userEvent.click(screen.getByRole('button', { name: /Bearbeiten/i }))
+    await user.click(screen.getByRole('button', { name: /Bearbeiten/i }))
     expect(onEdit).toHaveBeenCalledWith('e1')
   })
 
   it('calls onDelete with entry id when Löschen clicked', async () => {
+    const user = userEvent.setup()
     const onDelete = vi.fn()
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     render(<EntryTable eintraege={[mockEntry]} onEdit={vi.fn()} onDelete={onDelete} />)
-    await userEvent.click(screen.getByRole('button', { name: /Löschen/i }))
+    await user.click(screen.getByRole('button', { name: /Löschen/i }))
     expect(onDelete).toHaveBeenCalledWith('e1')
   })
 })

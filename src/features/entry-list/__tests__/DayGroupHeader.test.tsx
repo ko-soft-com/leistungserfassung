@@ -20,9 +20,10 @@ describe('DayGroupHeader', () => {
   })
 
   it('calls onToggle on click', async () => {
+    const user = userEvent.setup()
     const onToggle = vi.fn()
     render(<DayGroupHeader date="2026-05-12" entryCount={3} totalMinutes={90} isCollapsed={false} onToggle={onToggle} />)
-    await userEvent.click(screen.getByRole('button'))
+    await user.click(screen.getByRole('button'))
     expect(onToggle).toHaveBeenCalledOnce()
   })
 })

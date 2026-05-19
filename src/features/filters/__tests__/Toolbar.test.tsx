@@ -12,9 +12,10 @@ describe('Toolbar', () => {
   })
 
   it('calls onRangeChange when Woche clicked', async () => {
+    const user = userEvent.setup()
     const fn = vi.fn()
     render(<Toolbar range="today" onRangeChange={fn} search="" onSearchChange={() => {}} clients={[]} selectedClient={null} onClientChange={() => {}} />)
-    await userEvent.click(screen.getByText('Woche'))
+    await user.click(screen.getByText('Woche'))
     expect(fn).toHaveBeenCalledWith('week')
   })
 

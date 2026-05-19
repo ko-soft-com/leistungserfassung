@@ -16,9 +16,10 @@ describe('SegmentedControl', () => {
   })
 
   it('calls onChange on click', async () => {
+    const user = userEvent.setup()
     const onChange = vi.fn()
     render(<SegmentedControl options={options} value="today" onChange={onChange} />)
-    await userEvent.click(screen.getByText('Woche'))
+    await user.click(screen.getByText('Woche'))
     expect(onChange).toHaveBeenCalledWith('week')
   })
 })

@@ -10,9 +10,10 @@ describe('Button', () => {
   })
 
   it('calls onClick', async () => {
+    const user = userEvent.setup()
     const onClick = vi.fn()
     render(<Button onClick={onClick}>Click</Button>)
-    await userEvent.click(screen.getByText('Click'))
+    await user.click(screen.getByText('Click'))
     expect(onClick).toHaveBeenCalledOnce()
   })
 

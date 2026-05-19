@@ -10,16 +10,16 @@ beforeEach(() => {
   mockOnSave.mockClear()
 })
 
-const fillForm = async () => {
-  await userEvent.type(screen.getByLabelText(/Auftraggeber/i), 'Kunde A')
-  await userEvent.type(screen.getByLabelText(/Auftragsnummer/i), 'AU-001')
-  await userEvent.type(screen.getByLabelText(/^Auftrag$/i), 'Website')
-  await userEvent.type(screen.getByLabelText(/Zeitkonto/i), 'ZK-01')
-  await userEvent.type(screen.getByLabelText(/Aufgabe/i), 'Frontend')
-  await userEvent.clear(screen.getByLabelText(/Stunden/i))
-  await userEvent.type(screen.getByLabelText(/Stunden/i), '2')
-  await userEvent.clear(screen.getByLabelText(/Minuten/i))
-  await userEvent.type(screen.getByLabelText(/Minuten/i), '30')
+async function fillForm(user: ReturnType<typeof userEvent.setup>) {
+  await user.type(screen.getByLabelText(/Auftraggeber/i), 'Kunde A')
+  await user.type(screen.getByLabelText(/Auftragsnummer/i), 'AU-001')
+  await user.type(screen.getByLabelText(/^Auftrag$/i), 'Website')
+  await user.type(screen.getByLabelText(/Zeitkonto/i), 'ZK-01')
+  await user.type(screen.getByLabelText(/Aufgabe/i), 'Frontend')
+  await user.clear(screen.getByLabelText(/Stunden/i))
+  await user.type(screen.getByLabelText(/Stunden/i), '2')
+  await user.clear(screen.getByLabelText(/Minuten/i))
+  await user.type(screen.getByLabelText(/Minuten/i), '30')
 }
 
 describe('EntryForm', () => {
@@ -38,8 +38,9 @@ describe('EntryForm', () => {
   })
 
   it('calls onSave with form data on submit', async () => {
+    const user = userEvent.setup()
     render(<EntryForm onSave={mockOnSave} />)
-    await fillForm()
+    await fillForm(user)
     fireEvent.click(screen.getByRole('button', { name: /Speichern/i }))
     expect(mockOnSave).toHaveBeenCalledWith(
       expect.objectContaining({
