@@ -22,6 +22,10 @@ export function saveDayRecord(
   const all = getAll()
   const record: DayRecord = { date, ...data }
   all[date] = record
-  localStorage.setItem(DAY_RECORDS_KEY, JSON.stringify(all))
+  try {
+    localStorage.setItem(DAY_RECORDS_KEY, JSON.stringify(all))
+  } catch (e) {
+    throw new Error(`Failed to persist day record: ${e}`)
+  }
   return record
 }
