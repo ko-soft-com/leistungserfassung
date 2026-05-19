@@ -145,6 +145,25 @@ export default function ErfassungPage() {
     }
   }
 
+  function handleDuplicate(id: string) {
+    const entry = entries.find(e => e.id === id)
+    if (!entry) return
+    saveTimeEntry({
+      client: entry.client,
+      orderNo: entry.orderNo,
+      account: entry.account,
+      task: entry.task,
+      description: entry.description,
+      externalId: entry.externalId,
+      jira: entry.jira,
+      pr: entry.pr,
+      date: new Date().toISOString().slice(0, 10),
+      start: null,
+      end: null,
+    })
+    setEntries(getTimeEntries())
+  }
+
   function handleDelete(id: string) {
     if (pendingDelete) {
       clearTimeout(pendingDelete.timer)
@@ -278,6 +297,7 @@ export default function ErfassungPage() {
         entries={filtered}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onDuplicate={handleDuplicate}
       />
 
       {editingEntry && (

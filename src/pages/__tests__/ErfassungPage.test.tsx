@@ -129,6 +129,39 @@ describe('ErfassungPage', () => {
   })
 })
 
+describe('duplicate entry', () => {
+  afterEach(() => {
+    localStorage.clear()
+  })
+
+  it('creates a copy with today\'s date and null times when Duplizieren is clicked', async () => {
+    const today = new Date().toISOString().slice(0, 10)
+    saveTimeEntry({
+      date: today,
+      start: '09:00', end: '10:00',
+      client: 'Dupli Kunde', orderNo: 'DUP-1', account: 'Dev',
+      task: 'Feature', description: 'Original entry',
+    })
+    render(
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <ErfassungPage />
+      </QueryClientProvider>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Duplizieren' }))
+
+    const allEntries = getTimeEntries()
+    expect(allEntries).toHaveLength(2)
+    const duped = allEntries[1]
+    expect(duped.date).toBe(today)
+    expect(duped.start).toBeNull()
+    expect(duped.end).toBeNull()
+    expect(duped.client).toBe('Dupli Kunde')
+    expect(duped.orderNo).toBe('DUP-1')
+    expect(duped.description).toBe('Original entry')
+  })
+})
+
 describe('CSV import duplicate handling', () => {
   afterEach(() => {
     localStorage.clear()
