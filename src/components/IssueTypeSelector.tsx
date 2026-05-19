@@ -5,16 +5,17 @@ import styles from './IssueTypeSelector.module.css'
 interface Props {
   value: JiraIssueType | '' | undefined
   onChange: (v: JiraIssueType | undefined) => void
+  name?: string
 }
 
-export default function IssueTypeSelector({ value, onChange }: Props) {
+export default function IssueTypeSelector({ value, onChange, name = 'jiraIssueType' }: Props) {
   return (
     <div className={styles.row}>
       {JIRA_ISSUE_TYPES.map(type => (
         <label key={type} className={styles.label}>
           <input
             type="radio"
-            name="jiraIssueType"
+            name={name}
             value={type}
             checked={value === type}
             onChange={() => onChange(type)}

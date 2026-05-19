@@ -25,6 +25,7 @@ describe('IssueTypeSelector', () => {
     // fireEvent.click triggers the onClick handler; clicking an already-checked
     // radio does not fire onChange in browsers, so only onClick deselects it
     fireEvent.click(screen.getByLabelText('Epic'))
+    expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenCalledWith(undefined)
   })
 })
