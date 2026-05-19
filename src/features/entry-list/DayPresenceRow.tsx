@@ -65,7 +65,7 @@ export default function DayPresenceRow({ date, bookedMinutes }: DayPresenceRowPr
           type="number"
           min="0"
           className={styles.pauseInput}
-          value={record.pauseMinutes || ''}
+          value={record.pauseMinutes === 0 ? '' : record.pauseMinutes}
           onChange={e => update({ pauseMinutes: Number(e.target.value) || 0 })}
         />
         <span className={styles.label}>min</span>
