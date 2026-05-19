@@ -29,3 +29,7 @@ export function saveDayRecord(
   }
   return record
 }
+
+export function getAllDayRecords(): Record<string, DayRecord> {
+  return getAll()
+}

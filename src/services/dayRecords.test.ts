@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest'
-import { getDayRecord, saveDayRecord } from './dayRecords'
+import { getDayRecord, saveDayRecord, getAllDayRecords } from './dayRecords'
 
 describe('dayRecords', () => {
   afterEach(() => localStorage.clear())
@@ -34,5 +34,13 @@ describe('dayRecords', () => {
     saveDayRecord('2026-05-20', { workStart: '09:00', workEnd: '17:00', pauseMinutes: 30 })
     expect(getDayRecord('2026-05-19')?.workStart).toBe('08:00')
     expect(getDayRecord('2026-05-20')?.workStart).toBe('09:00')
+  })
+
+  it('getAllDayRecords returns all saved records', () => {
+    saveDayRecord('2026-05-19', { workStart: '08:00', workEnd: '17:00', pauseMinutes: 30 })
+    saveDayRecord('2026-05-20', { workStart: '09:00', workEnd: '18:00', pauseMinutes: 45 })
+    const all = getAllDayRecords()
+    expect(Object.keys(all)).toHaveLength(2)
+    expect(all['2026-05-19'].workStart).toBe('08:00')
   })
 })
