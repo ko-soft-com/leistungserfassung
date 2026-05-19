@@ -109,6 +109,7 @@ export default function ErfassungPage() {
 
   const handleJsonExport = () => {
     setCsvMessage(null)
+    if (entries.length === 0 && Object.keys(getAllDayRecords()).length === 0) return
     const dayRecords = getAllDayRecords()
     const json = exportToJson(entries, dayRecords)
     const blob = new Blob([json], { type: 'application/json;charset=utf-8;' })
@@ -149,7 +150,14 @@ export default function ErfassungPage() {
           const { date: _date, ...rest } = record
           saveDayRecord(date, rest)
         })
-        if (toImport.length > 0) setEntries(getTimeEntries())
+        if (toImport.length > 0) {
+          setEntries(getTimeEntries())
+          const newest = [...toImport].sort((a, b) => b.date.localeCompare(a.date))[0]
+          setLastUsed({ client: newest.client, orderNo: newest.orderNo, account: newest.account })
+        }
+        if (toImport.length === 0 && dupSkipped > 0) {
+          setRange('all')
+        }
         const dayCount = Object.keys(importedDayRecords).length
         const parts: string[] = []
         if (toImport.length > 0) parts.push(`${toImport.length} Einträge`)
