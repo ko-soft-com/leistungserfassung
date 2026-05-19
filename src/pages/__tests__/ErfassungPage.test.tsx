@@ -84,7 +84,7 @@ describe('ErfassungPage', () => {
     })
 
     it('removes entry from UI immediately on delete', async () => {
-      saveTimeEntry({ date: '2026-05-15', start: '09:00', end: '10:00', client: 'Kunde X', orderNo: 'X-1', account: 'Dev', task: 'Feature', description: 'Undo test entry' })
+      saveTimeEntry({ date: new Date().toISOString().slice(0, 10), start: '09:00', end: '10:00', client: 'Kunde X', orderNo: 'X-1', account: 'Dev', task: 'Feature', description: 'Undo test entry' })
       render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><ErfassungPage /></QueryClientProvider>)
       expect(screen.getByText('Undo test entry')).toBeInTheDocument()
       vi.useFakeTimers()
@@ -94,7 +94,7 @@ describe('ErfassungPage', () => {
     })
 
     it('shows undo toast after delete', async () => {
-      saveTimeEntry({ date: '2026-05-15', start: '09:00', end: '10:00', client: 'Kunde X', orderNo: 'X-1', account: 'Dev', task: 'Feature', description: 'Undo test entry' })
+      saveTimeEntry({ date: new Date().toISOString().slice(0, 10), start: '09:00', end: '10:00', client: 'Kunde X', orderNo: 'X-1', account: 'Dev', task: 'Feature', description: 'Undo test entry' })
       render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><ErfassungPage /></QueryClientProvider>)
       expect(screen.getByText('Undo test entry')).toBeInTheDocument()
       vi.useFakeTimers()
@@ -104,7 +104,7 @@ describe('ErfassungPage', () => {
     })
 
     it('does not delete from storage until 5 seconds pass', async () => {
-      const saved = saveTimeEntry({ date: '2026-05-15', start: '09:00', end: '10:00', client: 'Kunde X', orderNo: 'X-1', account: 'Dev', task: 'Feature', description: 'Undo test entry' })
+      const saved = saveTimeEntry({ date: new Date().toISOString().slice(0, 10), start: '09:00', end: '10:00', client: 'Kunde X', orderNo: 'X-1', account: 'Dev', task: 'Feature', description: 'Undo test entry' })
       render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><ErfassungPage /></QueryClientProvider>)
       expect(screen.getByText('Undo test entry')).toBeInTheDocument()
       vi.useFakeTimers()
@@ -116,7 +116,7 @@ describe('ErfassungPage', () => {
     })
 
     it('restores entry on undo click', async () => {
-      const saved = saveTimeEntry({ date: '2026-05-15', start: '09:00', end: '10:00', client: 'Kunde X', orderNo: 'X-1', account: 'Dev', task: 'Feature', description: 'Undo test entry' })
+      const saved = saveTimeEntry({ date: new Date().toISOString().slice(0, 10), start: '09:00', end: '10:00', client: 'Kunde X', orderNo: 'X-1', account: 'Dev', task: 'Feature', description: 'Undo test entry' })
       render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><ErfassungPage /></QueryClientProvider>)
       expect(screen.getByText('Undo test entry')).toBeInTheDocument()
       vi.useFakeTimers()

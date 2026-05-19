@@ -243,6 +243,8 @@ test.describe('Persistenz', () => {
     await page.getByRole('button', { name: 'Löschen', exact: true }).click()
     await expect(page.getByText('Noch keine Zeiten erfasst')).toBeVisible()
 
+    // Wait for the 5-second undo timer to commit the deletion to localStorage
+    await page.waitForTimeout(5500)
     await page.reload()
 
     await expect(page.getByText('Noch keine Zeiten erfasst')).toBeVisible()
@@ -275,7 +277,7 @@ test.describe('CSV-Import Statusmeldungen', () => {
     await expect(page.getByRole('status')).toContainText('1 Einträge importiert')
 
     await importCsv(page, csv)
-    await expect(page.getByRole('status')).toContainText('Duplikate übersprungen')
+    await expect(page.getByRole('status')).toContainText('bereits vorhanden')
   })
 
   test('zeigt "keine neuen Einträge" bei leerem CSV (nur Header)', async ({ page }) => {
