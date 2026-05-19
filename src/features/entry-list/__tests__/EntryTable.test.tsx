@@ -51,4 +51,16 @@ describe('EntryTable', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Duplizieren' }))
     expect(onDuplicate).toHaveBeenCalledWith('1')
   })
+
+  it('renders DayPresenceRow inputs for each date group', () => {
+    render(
+      <EntryTable
+        entries={[makeEntry('1', '2026-05-10')]}
+        onEdit={() => {}}
+        onDelete={() => {}}
+      />
+    )
+    expect(screen.getByLabelText('von')).toBeInTheDocument()
+    expect(screen.getByLabelText('bis')).toBeInTheDocument()
+  })
 })

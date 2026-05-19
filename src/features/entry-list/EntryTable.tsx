@@ -2,6 +2,7 @@ import { useUIStore } from '../../stores/ui'
 import { durationMinutes } from '../../data/format'
 import type { TimeEntry } from '../../types/entry'
 import DayGroupHeader from './DayGroupHeader'
+import DayPresenceRow from './DayPresenceRow'
 import EntryRow from './EntryRow'
 import styles from './EntryTable.module.css'
 
@@ -53,6 +54,7 @@ export default function EntryTable({ entries, onEdit, onDelete, onDuplicate }: E
               isCollapsed={isCollapsed}
               onToggle={() => toggleDay(date)}
             />
+            <DayPresenceRow date={date} bookedMinutes={totalMins} />
             <div id={`day-${date}`} hidden={isCollapsed}>
               {dayEntries.map(e => (
                 <EntryRow
