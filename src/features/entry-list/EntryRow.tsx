@@ -17,9 +17,11 @@ interface EntryRowProps {
   entry: TimeEntry
   onEdit: (id: string) => void
   onDelete: (id: string) => void
+  onDuplicate?: (id: string) => void
+  isIncomplete?: boolean
 }
 
-export default function EntryRow({ entry, onEdit, onDelete }: EntryRowProps) {
+export default function EntryRow({ entry, onEdit, onDelete, onDuplicate, isIncomplete }: EntryRowProps) {
   const mins = durationMinutes(entry)
   const timeStr = `${entry.start ?? '–'} – ${entry.end ?? '…'}`
   const dateShort = fmtDateDE(entry.date).slice(0, 5) // DD.MM
@@ -30,7 +32,7 @@ export default function EntryRow({ entry, onEdit, onDelete }: EntryRowProps) {
 
   return (
     <div
-      className={styles.row}
+      className={[styles.row, isIncomplete && styles.rowIncomplete].filter(Boolean).join(' ')}
       role="button"
       tabIndex={0}
       aria-label={`Eintrag bearbeiten: ${entry.client} – ${entry.description}`}
@@ -88,7 +90,7 @@ export default function EntryRow({ entry, onEdit, onDelete }: EntryRowProps) {
       {/* Col 5: actions */}
       <div className={styles.actions} onClick={e => e.stopPropagation()}>
         <button className={styles.iconBtn} aria-label="Bearbeiten" onClick={() => onEdit(entry.id)}><Pencil size={14} /></button>
-        <button className={styles.iconBtn} aria-label="Duplizieren"><Plus size={14} /></button>
+        <button className={styles.iconBtn} aria-label="Duplizieren" onClick={() => onDuplicate?.(entry.id)}><Plus size={14} /></button>
         <button className={styles.iconBtn} aria-label="Löschen" onClick={() => onDelete(entry.id)}><Trash2 size={14} /></button>
         <button className={styles.iconBtn} aria-label="Mehr"><MoreHorizontal size={14} /></button>
       </div>

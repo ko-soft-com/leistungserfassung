@@ -119,3 +119,6 @@
 }
 
 .iconBtn:hover { background: var(--hover); color: var(--text); opacity: 1; }
+
+.rowIncomplete { background: #fef2f2; }
+.rowIncomplete:hover { background: #fde8e8; }
