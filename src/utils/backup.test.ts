@@ -54,4 +54,8 @@ describe('importFromJson', () => {
     expect(entries).toEqual([])
     expect(dayRecords).toEqual({})
   })
+
+  it('throws when entries field is not an array', () => {
+    expect(() => importFromJson('{"version":1,"entries":"oops","dayRecords":{}}')).toThrow('Unbekanntes Backup-Format (kein version-Feld).')
+  })
 })

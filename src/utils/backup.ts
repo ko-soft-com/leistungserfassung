@@ -34,9 +34,18 @@ export function importFromJson(text: string): {
   if (typeof parsed !== 'object' || parsed === null || !('version' in parsed)) {
     throw new Error('Unbekanntes Backup-Format (kein version-Feld).')
   }
-  const backup = parsed as BackupFile
+  const raw = parsed as Record<string, unknown>
+  if (raw['version'] !== 1) {
+    throw new Error('Unbekanntes Backup-Format (kein version-Feld).')
+  }
+  if (!Array.isArray(raw['entries'])) {
+    throw new Error('Unbekanntes Backup-Format (kein version-Feld).')
+  }
+  if (typeof raw['dayRecords'] !== 'object' || raw['dayRecords'] === null || Array.isArray(raw['dayRecords'])) {
+    throw new Error('Unbekanntes Backup-Format (kein version-Feld).')
+  }
   return {
-    entries: backup.entries ?? [],
-    dayRecords: backup.dayRecords ?? {},
+    entries: raw['entries'] as TimeEntry[],
+    dayRecords: raw['dayRecords'] as Record<string, DayRecord>,
   }
 }
