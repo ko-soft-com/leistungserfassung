@@ -2,6 +2,9 @@ export type TaskType = 'Bug-Fixing' | 'Feature' | 'Review' | 'Meeting'
 
 export const TASK_TYPES: readonly TaskType[] = ['Bug-Fixing', 'Feature', 'Review', 'Meeting']
 
+export type JiraIssueType = 'Epic' | 'Story' | 'Task'
+export const JIRA_ISSUE_TYPES: readonly JiraIssueType[] = ['Epic', 'Story', 'Task']
+
 export interface TimeEntry {
   id: string
   date: string          // 'YYYY-MM-DD'
@@ -14,6 +17,7 @@ export interface TimeEntry {
   description: string
   externalId?: string
   jira?: string
+  jiraIssueType?: JiraIssueType
   pr?: string
   createdAt: string
   updatedAt: string

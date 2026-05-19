@@ -1,4 +1,4 @@
-import type { Eintrag, EintragFormData, TimeEntry } from '../types/entry'
+import type { Eintrag, EintragFormData, TimeEntry, JiraIssueType } from '../types/entry'
 
 const HEADERS = 'datum,startzeit,endzeit,auftraggeber,auftragsnummer,auftrag,zeitkonto,aufgabe,stunden,minuten,beschreibung,externeId,jiraTicket,prLink'
 
@@ -128,7 +128,7 @@ function durationParts(start: string | null, end: string | null): { hours: numbe
 }
 
 const TIME_HEADERS =
-  'date,start,end,client,orderNo,account,task,hours,minutes,description,externalId,jira,pr'
+  'date,start,end,client,orderNo,account,task,hours,minutes,description,externalId,jira,jiraIssueType,pr'
 
 export function exportTimeEntriesToCsv(entries: TimeEntry[]): string {
   const rows = entries.map((e) => {
@@ -146,6 +146,7 @@ export function exportTimeEntriesToCsv(entries: TimeEntry[]): string {
       e.description,
       e.externalId ?? '',
       e.jira ?? '',
+      e.jiraIssueType ?? '',
       e.pr ?? '',
     ]
       .map(escapeField)
@@ -220,6 +221,7 @@ export function importTimeEntriesFromCsv(csv: string): TimeEntryImportResult {
     const description = get(f, 'description')
     const externalId = get(f, 'externalId')
     const jira = get(f, 'jira')
+    const jiraIssueType = get(f, 'jiraIssueType')
     const pr = get(f, 'pr')
 
     const hoursStr = get(f, 'hours')
@@ -252,6 +254,7 @@ export function importTimeEntriesFromCsv(csv: string): TimeEntryImportResult {
       description,
       externalId: externalId || undefined,
       jira: jira || undefined,
+      jiraIssueType: (jiraIssueType as JiraIssueType) || undefined,
       pr: pr || undefined,
     })
   }

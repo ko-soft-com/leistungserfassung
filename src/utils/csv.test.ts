@@ -185,7 +185,7 @@ describe('exportTimeEntriesToCsv', () => {
     const lines = result.replace('﻿', '').split('\n')
     expect(lines).toHaveLength(1)
     expect(lines[0]).toBe(
-      'date,start,end,client,orderNo,account,task,hours,minutes,description,externalId,jira,pr'
+      'date,start,end,client,orderNo,account,task,hours,minutes,description,externalId,jira,jiraIssueType,pr'
     )
   })
 
@@ -198,14 +198,38 @@ describe('exportTimeEntriesToCsv', () => {
     const lines = result.replace('﻿', '').split('\n')
     expect(lines).toHaveLength(2)
     expect(lines[1]).toBe(
-      '2026-05-12,09:00,10:30,Kunde B,B-002,Entwicklung,Feature,1,30,Login implementieren,EXT-2,LEIS-42,https://github.com/org/repo/pull/7'
+      '2026-05-12,09:00,10:30,Kunde B,B-002,Entwicklung,Feature,1,30,Login implementieren,EXT-2,LEIS-42,,https://github.com/org/repo/pull/7'
     )
   })
 
   it('renders empty string for null end and absent optional fields', () => {
     const entry: TimeEntry = { ...baseTimeEntry, end: null, externalId: undefined, jira: undefined, pr: undefined }
     const row = exportTimeEntriesToCsv([entry]).replace('﻿', '').split('\n')[1]
-    expect(row).toBe('2026-05-12,09:00,,Kunde B,B-002,Entwicklung,Feature,0,0,Login implementieren,,,')
+    expect(row).toBe('2026-05-12,09:00,,Kunde B,B-002,Entwicklung,Feature,0,0,Login implementieren,,,,')
+  })
+
+  it('V2 export includes jiraIssueType in header', () => {
+    const entry: TimeEntry = {
+      id: '1', date: '2026-05-19', start: '08:00', end: '09:00',
+      client: 'WASCOSA', orderNo: 'SP 07', account: '#WX-225',
+      task: 'Feature', description: 'Test', jiraIssueType: 'Story',
+      createdAt: '', updatedAt: '',
+    }
+    const csv = exportTimeEntriesToCsv([entry])
+    const header = csv.replace(/^﻿/, '').split('\n')[0]
+    expect(header).toContain('jiraIssueType')
+  })
+
+  it('V2 export places jiraIssueType value in data row', () => {
+    const entry: TimeEntry = {
+      id: '1', date: '2026-05-19', start: '08:00', end: '09:00',
+      client: 'WASCOSA', orderNo: 'SP 07', account: '#WX-225',
+      task: 'Feature', description: 'Test', jiraIssueType: 'Epic',
+      createdAt: '', updatedAt: '',
+    }
+    const csv = exportTimeEntriesToCsv([entry])
+    const dataLine = csv.replace(/^﻿/, '').split('\n')[1]
+    expect(dataLine).toContain('Epic')
   })
 
   it('quotes fields that contain a comma', () => {
@@ -434,5 +458,22 @@ describe('importTimeEntriesFromCsv', () => {
     const { imported, skipped } = importTimeEntriesFromCsv(csv)
     expect(imported).toHaveLength(0)
     expect(skipped).toBe(1)
+  })
+
+  it('V2 import parses jiraIssueType from CSV', () => {
+    const csv =
+      'date,start,end,client,orderNo,account,task,hours,minutes,description,externalId,jira,jiraIssueType,pr\n' +
+      '2026-05-19,08:00,09:00,WASCOSA,SP 07,#WX-225,Feature,1,0,Test,,WX-100,Task,'
+    const result = importTimeEntriesFromCsv(csv)
+    expect(result.imported).toHaveLength(1)
+    expect(result.imported[0].jiraIssueType).toBe('Task')
+  })
+
+  it('V2 import leaves jiraIssueType undefined when column is empty', () => {
+    const csv =
+      'date,start,end,client,orderNo,account,task,hours,minutes,description,externalId,jira,jiraIssueType,pr\n' +
+      '2026-05-19,08:00,09:00,WASCOSA,SP 07,#WX-225,Feature,1,0,Test,,WX-100,,'
+    const result = importTimeEntriesFromCsv(csv)
+    expect(result.imported[0].jiraIssueType).toBeUndefined()
   })
 })
