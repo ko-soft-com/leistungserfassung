@@ -38,4 +38,30 @@ describe('EditEntryDrawer', () => {
     await userEvent.click(screen.getByText('Speichern'))
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ date: '2026-05-13' }))
   })
+
+  it('shows computed duration from start and end', () => {
+    render(<EditEntryDrawer entry={entry} onSave={() => {}} onClose={() => {}} />)
+    const dauerInput = screen.getByLabelText('Dauer') as HTMLInputElement
+    expect(dauerInput.value).toBe('1:30')
+  })
+
+  it('updating duration updates end when start is set', async () => {
+    const onSave = vi.fn()
+    render(<EditEntryDrawer entry={entry} onSave={onSave} onClose={() => {}} />)
+    fireEvent.change(screen.getByLabelText('Dauer'), { target: { value: '2:00' } })
+    await userEvent.click(screen.getByText('Speichern'))
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ end: '10:00' }))
+  })
+
+  it('updating start updates duration display', () => {
+    render(<EditEntryDrawer entry={entry} onSave={() => {}} onClose={() => {}} />)
+    fireEvent.change(screen.getByLabelText('Start'), { target: { value: '08:30' } })
+    expect((screen.getByLabelText('Dauer') as HTMLInputElement).value).toBe('1:00')
+  })
+
+  it('updating end updates duration display', () => {
+    render(<EditEntryDrawer entry={entry} onSave={() => {}} onClose={() => {}} />)
+    fireEvent.change(screen.getByLabelText('Ende'), { target: { value: '10:00' } })
+    expect((screen.getByLabelText('Dauer') as HTMLInputElement).value).toBe('2:00')
+  })
 })

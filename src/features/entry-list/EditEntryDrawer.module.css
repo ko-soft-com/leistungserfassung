@@ -58,7 +58,13 @@
   gap: 14px;
 }
 
-.timeRow, .refRow {
+.timeRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.refRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
