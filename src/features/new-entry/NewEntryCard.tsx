@@ -8,6 +8,7 @@ import Button from '../../components/Button'
 import { saveTimeEntry } from '../../services/storage'
 import type { TimeEntry } from '../../types/entry'
 import { TASK_TYPES } from '../../types/entry'
+import IssueTypeSelector from '../../components/IssueTypeSelector'
 import styles from './NewEntryCard.module.css'
 import { useElapsedTime } from '../../hooks/useElapsedTime'
 
@@ -47,6 +48,7 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
       description: draft.description,
       jira: draft.jira || undefined,
       pr: draft.pr || undefined,
+      jiraIssueType: draft.jiraIssueType || undefined,
     })
     setLastUsed({ client: draft.client, orderNo: draft.orderNo, account: draft.account })
     onSaved?.(saved)
@@ -170,6 +172,12 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
             <Button variant="ghost" type="button" onClick={() => { reset(); setDurationMins('') }}><X size={13} /> Abbrechen</Button>
             <Button variant="primary" type="submit"><Check size={13} /> Speichern</Button>
           </div>
+        </div>
+        <div className={styles.row3}>
+          <IssueTypeSelector
+            value={draft.jiraIssueType}
+            onChange={v => setField('jiraIssueType', v ?? '')}
+          />
         </div>
       </form>
     </div>

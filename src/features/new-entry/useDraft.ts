@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
-import type { TaskType } from '../../types/entry'
+import type { TaskType, JiraIssueType } from '../../types/entry'
 
 interface Draft {
   date: string
@@ -13,6 +13,7 @@ interface Draft {
   description: string
   jira: string
   pr: string
+  jiraIssueType: JiraIssueType | ''
 }
 
 type DraftErrors = Partial<Record<keyof Draft, string>>
@@ -39,6 +40,7 @@ export function useDraft() {
     description: '',
     jira: '',
     pr: '',
+    jiraIssueType: '',
   })
   const [errors, setErrors] = useState<DraftErrors>({})
 
@@ -71,6 +73,7 @@ export function useDraft() {
       description: '',
       jira: '',
       pr: '',
+      jiraIssueType: '',
     })
     setErrors({})
   }

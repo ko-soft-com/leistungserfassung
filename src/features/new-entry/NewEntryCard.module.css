@@ -102,6 +102,8 @@
   justify-content: flex-end;
 }
 
+.row3 { padding: 0 18px 14px; }
+
 @media (max-width: 1050px) {
   .row1 { grid-template-columns: 1fr 1fr 1fr 1fr; }
 }

@@ -140,6 +140,13 @@ describe('NewEntryCard', () => {
     expect(dateInput.value).toBe('2026-05-10')
   })
 
+  it('renders Epic, Story, Task radio buttons', () => {
+    render(<NewEntryCard />)
+    expect(screen.getByLabelText('Epic')).toBeInTheDocument()
+    expect(screen.getByLabelText('Story')).toBeInTheDocument()
+    expect(screen.getByLabelText('Task')).toBeInTheDocument()
+  })
+
 })
 
 describe('Start/Stop timer button', () => {
