@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
 import EntryTable from '../EntryTable'
 import type { TimeEntry } from '../../../types/entry'
 
@@ -36,5 +36,19 @@ describe('EntryTable', () => {
     expect(headers[0]).toHaveTextContent('12.05.2026')
     expect(headers[1]).toHaveTextContent('11.05.2026')
     expect(headers[2]).toHaveTextContent('10.05.2026')
+  })
+
+  it('calls onDuplicate when the Duplizieren button is clicked', () => {
+    const onDuplicate = vi.fn()
+    render(
+      <EntryTable
+        entries={[makeEntry('1', '2026-05-10')]}
+        onEdit={() => {}}
+        onDelete={() => {}}
+        onDuplicate={onDuplicate}
+      />
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Duplizieren' }))
+    expect(onDuplicate).toHaveBeenCalledWith('1')
   })
 })

@@ -9,6 +9,7 @@ interface EntryTableProps {
   entries: TimeEntry[]
   onEdit: (id: string) => void
   onDelete: (id: string) => void
+  onDuplicate?: (id: string) => void
 }
 
 function groupByDate(entries: TimeEntry[]): [string, TimeEntry[]][] {
@@ -21,7 +22,11 @@ function groupByDate(entries: TimeEntry[]): [string, TimeEntry[]][] {
   return Array.from(map.entries()).sort((a, b) => b[0].localeCompare(a[0]))
 }
 
-export default function EntryTable({ entries, onEdit, onDelete }: EntryTableProps) {
+function isEntryIncomplete(e: TimeEntry): boolean {
+  return !e.start || !e.end || !e.client || !e.orderNo || !e.account || !e.description
+}
+
+export default function EntryTable({ entries, onEdit, onDelete, onDuplicate }: EntryTableProps) {
   const { collapsedDays, toggleDay } = useUIStore()
 
   if (entries.length === 0) {
@@ -50,7 +55,14 @@ export default function EntryTable({ entries, onEdit, onDelete }: EntryTableProp
             />
             <div id={`day-${date}`} hidden={isCollapsed}>
               {dayEntries.map(e => (
-                <EntryRow key={e.id} entry={e} onEdit={onEdit} onDelete={onDelete} />
+                <EntryRow
+                  key={e.id}
+                  entry={e}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onDuplicate={onDuplicate}
+                  isIncomplete={isEntryIncomplete(e)}
+                />
               ))}
             </div>
           </div>
