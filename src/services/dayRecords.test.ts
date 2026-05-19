@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest'
-import { getDayRecord, saveDayRecord } from '../dayRecords'
+import { getDayRecord, saveDayRecord } from './dayRecords'
 
 describe('dayRecords', () => {
   afterEach(() => localStorage.clear())
