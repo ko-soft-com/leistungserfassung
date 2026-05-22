@@ -5,6 +5,7 @@ stages:
   - test
   - security-scan
   - build
+  - deploy
 
 compile:
   stage: compile
@@ -86,3 +87,15 @@ build:
     - if: '$CI_COMMIT_TAG'
       variables:
         IMAGE_TAG: "$CI_COMMIT_TAG"
+
+firebase-deploy:
+  stage: deploy
+  image: node:22-alpine
+  needs: [build]
+  before_script:
+    - npm install -g firebase-tools
+  script:
+    - firebase deploy --only firestore:rules,firestore:indexes --token "$FIREBASE_TOKEN" --project "$FIREBASE_PROJECT_ID"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual
