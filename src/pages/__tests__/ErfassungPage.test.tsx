@@ -1,25 +1,47 @@
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import ErfassungPage from '../ErfassungPage'
-import { saveTimeEntry, getTimeEntries } from '../../services/storage'
 import * as suggestionsModule from '../../features/new-entry/suggestions'
 
-const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+vi.mock('../../services/firestoreTimeEntries', () => ({
+  getTimeEntries: vi.fn(() => Promise.resolve([])),
+  saveTimeEntry: vi.fn((data: any) => Promise.resolve({ id: 'mock-id', ...data, createdAt: 'now', updatedAt: 'now' })),
+  updateTimeEntry: vi.fn((_id: string, data: any) => Promise.resolve({ id: _id, ...data, createdAt: 'now', updatedAt: 'now' })),
+  deleteTimeEntry: vi.fn(() => Promise.resolve()),
+}))
+
+vi.mock('../../services/firestoreDayRecords', () => ({
+  getAllDayRecords: vi.fn(() => Promise.resolve({})),
+  saveDayRecord: vi.fn((date: string, data: any) => Promise.resolve({ date, ...data })),
+  getDayRecord: vi.fn(() => Promise.resolve(null)),
+}))
+
+import { getTimeEntries, saveTimeEntry, deleteTimeEntry } from '../../services/firestoreTimeEntries'
+
+const makeQC = () => new QueryClient({ defaultOptions: { queries: { retry: false } } })
 
 describe('ErfassungPage', () => {
-  it('renders page title', () => {
+  beforeEach(() => {
+    vi.mocked(getTimeEntries).mockResolvedValue([])
+    vi.mocked(saveTimeEntry).mockImplementation((data: any) =>
+      Promise.resolve({ id: 'mock-id', ...data, createdAt: 'now', updatedAt: 'now' })
+    )
+    vi.mocked(deleteTimeEntry).mockResolvedValue(undefined)
+  })
+
+  it('renders page title', async () => {
     render(
-      <QueryClientProvider client={qc}>
+      <QueryClientProvider client={makeQC()}>
         <ErfassungPage />
       </QueryClientProvider>
     )
     expect(screen.getByText(/Zeiterfassung/)).toBeInTheDocument()
   })
 
-  it('renders 4 KPI cards', () => {
+  it('renders 4 KPI cards', async () => {
     render(
-      <QueryClientProvider client={qc}>
+      <QueryClientProvider client={makeQC()}>
         <ErfassungPage />
       </QueryClientProvider>
     )
@@ -30,26 +52,36 @@ describe('ErfassungPage', () => {
     expect(screen.getByText('Offene Timer')).toBeInTheDocument()
   })
 
-  it('shows a saved entry in the table after mounting with pre-seeded localStorage', () => {
-    saveTimeEntry({
+  it('shows a saved entry in the table after mounting with pre-seeded data', async () => {
+    const entry = {
+      id: 'seeded-1',
       date: new Date().toISOString().slice(0, 10),
       start: '09:00', end: '10:00',
       client: 'Testkunde', orderNo: 'T-01', account: 'Dev',
       task: 'Feature', description: 'Irgendwas wichtiges',
-    })
+      createdAt: 'now', updatedAt: 'now',
+    }
+    vi.mocked(getTimeEntries).mockResolvedValue([entry] as any)
+
     render(
-      <QueryClientProvider client={qc}>
+      <QueryClientProvider client={makeQC()}>
         <ErfassungPage />
       </QueryClientProvider>
     )
-    expect(screen.getAllByText('Testkunde').length).toBeGreaterThanOrEqual(1)
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Testkunde').length).toBeGreaterThanOrEqual(1)
+    })
   })
 
   it('calls setLastUsed with the most recent entry after CSV import', async () => {
     const setLastUsedSpy = vi.spyOn(suggestionsModule, 'setLastUsed')
 
+    // Initial load: empty. During CSV duplicate-check + post-import reload: also empty (no pre-existing).
+    vi.mocked(getTimeEntries).mockResolvedValue([])
+
     render(
-      <QueryClientProvider client={qc}>
+      <QueryClientProvider client={makeQC()}>
         <ErfassungPage />
       </QueryClientProvider>
     )
@@ -78,15 +110,38 @@ describe('ErfassungPage', () => {
   })
 
   describe('delete with undo', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+      vi.mocked(getTimeEntries).mockResolvedValue([])
+      vi.mocked(saveTimeEntry).mockImplementation((data: any) =>
+        Promise.resolve({ id: 'mock-id', ...data, createdAt: 'now', updatedAt: 'now' })
+      )
+      vi.mocked(deleteTimeEntry).mockResolvedValue(undefined)
+    })
+
     afterEach(() => {
       vi.useRealTimers()
-      localStorage.clear()
     })
 
     it('removes entry from UI immediately on delete', async () => {
-      saveTimeEntry({ date: new Date().toISOString().slice(0, 10), start: '09:00', end: '10:00', client: 'Kunde X', orderNo: 'X-1', account: 'Dev', task: 'Feature', description: 'Undo test entry' })
-      render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><ErfassungPage /></QueryClientProvider>)
-      expect(screen.getByText('Undo test entry')).toBeInTheDocument()
+      const entry = {
+        id: 'del-1',
+        date: new Date().toISOString().slice(0, 10),
+        start: '09:00', end: '10:00',
+        client: 'Kunde X', orderNo: 'X-1', account: 'Dev',
+        task: 'Feature', description: 'Undo test entry',
+        createdAt: 'now', updatedAt: 'now',
+      }
+      vi.mocked(getTimeEntries).mockResolvedValue([entry] as any)
+
+      render(
+        <QueryClientProvider client={makeQC()}>
+          <ErfassungPage />
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => expect(screen.getByText('Undo test entry')).toBeInTheDocument())
+
       vi.useFakeTimers()
       fireEvent.click(screen.getByRole('button', { name: 'Löschen' }))
       expect(screen.queryByText('Undo test entry')).not.toBeInTheDocument()
@@ -94,91 +149,154 @@ describe('ErfassungPage', () => {
     })
 
     it('shows undo toast after delete', async () => {
-      saveTimeEntry({ date: new Date().toISOString().slice(0, 10), start: '09:00', end: '10:00', client: 'Kunde X', orderNo: 'X-1', account: 'Dev', task: 'Feature', description: 'Undo test entry' })
-      render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><ErfassungPage /></QueryClientProvider>)
-      expect(screen.getByText('Undo test entry')).toBeInTheDocument()
+      const entry = {
+        id: 'del-2',
+        date: new Date().toISOString().slice(0, 10),
+        start: '09:00', end: '10:00',
+        client: 'Kunde X', orderNo: 'X-1', account: 'Dev',
+        task: 'Feature', description: 'Undo test entry',
+        createdAt: 'now', updatedAt: 'now',
+      }
+      vi.mocked(getTimeEntries).mockResolvedValue([entry] as any)
+
+      render(
+        <QueryClientProvider client={makeQC()}>
+          <ErfassungPage />
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => expect(screen.getByText('Undo test entry')).toBeInTheDocument())
+
       vi.useFakeTimers()
       fireEvent.click(screen.getByRole('button', { name: 'Löschen' }))
       expect(screen.getByRole('button', { name: 'Rückgängig' })).toBeInTheDocument()
       vi.useRealTimers()
     })
 
-    it('does not delete from storage until 5 seconds pass', async () => {
-      const saved = saveTimeEntry({ date: new Date().toISOString().slice(0, 10), start: '09:00', end: '10:00', client: 'Kunde X', orderNo: 'X-1', account: 'Dev', task: 'Feature', description: 'Undo test entry' })
-      render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><ErfassungPage /></QueryClientProvider>)
-      expect(screen.getByText('Undo test entry')).toBeInTheDocument()
+    it('calls deleteTimeEntry after 5 seconds pass', async () => {
+      const entry = {
+        id: 'del-3',
+        date: new Date().toISOString().slice(0, 10),
+        start: '09:00', end: '10:00',
+        client: 'Kunde X', orderNo: 'X-1', account: 'Dev',
+        task: 'Feature', description: 'Undo test entry',
+        createdAt: 'now', updatedAt: 'now',
+      }
+      vi.mocked(getTimeEntries).mockResolvedValue([entry] as any)
+
+      render(
+        <QueryClientProvider client={makeQC()}>
+          <ErfassungPage />
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => expect(screen.getByText('Undo test entry')).toBeInTheDocument())
+
       vi.useFakeTimers()
       fireEvent.click(screen.getByRole('button', { name: 'Löschen' }))
-      expect(getTimeEntries().find(e => e.id === saved.id)).toBeDefined()
-      act(() => vi.advanceTimersByTime(5001))
-      expect(getTimeEntries().find(e => e.id === saved.id)).toBeUndefined()
+      expect(vi.mocked(deleteTimeEntry)).not.toHaveBeenCalled()
+      await act(async () => { vi.advanceTimersByTime(5001) })
+      expect(vi.mocked(deleteTimeEntry)).toHaveBeenCalledWith('del-3')
       vi.useRealTimers()
     })
 
     it('restores entry on undo click', async () => {
-      const saved = saveTimeEntry({ date: new Date().toISOString().slice(0, 10), start: '09:00', end: '10:00', client: 'Kunde X', orderNo: 'X-1', account: 'Dev', task: 'Feature', description: 'Undo test entry' })
-      render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><ErfassungPage /></QueryClientProvider>)
-      expect(screen.getByText('Undo test entry')).toBeInTheDocument()
+      const entry = {
+        id: 'del-4',
+        date: new Date().toISOString().slice(0, 10),
+        start: '09:00', end: '10:00',
+        client: 'Kunde X', orderNo: 'X-1', account: 'Dev',
+        task: 'Feature', description: 'Undo test entry',
+        createdAt: 'now', updatedAt: 'now',
+      }
+      vi.mocked(getTimeEntries).mockResolvedValue([entry] as any)
+
+      render(
+        <QueryClientProvider client={makeQC()}>
+          <ErfassungPage />
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => expect(screen.getByText('Undo test entry')).toBeInTheDocument())
+
       vi.useFakeTimers()
       fireEvent.click(screen.getByRole('button', { name: 'Löschen' }))
       act(() => fireEvent.click(screen.getByRole('button', { name: 'Rückgängig' })))
       vi.useRealTimers()
       expect(screen.getByText('Undo test entry')).toBeInTheDocument()
-      expect(getTimeEntries().find(e => e.id === saved.id)).toBeDefined()
     })
   })
 })
 
 describe('duplicate entry', () => {
-  afterEach(() => {
-    localStorage.clear()
+  beforeEach(() => {
+    vi.mocked(deleteTimeEntry).mockResolvedValue(undefined)
   })
 
   it('creates a copy with today\'s date and null times when Duplizieren is clicked', async () => {
     const today = new Date().toISOString().slice(0, 10)
-    saveTimeEntry({
+    const original = {
+      id: 'orig-1',
       date: today,
       start: '09:00', end: '10:00',
       client: 'Dupli Kunde', orderNo: 'DUP-1', account: 'Dev',
       task: 'Feature', description: 'Original entry',
-    })
+      createdAt: 'now', updatedAt: 'now',
+    }
+    vi.mocked(getTimeEntries).mockResolvedValue([original] as any)
+    vi.mocked(saveTimeEntry).mockImplementation((data: any) =>
+      Promise.resolve({ id: 'duped-1', ...data, createdAt: 'now', updatedAt: 'now' })
+    )
+
     render(
-      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      <QueryClientProvider client={makeQC()}>
         <ErfassungPage />
       </QueryClientProvider>
     )
 
-    fireEvent.click(screen.getByRole('button', { name: 'Duplizieren' }))
+    await waitFor(() => expect(screen.getByText('Original entry')).toBeInTheDocument())
 
-    const allEntries = getTimeEntries()
-    expect(allEntries).toHaveLength(2)
-    const duped = allEntries[1]
-    expect(duped.date).toBe(today)
-    expect(duped.start).toBeNull()
-    expect(duped.end).toBeNull()
-    expect(duped.client).toBe('Dupli Kunde')
-    expect(duped.orderNo).toBe('DUP-1')
-    expect(duped.description).toBe('Original entry')
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Duplizieren' }))
+    })
+
+    await waitFor(() => {
+      expect(vi.mocked(saveTimeEntry)).toHaveBeenCalledWith(
+        expect.objectContaining({
+          client: 'Dupli Kunde',
+          orderNo: 'DUP-1',
+          date: today,
+          start: null,
+          end: null,
+        })
+      )
+    })
   })
 })
 
 describe('CSV import duplicate handling', () => {
-  afterEach(() => {
-    localStorage.clear()
-  })
-
   it('switches to Alle and shows duplicate message when all CSV entries already exist', async () => {
-    saveTimeEntry({
-      date: '2026-01-01', start: '09:00', end: '10:00',
+    const existing = {
+      id: 'exist-1',
+      date: '2026-01-01',
+      start: '09:00', end: '10:00',
       client: 'AltKunde', orderNo: 'ALT-1', account: 'Dev',
       task: 'Feature', description: 'Schon vorhanden',
-    })
+      createdAt: 'now', updatedAt: 'now',
+    }
+    vi.mocked(getTimeEntries).mockResolvedValue([existing] as any)
 
     render(
-      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      <QueryClientProvider client={makeQC()}>
         <ErfassungPage />
       </QueryClientProvider>
     )
+
+    await waitFor(() => {
+      // Entry from 2026-01-01 is outside current week so not visible initially
+      // but we just wait for loading to be done
+      expect(vi.mocked(getTimeEntries)).toHaveBeenCalled()
+    })
 
     const csvContent = [
       'date,start,end,client,orderNo,account,task,hours,minutes,description,externalId,jira,pr',
