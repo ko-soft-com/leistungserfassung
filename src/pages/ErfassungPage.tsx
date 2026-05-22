@@ -11,10 +11,10 @@ import EditEntryDrawer from '../features/entry-list/EditEntryDrawer'
 import { applyFilter } from '../data/filter'
 import { durationMinutes, fmtH } from '../data/format'
 import type { Range } from '../data/filter'
-import { getTimeEntries, saveTimeEntry, updateTimeEntry, deleteTimeEntry } from '../services/storage'
+import { getTimeEntries, saveTimeEntry, updateTimeEntry, deleteTimeEntry } from '../services/firestoreTimeEntries'
 import { exportTimeEntriesToCsv, importTimeEntriesFromCsv } from '../utils/csv'
 import { exportToJson, importFromJson } from '../utils/backup'
-import { getAllDayRecords, saveDayRecord } from '../services/dayRecords'
+import { getAllDayRecords, saveDayRecord } from '../services/firestoreDayRecords'
 import { isDuplicate } from '../utils/dedup'
 import { setLastUsed } from '../features/new-entry/suggestions'
 import type { TimeEntry } from '../types/entry'
@@ -33,7 +33,8 @@ export default function ErfassungPage() {
   const weekday = format(today, 'EEEE', { locale: de })
   const dateStr = format(today, 'dd.MM.yyyy')
 
-  const [entries, setEntries] = useState<TimeEntry[]>(() => getTimeEntries())
+  const [entries, setEntries] = useState<TimeEntry[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [range, setRange] = useState<Range>('week')
   const [search, setSearch] = useState('')
   const [selectedClient, setSelectedClient] = useState<string | null>(null)
@@ -41,6 +42,13 @@ export default function ErfassungPage() {
   const [csvMessage, setCsvMessage] = useState<string | null>(null)
   const [pendingDelete, setPendingDelete] = useState<{ id: string; entry: TimeEntry; timer: ReturnType<typeof setTimeout> } | null>(null)
   const [showHelp, setShowHelp] = useState(false)
+
+  useEffect(() => {
+    getTimeEntries().then(loaded => {
+      setEntries(loaded)
+      setIsLoading(false)
+    })
+  }, [])
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const jsonFileInputRef = useRef<HTMLInputElement>(null)
@@ -68,10 +76,10 @@ export default function ErfassungPage() {
     if (!file) return
     const reader = new FileReader()
     reader.onerror = () => setCsvMessage('Fehler beim Lesen der Datei.')
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       const text = ev.target?.result as string
       const { imported, skipped: formatSkipped } = importTimeEntriesFromCsv(text)
-      const currentEntries = getTimeEntries()
+      const currentEntries = await getTimeEntries()
       let dupSkipped = 0
       const toImport = imported.filter((data) => {
         if (isDuplicate(data, currentEntries)) {
@@ -80,9 +88,9 @@ export default function ErfassungPage() {
         }
         return true
       })
-      toImport.forEach((data) => saveTimeEntry(data))
+      await Promise.all(toImport.map((data) => saveTimeEntry(data)))
       if (toImport.length > 0) {
-        setEntries(getTimeEntries())
+        setEntries(await getTimeEntries())
         const newest = [...toImport].sort((a, b) => b.date.localeCompare(a.date))[0]
         setLastUsed({ client: newest.client, orderNo: newest.orderNo, account: newest.account })
       }
@@ -107,10 +115,10 @@ export default function ErfassungPage() {
     e.target.value = ''
   }
 
-  const handleJsonExport = () => {
+  const handleJsonExport = async () => {
     setCsvMessage(null)
-    if (entries.length === 0 && Object.keys(getAllDayRecords()).length === 0) return
-    const dayRecords = getAllDayRecords()
+    const dayRecords = await getAllDayRecords()
+    if (entries.length === 0 && Object.keys(dayRecords).length === 0) return
     const json = exportToJson(entries, dayRecords)
     const blob = new Blob([json], { type: 'application/json;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
@@ -132,11 +140,11 @@ export default function ErfassungPage() {
     if (!file) return
     const reader = new FileReader()
     reader.onerror = () => setCsvMessage('Fehler beim Lesen der Datei.')
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       try {
         const text = ev.target?.result as string
         const { entries: importedEntries, dayRecords: importedDayRecords } = importFromJson(text)
-        const currentEntries = getTimeEntries()
+        const currentEntries = await getTimeEntries()
         let dupSkipped = 0
         const toImport = importedEntries.filter((data) => {
           if (isDuplicate(data, currentEntries)) {
@@ -145,13 +153,15 @@ export default function ErfassungPage() {
           }
           return true
         })
-        toImport.forEach((data) => saveTimeEntry(data))
-        Object.entries(importedDayRecords).forEach(([date, record]) => {
-          const { date: _date, ...rest } = record
-          saveDayRecord(date, rest)
-        })
+        await Promise.all(toImport.map((data) => saveTimeEntry(data)))
+        await Promise.all(
+          Object.entries(importedDayRecords).map(([date, record]) => {
+            const { date: _date, ...rest } = record
+            return saveDayRecord(date, rest)
+          })
+        )
         if (toImport.length > 0) {
-          setEntries(getTimeEntries())
+          setEntries(await getTimeEntries())
           const newest = [...toImport].sort((a, b) => b.date.localeCompare(a.date))[0]
           setLastUsed({ client: newest.client, orderNo: newest.orderNo, account: newest.account })
         }
@@ -209,18 +219,18 @@ export default function ErfassungPage() {
     if (e) setEditingEntry(e)
   }
 
-  function handleSave(updated: TimeEntry) {
-    const stored = updateTimeEntry(updated.id, updated)
+  async function handleSave(updated: TimeEntry) {
+    const stored = await updateTimeEntry(updated.id, updated)
     if (stored) {
       setEntries(prev => prev.map(e => e.id === updated.id ? stored : e))
       setEditingEntry(null)
     }
   }
 
-  function handleDuplicate(id: string) {
+  async function handleDuplicate(id: string) {
     const entry = entries.find(e => e.id === id)
     if (!entry) return
-    saveTimeEntry({
+    const newEntry = await saveTimeEntry({
       client: entry.client,
       orderNo: entry.orderNo,
       account: entry.account,
@@ -233,21 +243,22 @@ export default function ErfassungPage() {
       start: null,
       end: null,
     })
-    setEntries(getTimeEntries())
+    setEntries(prev => [newEntry, ...prev].sort((a, b) =>
+      b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt)
+    ))
   }
 
-  function handleDelete(id: string) {
+  async function handleDelete(id: string) {
     if (pendingDelete) {
       clearTimeout(pendingDelete.timer)
-      deleteTimeEntry(pendingDelete.id)
+      await deleteTimeEntry(pendingDelete.id)
       setPendingDelete(null)
     }
     const entry = entries.find(e => e.id === id)
     if (!entry) return
     setEntries(prev => prev.filter(e => e.id !== id))
     const timer = setTimeout(() => {
-      deleteTimeEntry(id)
-      setPendingDelete(null)
+      deleteTimeEntry(id).then(() => setPendingDelete(null))
     }, 5000)
     setPendingDelete({ id, entry, timer })
   }
@@ -267,7 +278,7 @@ export default function ErfassungPage() {
     return () => {
       if (pendingDeleteRef.current) {
         clearTimeout(pendingDeleteRef.current.timer)
-        deleteTimeEntry(pendingDeleteRef.current.id)
+        void deleteTimeEntry(pendingDeleteRef.current.id)
       }
     }
   }, [])
