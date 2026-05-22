@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { getDayRecord, saveDayRecord } from '../../services/dayRecords'
+import { useEffect, useState } from 'react'
+import { getDayRecord, saveDayRecord } from '../../services/firestoreDayRecords'
 import { fmtH } from '../../data/format'
 import type { DayRecord } from '../../types/dayRecord'
 import styles from './DayPresenceRow.module.css'
@@ -19,15 +19,19 @@ function computeActualMinutes(record: DayRecord): number {
 }
 
 export default function DayPresenceRow({ date, bookedMinutes }: DayPresenceRowProps) {
-  const [record, setRecord] = useState<DayRecord>(
-    () => getDayRecord(date) ?? { date, pauseMinutes: 0 }
-  )
+  const [record, setRecord] = useState<DayRecord>({ date, pauseMinutes: 0 })
 
-  function update(changes: Partial<Omit<DayRecord, 'date'>>) {
+  useEffect(() => {
+    getDayRecord(date).then(existing => {
+      if (existing) setRecord(existing)
+    })
+  }, [date])
+
+  async function update(changes: Partial<Omit<DayRecord, 'date'>>) {
     const next = { ...record, ...changes }
     setRecord(next)
     const { date: _date, ...rest } = next
-    saveDayRecord(date, rest)
+    await saveDayRecord(date, rest)
   }
 
   const actualMinutes = computeActualMinutes(record)

@@ -4,6 +4,12 @@ import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 import NewEntryCard from '../NewEntryCard'
 import { useTimerStore } from '../../../stores/timer'
 
+vi.mock('../../../services/firestoreTimeEntries', () => ({
+  saveTimeEntry: vi.fn((data: any) =>
+    Promise.resolve({ id: 'mock-id', ...data, createdAt: 'now', updatedAt: 'now' })
+  ),
+}))
+
 describe('NewEntryCard', () => {
   beforeEach(() => {
     useTimerStore.setState({ activeTimer: null })

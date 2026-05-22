@@ -91,7 +91,7 @@ build:
 firebase-deploy:
   stage: deploy
   image: node:22-alpine
-  needs: [build]
+  needs: [test]
   before_script:
     - npm install -g firebase-tools
   script:

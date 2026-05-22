@@ -35,6 +35,7 @@ export default function ErfassungPage() {
 
   const [entries, setEntries] = useState<TimeEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [range, setRange] = useState<Range>('week')
   const [search, setSearch] = useState('')
   const [selectedClient, setSelectedClient] = useState<string | null>(null)
@@ -46,6 +47,9 @@ export default function ErfassungPage() {
   useEffect(() => {
     getTimeEntries().then(loaded => {
       setEntries(loaded)
+      setIsLoading(false)
+    }).catch(() => {
+      setLoadError('Einträge konnten nicht geladen werden.')
       setIsLoading(false)
     })
   }, [])
@@ -377,6 +381,12 @@ export default function ErfassungPage() {
           progress={0}
         />
       </div>
+
+      {loadError && (
+        <p role="alert" style={{ color: 'var(--clr-error, #c0392b)', margin: '0.5rem 0' }}>
+          {loadError}
+        </p>
+      )}
 
       <NewEntryCard onSaved={handleSaved} />
 
