@@ -9,7 +9,7 @@ vi.mock('firebase/auth', () => ({
   signInWithEmailAndPassword: vi.fn(),
   createUserWithEmailAndPassword: vi.fn(),
   signOut: vi.fn(),
-  onAuthStateChanged: vi.fn(),
+  onAuthStateChanged: vi.fn(() => vi.fn()),
 }))
 
 // Create a shared localStorage mock that persists across module imports.
