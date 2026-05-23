@@ -11,3 +11,11 @@
   flex: 1;
   overflow: hidden;
 }
+
+.appLoading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: 14px;
+}

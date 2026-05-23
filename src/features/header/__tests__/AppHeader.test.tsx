@@ -1,6 +1,10 @@
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import AppHeader from '../AppHeader'
+
+vi.mock('../../../contexts/AuthContext', () => ({
+  useAuth: vi.fn(() => ({ user: { email: 'test@example.com' }, signOut: vi.fn() })),
+}))
 
 describe('AppHeader', () => {
   it('renders brand name', () => {
