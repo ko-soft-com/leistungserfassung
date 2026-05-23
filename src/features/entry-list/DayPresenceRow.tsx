@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { getDayRecord, saveDayRecord } from '../../services/firestoreDayRecords'
+import { useEffect, useRef, useState } from 'react'
+import { saveDayRecord } from '../../services/firestoreDayRecords'
 import { fmtH } from '../../data/format'
 import type { DayRecord } from '../../types/dayRecord'
 import styles from './DayPresenceRow.module.css'
@@ -7,6 +7,8 @@ import styles from './DayPresenceRow.module.css'
 interface DayPresenceRowProps {
   date: string
   bookedMinutes: number
+  initialRecord?: DayRecord | null
+  onSaved?: (record: DayRecord) => void
 }
 
 function computeActualMinutes(record: DayRecord): number {
@@ -18,20 +20,31 @@ function computeActualMinutes(record: DayRecord): number {
   return Math.max(0, diff - record.pauseMinutes)
 }
 
-export default function DayPresenceRow({ date, bookedMinutes }: DayPresenceRowProps) {
-  const [record, setRecord] = useState<DayRecord>({ date, pauseMinutes: 0 })
+export default function DayPresenceRow({ date, bookedMinutes, initialRecord, onSaved }: DayPresenceRowProps) {
+  const [record, setRecord] = useState<DayRecord>(
+    initialRecord ?? { date, pauseMinutes: 0 }
+  )
+
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    getDayRecord(date).then(existing => {
-      if (existing) setRecord(existing)
-    }).catch(console.error)
-  }, [date])
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
+      }
+    }
+  }, [])
 
-  async function update(changes: Partial<Omit<DayRecord, 'date'>>) {
+  function update(changes: Partial<Omit<DayRecord, 'date'>>) {
     const next = { ...record, ...changes }
     setRecord(next)
-    const { date: _date, ...rest } = next
-    saveDayRecord(date, rest).catch(console.error)
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    saveTimeoutRef.current = setTimeout(() => {
+      const { date: _date, ...rest } = next
+      saveDayRecord(date, rest)
+        .then(saved => onSaved?.(saved))
+        .catch(console.error)
+    }, 500)
   }
 
   const actualMinutes = computeActualMinutes(record)

@@ -3,11 +3,10 @@ import { describe, it, expect, vi } from 'vitest'
 import DayPresenceRow from '../DayPresenceRow'
 
 vi.mock('../../../services/firestoreDayRecords', () => ({
-  getDayRecord: vi.fn(() => Promise.resolve(null)),
   saveDayRecord: vi.fn((date: string, data: any) => Promise.resolve({ date, ...data })),
 }))
 
-import { getDayRecord, saveDayRecord } from '../../../services/firestoreDayRecords'
+import { saveDayRecord } from '../../../services/firestoreDayRecords'
 
 describe('DayPresenceRow', () => {
 
@@ -53,25 +52,30 @@ describe('DayPresenceRow', () => {
     expect(screen.queryByText(/offen/)).not.toBeInTheDocument()
   })
 
-  it('persists record to Firestore on change', async () => {
-    render(<DayPresenceRow date="2026-05-19" bookedMinutes={0} />)
-    fireEvent.change(screen.getByLabelText('von'), { target: { value: '09:00' } })
-    await waitFor(() => {
+  it('persists record to Firestore after debounce', async () => {
+    vi.useFakeTimers()
+    try {
+      render(<DayPresenceRow date="2026-05-19" bookedMinutes={0} />)
+      fireEvent.change(screen.getByLabelText('von'), { target: { value: '09:00' } })
+      await vi.runAllTimersAsync()
       expect(vi.mocked(saveDayRecord)).toHaveBeenCalledWith(
         '2026-05-19',
         expect.objectContaining({ workStart: '09:00' })
       )
-    })
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
-  it('loads existing record from Firestore on mount', async () => {
-    vi.mocked(getDayRecord).mockResolvedValueOnce({
-      date: '2026-05-19', workStart: '07:30', workEnd: '16:00', pauseMinutes: 45,
-    })
-    render(<DayPresenceRow date="2026-05-19" bookedMinutes={0} />)
-    await waitFor(() => {
-      expect((screen.getByLabelText('von') as HTMLInputElement).value).toBe('07:30')
-    })
+  it('renders pre-loaded record from initialRecord prop', () => {
+    render(
+      <DayPresenceRow
+        date="2026-05-19"
+        bookedMinutes={0}
+        initialRecord={{ date: '2026-05-19', workStart: '07:30', workEnd: '16:00', pauseMinutes: 45 }}
+      />
+    )
+    expect((screen.getByLabelText('von') as HTMLInputElement).value).toBe('07:30')
     expect((screen.getByLabelText('bis') as HTMLInputElement).value).toBe('16:00')
     expect((screen.getByLabelText('Pause') as HTMLInputElement).value).toBe('45')
   })

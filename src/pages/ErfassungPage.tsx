@@ -18,6 +18,7 @@ import { getAllDayRecords, saveDayRecord } from '../services/firestoreDayRecords
 import { isDuplicate } from '../utils/dedup'
 import { setLastUsed } from '../features/new-entry/suggestions'
 import type { TimeEntry } from '../types/entry'
+import type { DayRecord } from '../types/dayRecord'
 import { useGlobalShortcuts } from '../hooks/useGlobalShortcuts'
 import HelpDialog from '../components/HelpDialog'
 import styles from './ErfassungPage.module.css'
@@ -37,6 +38,7 @@ export default function ErfassungPage() {
   const dateStr = format(today, 'dd.MM.yyyy')
 
   const [entries, setEntries] = useState<TimeEntry[]>([])
+  const [dayRecords, setDayRecords] = useState<Record<string, DayRecord>>({})
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [range, setRange] = useState<Range>('week')
@@ -48,8 +50,9 @@ export default function ErfassungPage() {
   const [showHelp, setShowHelp] = useState(false)
 
   useEffect(() => {
-    getTimeEntries().then(loaded => {
+    Promise.all([getTimeEntries(), getAllDayRecords()]).then(([loaded, records]) => {
       setEntries(loaded)
+      setDayRecords(records)
       setIsLoading(false)
     }).catch(() => {
       setLoadError('Einträge konnten nicht geladen werden.')
@@ -405,6 +408,8 @@ export default function ErfassungPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onDuplicate={handleDuplicate}
+        dayRecords={dayRecords}
+        onDayRecordChange={(record) => setDayRecords(prev => ({ ...prev, [record.date]: record }))}
       />
 
       {editingEntry && (
