@@ -1,5 +1,16 @@
 import '@testing-library/jest-dom'
-import { beforeEach } from 'vitest'
+import { beforeEach, vi } from 'vitest'
+
+// Mock firebase/auth globally so that importing firebase.ts in component tests
+// does not trigger a real getAuth() call which throws auth/invalid-api-key.
+vi.mock('firebase/auth', () => ({
+  getAuth: vi.fn(() => ({})),
+  connectAuthEmulator: vi.fn(),
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signOut: vi.fn(),
+  onAuthStateChanged: vi.fn(),
+}))
 
 // Create a shared localStorage mock that persists across module imports.
 // Zustand persist middleware captures the localStorage reference at module
