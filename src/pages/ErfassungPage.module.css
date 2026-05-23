@@ -48,3 +48,8 @@
   .page { padding: 16px 12px 24px; }
   .pageTitle { flex-direction: column; align-items: flex-start; gap: 10px; }
 }
+
+.loadError {
+  color: #c0392b;
+  margin: 0.5rem 0;
+}

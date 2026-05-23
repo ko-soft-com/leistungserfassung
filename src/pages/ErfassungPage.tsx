@@ -22,6 +22,9 @@ import { useGlobalShortcuts } from '../hooks/useGlobalShortcuts'
 import HelpDialog from '../components/HelpDialog'
 import styles from './ErfassungPage.module.css'
 
+const byDateDesc = (a: TimeEntry, b: TimeEntry): number =>
+  b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt)
+
 function localISO(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
@@ -92,9 +95,9 @@ export default function ErfassungPage() {
         }
         return true
       })
-      await Promise.all(toImport.map((data) => saveTimeEntry(data)))
+      const savedEntries = await Promise.all(toImport.map((data) => saveTimeEntry(data)))
       if (toImport.length > 0) {
-        setEntries(await getTimeEntries())
+        setEntries(prev => [...savedEntries, ...prev].sort(byDateDesc))
         const newest = [...toImport].sort((a, b) => b.date.localeCompare(a.date))[0]
         setLastUsed({ client: newest.client, orderNo: newest.orderNo, account: newest.account })
       }
@@ -157,7 +160,7 @@ export default function ErfassungPage() {
           }
           return true
         })
-        await Promise.all(toImport.map((data) => saveTimeEntry(data)))
+        const savedEntries = await Promise.all(toImport.map((data) => saveTimeEntry(data)))
         await Promise.all(
           Object.entries(importedDayRecords).map(([date, record]) => {
             const { date: _date, ...rest } = record
@@ -165,7 +168,7 @@ export default function ErfassungPage() {
           })
         )
         if (toImport.length > 0) {
-          setEntries(await getTimeEntries())
+          setEntries(prev => [...savedEntries, ...prev].sort(byDateDesc))
           const newest = [...toImport].sort((a, b) => b.date.localeCompare(a.date))[0]
           setLastUsed({ client: newest.client, orderNo: newest.orderNo, account: newest.account })
         }
@@ -247,9 +250,7 @@ export default function ErfassungPage() {
       start: null,
       end: null,
     })
-    setEntries(prev => [newEntry, ...prev].sort((a, b) =>
-      b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt)
-    ))
+    setEntries(prev => [newEntry, ...prev].sort(byDateDesc))
   }
 
   async function handleDelete(id: string) {
@@ -270,9 +271,7 @@ export default function ErfassungPage() {
   function handleUndoDelete() {
     if (!pendingDelete) return
     clearTimeout(pendingDelete.timer)
-    setEntries(prev => [...prev, pendingDelete.entry].sort((a, b) =>
-      b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt)
-    ))
+    setEntries(prev => [...prev, pendingDelete.entry].sort(byDateDesc))
     setPendingDelete(null)
   }
 
@@ -382,8 +381,9 @@ export default function ErfassungPage() {
         />
       </div>
 
+      {isLoading && <p style={{ margin: '0.5rem 0' }}>Laden…</p>}
       {loadError && (
-        <p role="alert" style={{ color: 'var(--clr-error, #c0392b)', margin: '0.5rem 0' }}>
+        <p role="alert" className={styles.loadError}>
           {loadError}
         </p>
       )}

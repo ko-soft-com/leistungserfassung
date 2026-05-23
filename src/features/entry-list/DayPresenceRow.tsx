@@ -24,14 +24,14 @@ export default function DayPresenceRow({ date, bookedMinutes }: DayPresenceRowPr
   useEffect(() => {
     getDayRecord(date).then(existing => {
       if (existing) setRecord(existing)
-    })
+    }).catch(console.error)
   }, [date])
 
   async function update(changes: Partial<Omit<DayRecord, 'date'>>) {
     const next = { ...record, ...changes }
     setRecord(next)
     const { date: _date, ...rest } = next
-    await saveDayRecord(date, rest)
+    saveDayRecord(date, rest).catch(console.error)
   }
 
   const actualMinutes = computeActualMinutes(record)
