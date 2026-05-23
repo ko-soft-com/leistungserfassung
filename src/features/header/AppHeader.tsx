@@ -20,7 +20,7 @@ export default function AppHeader() {
         <span className={styles.userEmail}>{user?.email}</span>
         <button
           className={styles.logoutButton}
-          onClick={() => signOut()}
+          onClick={signOut}
           title="Abmelden"
           aria-label="Abmelden"
         >
