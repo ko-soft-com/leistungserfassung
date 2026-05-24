@@ -32,3 +32,6 @@ coverage/
 
 # Git worktrees
 .worktrees/
+
+# Firebase Emulator data (lokal, nicht committen)
+.emulator-data/
