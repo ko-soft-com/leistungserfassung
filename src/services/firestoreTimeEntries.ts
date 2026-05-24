@@ -14,6 +14,12 @@ import type { TimeEntry } from '../types/entry'
 
 const COL = 'eintraege'
 
+function stripUndefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== undefined),
+  ) as Partial<T>
+}
+
 export async function getTimeEntries(): Promise<TimeEntry[]> {
   const q = query(
     collection(db, COL),
@@ -28,7 +34,7 @@ export async function saveTimeEntry(
   data: Omit<TimeEntry, 'id' | 'createdAt' | 'updatedAt'>,
 ): Promise<TimeEntry> {
   const now = new Date().toISOString()
-  const payload = { ...data, createdAt: now, updatedAt: now }
+  const payload = stripUndefined({ ...data, createdAt: now, updatedAt: now })
   const ref = await addDoc(collection(db, COL), payload)
   return { id: ref.id, ...payload }
 }
@@ -41,7 +47,7 @@ export async function updateTimeEntry(
   const snap = await getDoc(ref)
   if (!snap.exists()) return null
   const now = new Date().toISOString()
-  const updates = { ...data, updatedAt: now }
+  const updates = stripUndefined({ ...data, updatedAt: now })
   await updateDoc(ref, updates)
   return { id, ...(snap.data() as Omit<TimeEntry, 'id'>), ...updates }
 }
