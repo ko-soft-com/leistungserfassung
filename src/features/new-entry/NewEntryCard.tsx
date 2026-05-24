@@ -5,7 +5,7 @@ import { useTimerStore } from '../../stores/timer'
 import { getLastUsed, setLastUsed } from './suggestions'
 import Field from '../../components/Field'
 import Button from '../../components/Button'
-import { saveTimeEntry } from '../../services/storage'
+import { saveTimeEntry } from '../../services/firestoreTimeEntries'
 import type { TimeEntry } from '../../types/entry'
 import { TASK_TYPES } from '../../types/entry'
 import IssueTypeSelector from '../../components/IssueTypeSelector'
@@ -35,9 +35,9 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
     stopTimer()
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!validate()) return
-    const saved = saveTimeEntry({
+    const saved = await saveTimeEntry({
       date: draft.date,
       start: draft.start || null,
       end: draft.end || null,

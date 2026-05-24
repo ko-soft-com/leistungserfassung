@@ -1,6 +1,7 @@
 import { useUIStore } from '../../stores/ui'
 import { durationMinutes } from '../../data/format'
 import type { TimeEntry } from '../../types/entry'
+import type { DayRecord } from '../../types/dayRecord'
 import DayGroupHeader from './DayGroupHeader'
 import DayPresenceRow from './DayPresenceRow'
 import EntryRow from './EntryRow'
@@ -11,6 +12,8 @@ interface EntryTableProps {
   onEdit: (id: string) => void
   onDelete: (id: string) => void
   onDuplicate?: (id: string) => void
+  dayRecords?: Record<string, DayRecord>
+  onDayRecordChange?: (record: DayRecord) => void
 }
 
 function groupByDate(entries: TimeEntry[]): [string, TimeEntry[]][] {
@@ -27,7 +30,7 @@ function isEntryIncomplete(e: TimeEntry): boolean {
   return !e.start || !e.end || !e.client || !e.orderNo || !e.account || !e.description
 }
 
-export default function EntryTable({ entries, onEdit, onDelete, onDuplicate }: EntryTableProps) {
+export default function EntryTable({ entries, onEdit, onDelete, onDuplicate, dayRecords, onDayRecordChange }: EntryTableProps) {
   const { collapsedDays, toggleDay } = useUIStore()
 
   if (entries.length === 0) {
@@ -54,7 +57,12 @@ export default function EntryTable({ entries, onEdit, onDelete, onDuplicate }: E
               isCollapsed={isCollapsed}
               onToggle={() => toggleDay(date)}
             />
-            <DayPresenceRow date={date} bookedMinutes={totalMins} />
+            <DayPresenceRow
+                date={date}
+                bookedMinutes={totalMins}
+                initialRecord={dayRecords?.[date] ?? null}
+                onSaved={onDayRecordChange}
+              />
             <div id={`day-${date}`} hidden={isCollapsed}>
               {dayEntries.map(e => (
                 <EntryRow

@@ -1,9 +1,14 @@
-import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, afterEach } from 'vitest'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
 import DayPresenceRow from '../DayPresenceRow'
 
+vi.mock('../../../services/firestoreDayRecords', () => ({
+  saveDayRecord: vi.fn((date: string, data: any) => Promise.resolve({ date, ...data })),
+}))
+
+import { saveDayRecord } from '../../../services/firestoreDayRecords'
+
 describe('DayPresenceRow', () => {
-  afterEach(() => localStorage.clear())
 
   it('renders von/bis/Pause inputs for the date', () => {
     render(<DayPresenceRow date="2026-05-19" bookedMinutes={0} />)
@@ -47,18 +52,29 @@ describe('DayPresenceRow', () => {
     expect(screen.queryByText(/offen/)).not.toBeInTheDocument()
   })
 
-  it('persists record to localStorage on change', () => {
-    render(<DayPresenceRow date="2026-05-19" bookedMinutes={0} />)
-    fireEvent.change(screen.getByLabelText('von'), { target: { value: '09:00' } })
-    const stored = JSON.parse(localStorage.getItem('day-records') ?? '{}')
-    expect(stored['2026-05-19']?.workStart).toBe('09:00')
+  it('persists record to Firestore after debounce', async () => {
+    vi.useFakeTimers()
+    try {
+      render(<DayPresenceRow date="2026-05-19" bookedMinutes={0} />)
+      fireEvent.change(screen.getByLabelText('von'), { target: { value: '09:00' } })
+      await vi.runAllTimersAsync()
+      expect(vi.mocked(saveDayRecord)).toHaveBeenCalledWith(
+        '2026-05-19',
+        expect.objectContaining({ workStart: '09:00' })
+      )
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
-  it('loads existing record from localStorage on mount', () => {
-    localStorage.setItem('day-records', JSON.stringify({
-      '2026-05-19': { date: '2026-05-19', workStart: '07:30', workEnd: '16:00', pauseMinutes: 45 },
-    }))
-    render(<DayPresenceRow date="2026-05-19" bookedMinutes={0} />)
+  it('renders pre-loaded record from initialRecord prop', () => {
+    render(
+      <DayPresenceRow
+        date="2026-05-19"
+        bookedMinutes={0}
+        initialRecord={{ date: '2026-05-19', workStart: '07:30', workEnd: '16:00', pauseMinutes: 45 }}
+      />
+    )
     expect((screen.getByLabelText('von') as HTMLInputElement).value).toBe('07:30')
     expect((screen.getByLabelText('bis') as HTMLInputElement).value).toBe('16:00')
     expect((screen.getByLabelText('Pause') as HTMLInputElement).value).toBe('45')
