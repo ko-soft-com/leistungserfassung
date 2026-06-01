@@ -241,12 +241,11 @@ export default function ErfassungPage() {
 
   async function handleSave(updated: TimeEntry) {
     try {
-      const stored = await updateTimeEntry(updated.id, updated)
-      if (stored) {
-        setEntries(prev => prev.map(e => e.id === updated.id ? stored : e))
-        setEditingEntry(null)
-        addToast('success', 'Eintrag aktualisiert.')
-      }
+      await updateTimeEntry(updated.id, updated)
+      const now = new Date().toISOString()
+      setEntries(prev => prev.map(e => e.id === updated.id ? { ...updated, updatedAt: now } : e))
+      setEditingEntry(null)
+      addToast('success', 'Eintrag aktualisiert.')
     } catch {
       addToast('error', 'Fehler beim Speichern. Bitte erneut versuchen.')
     }

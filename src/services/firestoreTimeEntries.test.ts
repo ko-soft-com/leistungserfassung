@@ -101,25 +101,15 @@ describe('saveTimeEntry', () => {
 })
 
 describe('updateTimeEntry', () => {
-  it('returns null when document does not exist', async () => {
-    vi.mocked(getDoc).mockResolvedValueOnce({ exists: () => false } as any)
-    const result = await updateTimeEntry('nonexistent', { client: 'X' })
-    expect(result).toBeNull()
-    expect(updateDoc).not.toHaveBeenCalled()
+  it('throws when updateDoc rejects', async () => {
+    vi.mocked(updateDoc).mockRejectedValueOnce(new Error('not-found'))
+    await expect(updateTimeEntry('nonexistent', { client: 'X' })).rejects.toThrow()
   })
 
-  it('updates doc and returns merged entry when doc exists', async () => {
-    const existing = makeEntry({ id: 'doc-1' })
-    const { id, ...data } = existing
-    vi.mocked(getDoc).mockResolvedValueOnce({
-      exists: () => true,
-      data: () => data,
-    } as any)
+  it('calls updateDoc with stripped fields', async () => {
     vi.mocked(updateDoc).mockResolvedValueOnce(undefined)
-    const result = await updateTimeEntry('doc-1', { client: 'Updated' })
+    await updateTimeEntry('doc-1', { client: 'Updated' })
     expect(updateDoc).toHaveBeenCalledOnce()
-    expect(result?.client).toBe('Updated')
-    expect(result?.id).toBe('doc-1')
   })
 })
 

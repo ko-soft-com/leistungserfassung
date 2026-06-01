@@ -5,7 +5,6 @@ import {
   updateDoc,
   deleteDoc,
   doc,
-  getDoc,
   query,
   orderBy,
 } from 'firebase/firestore'
@@ -42,14 +41,11 @@ export async function saveTimeEntry(
 export async function updateTimeEntry(
   id: string,
   data: Partial<Omit<TimeEntry, 'id' | 'createdAt' | 'updatedAt'>>,
-): Promise<TimeEntry | null> {
+): Promise<void> {
   const ref = doc(db, COL, id)
-  const snap = await getDoc(ref)
-  if (!snap.exists()) return null
   const now = new Date().toISOString()
   const updates = stripUndefined({ ...data, updatedAt: now })
   await updateDoc(ref, updates)
-  return { id, ...(snap.data() as Omit<TimeEntry, 'id'>), ...updates }
 }
 
 export async function deleteTimeEntry(id: string): Promise<void> {
