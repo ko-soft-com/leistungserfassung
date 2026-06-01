@@ -46,7 +46,11 @@ function initialSegments(record: DayRecord | null | undefined): WorkSegment[] {
 }
 
 export default function DayPresenceRow({ date, bookedMinutes, initialRecord, onSaved }: DayPresenceRowProps) {
-  const [segments, setSegments] = useState<WorkSegment[]>(() => initialSegments(initialRecord))
+  const keyCounterRef = useRef(0)
+  const [segments, setSegments] = useState<Array<WorkSegment & { _key: number }>>(() => {
+    const segs = initialSegments(initialRecord)
+    return segs.map(s => ({ ...s, _key: keyCounterRef.current++ }))
+  })
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -55,10 +59,11 @@ export default function DayPresenceRow({ date, bookedMinutes, initialRecord, onS
     }
   }, [])
 
-  function scheduleSave(segs: WorkSegment[]) {
+  function scheduleSave(segs: Array<WorkSegment & { _key: number }>) {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
     saveTimeoutRef.current = setTimeout(() => {
-      saveDayRecord(date, { segments: segs })
+      const clean = segs.map(({ _key: _, ...s }) => s)
+      saveDayRecord(date, { segments: clean })
         .then(saved => onSaved?.(saved))
         .catch(console.error)
     }, 500)
@@ -72,7 +77,7 @@ export default function DayPresenceRow({ date, bookedMinutes, initialRecord, onS
 
   function addSegment() {
     const last = segments[segments.length - 1]
-    const newSeg: WorkSegment = { start: last?.end ?? '', end: '' }
+    const newSeg = { start: last?.end ?? '', end: '', _key: keyCounterRef.current++ }
     const next = [...segments, newSeg]
     setSegments(next)
     scheduleSave(next)
@@ -80,8 +85,9 @@ export default function DayPresenceRow({ date, bookedMinutes, initialRecord, onS
 
   function removeSegment(index: number) {
     const next = segments.filter((_, i) => i !== index)
-    setSegments(next)
-    scheduleSave(next)
+    const safe = next.length > 0 ? next : [{ start: '', end: '', _key: keyCounterRef.current++ }]
+    setSegments(safe)
+    scheduleSave(safe)
   }
 
   const actualMinutes = computeActualMinutes(segments)
@@ -108,7 +114,7 @@ export default function DayPresenceRow({ date, bookedMinutes, initialRecord, onS
             : null
 
         return (
-          <div key={i}>
+          <div key={seg._key}>
             <div className={styles.inputs}>
               <label className={styles.label} htmlFor={`ps-${date}-${i}`}>von</label>
               <input
@@ -131,7 +137,7 @@ export default function DayPresenceRow({ date, bookedMinutes, initialRecord, onS
                 <button
                   type="button"
                   className={styles.removeBtn}
-                  aria-label={`Eintrag ${i + 1} entfernen`}
+                  aria-label={`Segment ${i + 1} entfernen`}
                   onClick={() => removeSegment(i)}
                 >
                   <X size={11} />
@@ -160,7 +166,7 @@ export default function DayPresenceRow({ date, bookedMinutes, initialRecord, onS
       })}
 
       <div className={styles.addRow}>
-        <button type="button" className={styles.addBtn} onClick={addSegment}>
+        <button type="button" className={styles.addBtn} aria-label="Segment hinzufügen" onClick={addSegment}>
           <Plus size={11} /> Segment
         </button>
         {actualMinutes > 0 && (

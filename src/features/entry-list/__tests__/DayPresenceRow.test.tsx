@@ -44,7 +44,7 @@ describe('DayPresenceRow', () => {
 
   it('adds a second segment when "+ Segment" is clicked', () => {
     render(<DayPresenceRow date="2026-06-01" bookedMinutes={0} />)
-    fireEvent.click(screen.getByRole('button', { name: /Segment/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Segment hinzufügen/i }))
     expect(screen.getAllByLabelText('von')).toHaveLength(2)
     expect(screen.getAllByLabelText('bis')).toHaveLength(2)
   })
@@ -52,21 +52,21 @@ describe('DayPresenceRow', () => {
   it('pre-fills new segment start from previous segment end', () => {
     render(<DayPresenceRow date="2026-06-01" bookedMinutes={0} />)
     fireEvent.change(screen.getByLabelText('bis'), { target: { value: '12:00' } })
-    fireEvent.click(screen.getByRole('button', { name: /Segment/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Segment hinzufügen/i }))
     const vonInputs = screen.getAllByLabelText('von') as HTMLInputElement[]
     expect(vonInputs[1].value).toBe('12:00')
   })
 
   it('shows pause field between two segments', () => {
     render(<DayPresenceRow date="2026-06-01" bookedMinutes={0} />)
-    fireEvent.click(screen.getByRole('button', { name: /Segment/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Segment hinzufügen/i }))
     expect(screen.getByLabelText('Pause')).toBeInTheDocument()
   })
 
   it('auto-calculates pause from gap between segments', () => {
     render(<DayPresenceRow date="2026-06-01" bookedMinutes={0} />)
     fireEvent.change(screen.getByLabelText('bis'), { target: { value: '12:00' } })
-    fireEvent.click(screen.getByRole('button', { name: /Segment/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Segment hinzufügen/i }))
     const vonInputs = screen.getAllByLabelText('von') as HTMLInputElement[]
     fireEvent.change(vonInputs[1], { target: { value: '13:00' } })
     expect((screen.getByLabelText('Pause') as HTMLInputElement).value).toBe('60')
@@ -75,7 +75,7 @@ describe('DayPresenceRow', () => {
   it('uses pauseOverride when set instead of auto-calculated gap', () => {
     render(<DayPresenceRow date="2026-06-01" bookedMinutes={0} />)
     fireEvent.change(screen.getByLabelText('bis'), { target: { value: '12:00' } })
-    fireEvent.click(screen.getByRole('button', { name: /Segment/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Segment hinzufügen/i }))
     const vonInputs = screen.getAllByLabelText('von') as HTMLInputElement[]
     fireEvent.change(vonInputs[1], { target: { value: '13:00' } })
     fireEvent.change(screen.getByLabelText('Pause'), { target: { value: '30' } })
@@ -92,7 +92,7 @@ describe('DayPresenceRow', () => {
 
   it('removes a segment when × is clicked', () => {
     render(<DayPresenceRow date="2026-06-01" bookedMinutes={0} />)
-    fireEvent.click(screen.getByRole('button', { name: /Segment/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Segment hinzufügen/i }))
     expect(screen.getAllByLabelText('von')).toHaveLength(2)
     const removeButtons = screen.getAllByRole('button', { name: /entfernen/i })
     fireEvent.click(removeButtons[0])
@@ -145,6 +145,17 @@ describe('DayPresenceRow', () => {
     expect(bisInputs[0].value).toBe('12:00')
     expect(vonInputs[1].value).toBe('13:00')
     expect(bisInputs[1].value).toBe('16:30')
+  })
+
+  it('falls back to single empty segment when removing the last valued segment', () => {
+    render(<DayPresenceRow date="2026-06-01" bookedMinutes={0} />)
+    fireEvent.change(screen.getByLabelText('von'), { target: { value: '08:00' } })
+    // singleEmpty is now false so remove button appears
+    fireEvent.click(screen.getByRole('button', { name: /entfernen/i }))
+    // should still have exactly one von input (the fallback empty segment)
+    expect(screen.getAllByLabelText('von')).toHaveLength(1)
+    const vonInput = screen.getByLabelText('von') as HTMLInputElement
+    expect(vonInput.value).toBe('')
   })
 
   it('computes actual minutes across multiple segments with pause override', () => {
