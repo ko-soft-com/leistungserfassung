@@ -158,6 +158,16 @@ describe('DayPresenceRow', () => {
     expect(vonInput.value).toBe('')
   })
 
+  it('shows 0 in pause field when segments are back-to-back', () => {
+    render(<DayPresenceRow date="2026-06-01" bookedMinutes={0} />)
+    fireEvent.change(screen.getByLabelText('bis'), { target: { value: '12:00' } })
+    fireEvent.click(screen.getByRole('button', { name: /Segment hinzufügen/i }))
+    const vonInputs = screen.getAllByLabelText('von') as HTMLInputElement[]
+    fireEvent.change(vonInputs[1], { target: { value: '12:00' } })
+    // gap is exactly 0 minutes — should show '0', not ''
+    expect((screen.getByLabelText('Pause') as HTMLInputElement).value).toBe('0')
+  })
+
   it('computes actual minutes across multiple segments with pause override', () => {
     render(
       <DayPresenceRow

@@ -15,9 +15,21 @@ vi.mock('../../services/firestoreDayRecords', () => ({
   getAllDayRecords: vi.fn(() => Promise.resolve({})),
   saveDayRecord: vi.fn((date: string, data: any) => Promise.resolve({ date, ...data })),
   getDayRecord: vi.fn(() => Promise.resolve(null)),
+  migrateDayRecord: (raw: Record<string, unknown>) => {
+    const date = raw.date as string
+    if (Array.isArray(raw.segments)) {
+      return { date, segments: raw.segments }
+    }
+    const segments = []
+    if (raw.workStart && raw.workEnd) {
+      segments.push({ start: raw.workStart as string, end: raw.workEnd as string })
+    }
+    return { date, segments }
+  },
 }))
 
 import { getTimeEntries, saveTimeEntry, deleteTimeEntry } from '../../services/firestoreTimeEntries'
+import { saveDayRecord } from '../../services/firestoreDayRecords'
 
 const makeQC = () => new QueryClient({ defaultOptions: { queries: { retry: false } } })
 
@@ -271,6 +283,50 @@ describe('duplicate entry', () => {
         })
       )
     })
+  })
+})
+
+describe('JSON import migrates legacy day records', () => {
+  it('calls saveDayRecord with segments when backup has legacy workStart/workEnd format', async () => {
+    vi.mocked(getTimeEntries).mockResolvedValue([])
+    vi.mocked(saveDayRecord).mockClear()
+
+    render(
+      <QueryClientProvider client={makeQC()}>
+        <ErfassungPage />
+      </QueryClientProvider>
+    )
+
+    const legacyBackup = JSON.stringify({
+      version: 1,
+      exportedAt: '2026-05-01T00:00:00.000Z',
+      entries: [],
+      dayRecords: {
+        '2026-05-01': { date: '2026-05-01', workStart: '08:00', workEnd: '17:00' },
+      },
+    })
+
+    const file = new File([legacyBackup], 'backup.json', { type: 'application/json' })
+    const input = screen.getByLabelText('JSON-Backup importieren')
+    Object.defineProperty(input, 'files', { value: [file], configurable: true })
+    input.dispatchEvent(new Event('change', { bubbles: true }))
+
+    await waitFor(() => {
+      expect(vi.mocked(saveDayRecord)).toHaveBeenCalledWith(
+        '2026-05-01',
+        expect.objectContaining({
+          segments: expect.arrayContaining([
+            expect.objectContaining({ start: '08:00', end: '17:00' }),
+          ]),
+        })
+      )
+    })
+
+    // Must NOT have been called with the raw legacy fields
+    expect(vi.mocked(saveDayRecord)).not.toHaveBeenCalledWith(
+      '2026-05-01',
+      expect.objectContaining({ workStart: '08:00' })
+    )
   })
 })
 

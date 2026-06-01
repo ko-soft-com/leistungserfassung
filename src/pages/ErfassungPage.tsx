@@ -14,7 +14,7 @@ import type { Range } from '../data/filter'
 import { getTimeEntries, saveTimeEntry, updateTimeEntry, deleteTimeEntry } from '../services/firestoreTimeEntries'
 import { exportTimeEntriesToCsv, importTimeEntriesFromCsv } from '../utils/csv'
 import { exportToJson, importFromJson } from '../utils/backup'
-import { getAllDayRecords, saveDayRecord } from '../services/firestoreDayRecords'
+import { getAllDayRecords, saveDayRecord, migrateDayRecord } from '../services/firestoreDayRecords'
 import { isDuplicate } from '../utils/dedup'
 import { getLastUsed, setLastUsed } from '../features/new-entry/suggestions'
 import { useToastStore } from '../stores/toast'
@@ -178,7 +178,8 @@ export default function ErfassungPage() {
         )
         await Promise.all(
           Object.entries(importedDayRecords).map(([date, record]) => {
-            const { date: _date, ...rest } = record
+            const migrated = migrateDayRecord({ ...record, date })
+            const { date: _date, ...rest } = migrated
             return saveDayRecord(date, rest)
           })
         )

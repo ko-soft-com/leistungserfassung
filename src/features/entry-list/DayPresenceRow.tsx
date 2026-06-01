@@ -152,7 +152,7 @@ export default function DayPresenceRow({ date, bookedMinutes, initialRecord, onS
                   type="number"
                   min="0"
                   className={styles.pauseInput}
-                  value={pauseDisplay === 0 ? '' : String(pauseDisplay ?? '')}
+                  value={pauseDisplay === null ? '' : String(pauseDisplay)}
                   onChange={e => {
                     const val = e.target.value
                     updateSegment(i + 1, { pauseOverride: val === '' ? undefined : Number(val) })
