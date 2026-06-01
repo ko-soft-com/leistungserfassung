@@ -173,7 +173,9 @@ export default function ErfassungPage() {
           }
           return true
         })
-        const savedEntries = await Promise.all(toImport.map((data) => saveTimeEntry(data)))
+        const savedEntries = await Promise.all(
+          toImport.map(({ id: _id, createdAt: _c, updatedAt: _u, ...data }) => saveTimeEntry(data)),
+        )
         await Promise.all(
           Object.entries(importedDayRecords).map(([date, record]) => {
             const { date: _date, ...rest } = record

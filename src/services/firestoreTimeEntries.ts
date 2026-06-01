@@ -47,9 +47,10 @@ export async function saveTimeEntry(
 ): Promise<TimeEntry> {
   const uid = requireUid()
   const now = new Date().toISOString()
-  const payload = stripUndefined({ ...data, createdAt: now, updatedAt: now })
+  const { id: _id, createdAt: _c, updatedAt: _u, ...safeData } = data as TimeEntry
+  const payload = stripUndefined({ ...safeData, createdAt: now, updatedAt: now })
   const ref = await addDoc(entriesCol(uid), payload)
-  return { id: ref.id, ...payload } as TimeEntry
+  return { ...payload, id: ref.id } as TimeEntry
 }
 
 export async function updateTimeEntry(
