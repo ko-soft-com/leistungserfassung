@@ -6,11 +6,13 @@ import AppFooter from './features/footer/AppFooter'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import { useAuth } from './contexts/AuthContext'
+import { useStopwatchNotification } from './hooks/useStopwatchNotification'
 import styles from './App.module.css'
 
 const queryClient = new QueryClient()
 
 export default function App() {
+  useStopwatchNotification()
   const { user, loading } = useAuth()
   const [authView, setAuthView] = useState<'login' | 'register'>('login')
 
