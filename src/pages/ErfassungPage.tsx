@@ -240,13 +240,15 @@ export default function ErfassungPage() {
   }
 
   async function handleSave(updated: TimeEntry) {
+    const { id, createdAt, updatedAt: _u, ...editableFields } = updated
     try {
-      await updateTimeEntry(updated.id, updated)
+      await updateTimeEntry(id, editableFields)
       const now = new Date().toISOString()
-      setEntries(prev => prev.map(e => e.id === updated.id ? { ...updated, updatedAt: now } : e))
+      setEntries(prev => prev.map(e => e.id === id ? { ...updated, updatedAt: now } : e))
       setEditingEntry(null)
       addToast('success', 'Eintrag aktualisiert.')
-    } catch {
+    } catch (err) {
+      console.error('[handleSave] updateTimeEntry failed:', err)
       addToast('error', 'Fehler beim Speichern. Bitte erneut versuchen.')
     }
   }
