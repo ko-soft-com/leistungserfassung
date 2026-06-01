@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "main": "out/main/index.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -13,7 +14,11 @@
     "test:e2e:ui": "playwright test --ui",
     "lint": "eslint .",
     "preview": "vite preview",
-    "emulators": "firebase emulators:start --import=.emulator-data --export-on-exit"
+    "emulators": "firebase emulators:start --import=.emulator-data --export-on-exit",
+    "electron:dev": "electron-vite dev",
+    "electron:build": "electron-vite build",
+    "dist:mac": "electron-vite build && electron-builder --mac",
+    "dist:win": "electron-vite build && electron-builder --win"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -41,6 +46,9 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "@vitest/ui": "^4.1.5",
+    "electron": "^36.9.5",
+    "electron-builder": "^25.1.8",
+    "electron-vite": "^6.0.0-beta.1",
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
