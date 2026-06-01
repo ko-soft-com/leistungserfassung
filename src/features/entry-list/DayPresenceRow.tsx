@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
+import { Plus, X } from 'lucide-react'
 import { saveDayRecord } from '../../services/firestoreDayRecords'
 import { fmtH } from '../../data/format'
-import type { DayRecord } from '../../types/dayRecord'
+import type { DayRecord, WorkSegment } from '../../types/dayRecord'
 import styles from './DayPresenceRow.module.css'
 
 interface DayPresenceRowProps {
@@ -11,85 +12,162 @@ interface DayPresenceRowProps {
   onSaved?: (record: DayRecord) => void
 }
 
-function computeActualMinutes(record: DayRecord): number {
-  if (!record.workStart || !record.workEnd) return 0
-  const [sh, sm] = record.workStart.split(':').map(Number)
-  const [eh, em] = record.workEnd.split(':').map(Number)
-  let diff = eh * 60 + em - (sh * 60 + sm)
-  if (diff < 0) diff += 24 * 60
-  return Math.max(0, diff - record.pauseMinutes)
+function timeToMinutes(t: string): number {
+  const [h, m] = t.split(':').map(Number)
+  return h * 60 + m
+}
+
+function computeActualMinutes(segments: WorkSegment[]): number {
+  if (segments.length === 0) return 0
+  const first = segments[0]
+  const last = segments[segments.length - 1]
+  if (!first.start || !last.end) return 0
+  const span = Math.max(0, timeToMinutes(last.end) - timeToMinutes(first.start))
+  let totalBreak = 0
+  for (let i = 1; i < segments.length; i++) {
+    const prev = segments[i - 1]
+    const curr = segments[i]
+    if (curr.pauseOverride !== undefined) {
+      totalBreak += curr.pauseOverride
+    } else if (prev.end && curr.start) {
+      totalBreak += Math.max(0, timeToMinutes(curr.start) - timeToMinutes(prev.end))
+    }
+  }
+  return Math.max(0, span - totalBreak)
+}
+
+function initialSegments(record: DayRecord | null | undefined): WorkSegment[] {
+  if (!record) return [{ start: '', end: '' }]
+  if (record.segments && record.segments.length > 0) return record.segments
+  if (record.workStart && record.workEnd) {
+    return [{ start: record.workStart, end: record.workEnd }]
+  }
+  return [{ start: '', end: '' }]
 }
 
 export default function DayPresenceRow({ date, bookedMinutes, initialRecord, onSaved }: DayPresenceRowProps) {
-  const [record, setRecord] = useState<DayRecord>(
-    initialRecord ?? { date, pauseMinutes: 0 }
-  )
-
+  const [segments, setSegments] = useState<WorkSegment[]>(() => initialSegments(initialRecord))
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current)
-      }
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
     }
   }, [])
 
-  function update(changes: Partial<Omit<DayRecord, 'date'>>) {
-    const next = { ...record, ...changes }
-    setRecord(next)
+  function scheduleSave(segs: WorkSegment[]) {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
     saveTimeoutRef.current = setTimeout(() => {
-      const { date: _date, ...rest } = next
-      saveDayRecord(date, rest)
+      saveDayRecord(date, { segments: segs })
         .then(saved => onSaved?.(saved))
         .catch(console.error)
     }, 500)
   }
 
-  const actualMinutes = computeActualMinutes(record)
+  function updateSegment(index: number, changes: Partial<WorkSegment>) {
+    const next = segments.map((s, i) => i === index ? { ...s, ...changes } : s)
+    setSegments(next)
+    scheduleSave(next)
+  }
+
+  function addSegment() {
+    const last = segments[segments.length - 1]
+    const newSeg: WorkSegment = { start: last?.end ?? '', end: '' }
+    const next = [...segments, newSeg]
+    setSegments(next)
+    scheduleSave(next)
+  }
+
+  function removeSegment(index: number) {
+    const next = segments.filter((_, i) => i !== index)
+    setSegments(next)
+    scheduleSave(next)
+  }
+
+  const actualMinutes = computeActualMinutes(segments)
   const unbookedMinutes = Math.max(0, actualMinutes - bookedMinutes)
-  const greenPct = actualMinutes > 0
-    ? Math.min(100, (bookedMinutes / actualMinutes) * 100)
-    : 0
-  const redPct = actualMinutes > 0
-    ? Math.max(0, (unbookedMinutes / actualMinutes) * 100)
-    : 0
+  const greenPct = actualMinutes > 0 ? Math.min(100, (bookedMinutes / actualMinutes) * 100) : 0
+  const redPct = actualMinutes > 0 ? Math.max(0, (unbookedMinutes / actualMinutes) * 100) : 0
+
+  const singleEmpty = segments.length === 1 && !segments[0].start && !segments[0].end
 
   return (
     <div className={styles.row}>
-      <div className={styles.inputs}>
-        <label className={styles.label} htmlFor={`ps-${date}`}>von</label>
-        <input
-          id={`ps-${date}`}
-          type="time"
-          className={styles.timeInput}
-          value={record.workStart ?? ''}
-          onChange={e => update({ workStart: e.target.value || undefined })}
-        />
-        <span className={styles.sep} aria-hidden="true">→</span>
-        <label className={styles.label} htmlFor={`pe-${date}`}>bis</label>
-        <input
-          id={`pe-${date}`}
-          type="time"
-          className={styles.timeInput}
-          value={record.workEnd ?? ''}
-          onChange={e => update({ workEnd: e.target.value || undefined })}
-        />
-        <label className={styles.label} htmlFor={`pp-${date}`}>Pause</label>
-        <input
-          id={`pp-${date}`}
-          type="number"
-          min="0"
-          className={styles.pauseInput}
-          value={record.pauseMinutes === 0 ? '' : record.pauseMinutes}
-          onChange={e => update({ pauseMinutes: Number(e.target.value) || 0 })}
-        />
-        <span className={styles.label}>min</span>
+      {segments.map((seg, i) => {
+        const isLast = i === segments.length - 1
+        const nextSeg = segments[i + 1]
+        const autoGap =
+          !isLast && seg.end && nextSeg?.start
+            ? Math.max(0, timeToMinutes(nextSeg.start) - timeToMinutes(seg.end))
+            : 0
+        const pauseDisplay =
+          !isLast
+            ? nextSeg?.pauseOverride !== undefined
+              ? nextSeg.pauseOverride
+              : autoGap
+            : null
+
+        return (
+          <div key={i}>
+            <div className={styles.inputs}>
+              <label className={styles.label} htmlFor={`ps-${date}-${i}`}>von</label>
+              <input
+                id={`ps-${date}-${i}`}
+                type="time"
+                className={styles.timeInput}
+                value={seg.start}
+                onChange={e => updateSegment(i, { start: e.target.value })}
+              />
+              <span className={styles.sep} aria-hidden="true">→</span>
+              <label className={styles.label} htmlFor={`pe-${date}-${i}`}>bis</label>
+              <input
+                id={`pe-${date}-${i}`}
+                type="time"
+                className={styles.timeInput}
+                value={seg.end}
+                onChange={e => updateSegment(i, { end: e.target.value })}
+              />
+              {!singleEmpty && (
+                <button
+                  type="button"
+                  className={styles.removeBtn}
+                  aria-label={`Eintrag ${i + 1} entfernen`}
+                  onClick={() => removeSegment(i)}
+                >
+                  <X size={11} />
+                </button>
+              )}
+            </div>
+            {!isLast && (
+              <div className={styles.pauseRow}>
+                <label className={styles.label} htmlFor={`pp-${date}-${i}`}>Pause</label>
+                <input
+                  id={`pp-${date}-${i}`}
+                  type="number"
+                  min="0"
+                  className={styles.pauseInput}
+                  value={pauseDisplay === 0 ? '' : String(pauseDisplay ?? '')}
+                  onChange={e => {
+                    const val = e.target.value
+                    updateSegment(i + 1, { pauseOverride: val === '' ? undefined : Number(val) })
+                  }}
+                />
+                <span className={styles.label}>min</span>
+              </div>
+            )}
+          </div>
+        )
+      })}
+
+      <div className={styles.addRow}>
+        <button type="button" className={styles.addBtn} onClick={addSegment}>
+          <Plus size={11} /> Segment
+        </button>
         {actualMinutes > 0 && (
           <span className={styles.actual}>{fmtH(actualMinutes)} akt.</span>
         )}
       </div>
+
       {actualMinutes > 0 && (
         <div className={styles.barRow}>
           <div className={styles.track}>

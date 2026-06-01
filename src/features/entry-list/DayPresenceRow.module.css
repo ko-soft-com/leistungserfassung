@@ -11,6 +11,20 @@
   flex-wrap: wrap;
 }
 
+.pauseRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0 3px 16px;
+}
+
+.addRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
 .label {
   font-size: 11px;
   color: var(--muted);
@@ -44,6 +58,36 @@
 .pauseInput:focus { border-color: var(--accent); }
 
 .sep { font-size: 12px; color: var(--muted); }
+
+.removeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  line-height: 1;
+}
+.removeBtn:hover { color: var(--danger); }
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 11px;
+  font-family: var(--font-sans);
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  line-height: 1.4;
+}
+.addBtn:hover { color: var(--accent); border-color: var(--accent); }
 
 .actual {
   margin-left: auto;
