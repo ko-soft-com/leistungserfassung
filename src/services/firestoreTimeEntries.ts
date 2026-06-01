@@ -39,7 +39,7 @@ export async function getTimeEntries(): Promise<TimeEntry[]> {
     orderBy('createdAt', 'desc'),
   )
   const snapshot = await getDocs(q)
-  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }) as TimeEntry)
+  return snapshot.docs.map(d => ({ ...d.data(), id: d.id }) as TimeEntry)
 }
 
 export async function saveTimeEntry(
