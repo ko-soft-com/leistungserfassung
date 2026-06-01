@@ -6,6 +6,7 @@ import { getLastUsed, setLastUsed } from './suggestions'
 import Field from '../../components/Field'
 import Button from '../../components/Button'
 import { saveTimeEntry } from '../../services/firestoreTimeEntries'
+import { useToastStore } from '../../stores/toast'
 import type { TimeEntry } from '../../types/entry'
 import { TASK_TYPES } from '../../types/entry'
 import IssueTypeSelector from '../../components/IssueTypeSelector'
@@ -19,7 +20,7 @@ interface NewEntryCardProps {
 export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
   const { draft, setField, errors, validate, reset } = useDraft()
   const [durationMins, setDurationMins] = useState('')
-  const [saveError, setSaveError] = useState<string | null>(null)
+  const addToast = useToastStore(s => s.addToast)
   const lastUsed = getLastUsed()
   const { activeTimer, startTimer, stopTimer } = useTimerStore()
   const elapsed = useElapsedTime(activeTimer?.startedAt ?? null)
@@ -38,7 +39,6 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
 
   async function handleSave() {
     if (!validate()) return
-    setSaveError(null)
     try {
       const saved = await saveTimeEntry({
         date: draft.date,
@@ -57,8 +57,9 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
       onSaved?.(saved)
       reset()
       setDurationMins('')
+      addToast('success', 'Eintrag gespeichert.')
     } catch {
-      setSaveError('Fehler beim Speichern.')
+      addToast('error', 'Fehler beim Speichern. Bitte erneut versuchen.')
     }
   }
 
@@ -175,8 +176,7 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
           <Field label="JIRA-Ticket" mono value={draft.jira} onChange={v => setField('jira', v)} />
           <Field label="Pull-Request" mono value={draft.pr} onChange={v => setField('pr', v)} />
           <div className={styles.actions}>
-            {saveError && <span role="alert" style={{ fontSize: '0.8125rem', color: 'var(--clr-error, #d32f2f)' }}>{saveError}</span>}
-            <Button variant="ghost" type="button" onClick={() => { reset(); setDurationMins(''); setSaveError(null) }}><X size={13} /> Abbrechen</Button>
+            <Button variant="ghost" type="button" onClick={() => { reset(); setDurationMins('') }}><X size={13} /> Abbrechen</Button>
             <Button variant="primary" type="submit"><Check size={13} /> Speichern</Button>
           </div>
         </div>

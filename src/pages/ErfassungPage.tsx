@@ -17,6 +17,7 @@ import { exportToJson, importFromJson } from '../utils/backup'
 import { getAllDayRecords, saveDayRecord } from '../services/firestoreDayRecords'
 import { isDuplicate } from '../utils/dedup'
 import { getLastUsed, setLastUsed } from '../features/new-entry/suggestions'
+import { useToastStore } from '../stores/toast'
 import type { TimeEntry } from '../types/entry'
 import type { DayRecord } from '../types/dayRecord'
 import { useGlobalShortcuts } from '../hooks/useGlobalShortcuts'
@@ -66,6 +67,8 @@ export default function ErfassungPage() {
       setIsLoading(false)
     })
   }, [])
+
+  const addToast = useToastStore(s => s.addToast)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const jsonFileInputRef = useRef<HTMLInputElement>(null)
@@ -242,9 +245,10 @@ export default function ErfassungPage() {
       if (stored) {
         setEntries(prev => prev.map(e => e.id === updated.id ? stored : e))
         setEditingEntry(null)
+        addToast('success', 'Eintrag aktualisiert.')
       }
     } catch {
-      setCsvMessage('Fehler beim Speichern des Eintrags.')
+      addToast('error', 'Fehler beim Speichern. Bitte erneut versuchen.')
     }
   }
 

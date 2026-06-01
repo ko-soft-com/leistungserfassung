@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import AppHeader from './features/header/AppHeader'
 import ErfassungPage from './pages/ErfassungPage'
 import AppFooter from './features/footer/AppFooter'
+import ToastContainer from './components/ToastContainer'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import { useAuth } from './contexts/AuthContext'
@@ -34,6 +35,7 @@ export default function App() {
           <ErfassungPage />
         </div>
         <AppFooter />
+        <ToastContainer />
       </div>
     </QueryClientProvider>
   )
