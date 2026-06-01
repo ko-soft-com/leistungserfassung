@@ -8,9 +8,19 @@ const calver = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0
 export default defineConfig({
   main: {
     plugins: [externalizeDepsPlugin()],
+    build: {
+      lib: {
+        entry: { index: 'electron/main.ts' },
+      },
+    },
   },
   preload: {
     plugins: [externalizeDepsPlugin()],
+    build: {
+      lib: {
+        entry: { index: 'electron/preload.ts' },
+      },
+    },
   },
   renderer: {
     root: '.',
