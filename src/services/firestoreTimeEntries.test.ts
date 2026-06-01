@@ -13,7 +13,10 @@ vi.mock('firebase/firestore', () => ({
   orderBy: vi.fn(),
 }))
 
-vi.mock('./firebase', () => ({ db: {} }))
+vi.mock('./firebase', () => ({
+  db: {},
+  auth: { currentUser: { uid: 'test-uid' } },
+}))
 
 import {
   getDocs,

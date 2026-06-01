@@ -8,10 +8,22 @@ import {
   query,
   orderBy,
 } from 'firebase/firestore'
-import { db } from './firebase'
+import { db, auth } from './firebase'
 import type { TimeEntry } from '../types/entry'
 
-const COL = 'eintraege'
+function requireUid(): string {
+  const uid = auth.currentUser?.uid
+  if (!uid) throw new Error('Nicht authentifiziert')
+  return uid
+}
+
+function entriesCol(uid: string) {
+  return collection(db, 'users', uid, 'eintraege')
+}
+
+function entryDoc(uid: string, id: string) {
+  return doc(db, 'users', uid, 'eintraege', id)
+}
 
 function stripUndefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
   return Object.fromEntries(
@@ -20,8 +32,9 @@ function stripUndefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
 }
 
 export async function getTimeEntries(): Promise<TimeEntry[]> {
+  const uid = requireUid()
   const q = query(
-    collection(db, COL),
+    entriesCol(uid),
     orderBy('date', 'desc'),
     orderBy('createdAt', 'desc'),
   )
@@ -32,22 +45,25 @@ export async function getTimeEntries(): Promise<TimeEntry[]> {
 export async function saveTimeEntry(
   data: Omit<TimeEntry, 'id' | 'createdAt' | 'updatedAt'>,
 ): Promise<TimeEntry> {
+  const uid = requireUid()
   const now = new Date().toISOString()
   const payload = stripUndefined({ ...data, createdAt: now, updatedAt: now })
-  const ref = await addDoc(collection(db, COL), payload)
-  return { id: ref.id, ...payload }
+  const ref = await addDoc(entriesCol(uid), payload)
+  return { id: ref.id, ...payload } as TimeEntry
 }
 
 export async function updateTimeEntry(
   id: string,
   data: Partial<Omit<TimeEntry, 'id' | 'createdAt' | 'updatedAt'>>,
 ): Promise<void> {
-  const ref = doc(db, COL, id)
+  const uid = requireUid()
+  const ref = entryDoc(uid, id)
   const now = new Date().toISOString()
   const updates = stripUndefined({ ...data, updatedAt: now })
   await updateDoc(ref, updates)
 }
 
 export async function deleteTimeEntry(id: string): Promise<void> {
-  await deleteDoc(doc(db, COL, id))
+  const uid = requireUid()
+  await deleteDoc(entryDoc(uid, id))
 }
