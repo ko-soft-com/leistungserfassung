@@ -35,3 +35,7 @@ coverage/
 
 # Firebase Emulator data (lokal, nicht committen)
 .emulator-data/
+
+# Electron build output
+out/
+release/

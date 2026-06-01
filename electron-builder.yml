@@ -1,0 +1,28 @@
+appId: de.leistungserfassung.app
+productName: Leistungserfassung
+
+directories:
+  output: release/
+
+files:
+  - out/**/*
+
+extraResources:
+  - from: resources/
+    to: .
+
+mac:
+  icon: build/icon.icns
+  category: public.app-category.productivity
+  target:
+    - target: dmg
+    - target: zip
+
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
