@@ -19,6 +19,7 @@ interface NewEntryCardProps {
 export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
   const { draft, setField, errors, validate, reset } = useDraft()
   const [durationMins, setDurationMins] = useState('')
+  const [saveError, setSaveError] = useState<string | null>(null)
   const lastUsed = getLastUsed()
   const { activeTimer, startTimer, stopTimer } = useTimerStore()
   const elapsed = useElapsedTime(activeTimer?.startedAt ?? null)
@@ -37,23 +38,28 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
 
   async function handleSave() {
     if (!validate()) return
-    const saved = await saveTimeEntry({
-      date: draft.date,
-      start: draft.start || null,
-      end: draft.end || null,
-      client: draft.client,
-      orderNo: draft.orderNo,
-      account: draft.account,
-      task: draft.task,
-      description: draft.description,
-      jira: draft.jira || undefined,
-      pr: draft.pr || undefined,
-      jiraIssueType: draft.jiraIssueType || undefined,
-    })
-    setLastUsed({ client: draft.client, orderNo: draft.orderNo, account: draft.account })
-    onSaved?.(saved)
-    reset()
-    setDurationMins('')
+    setSaveError(null)
+    try {
+      const saved = await saveTimeEntry({
+        date: draft.date,
+        start: draft.start || null,
+        end: draft.end || null,
+        client: draft.client,
+        orderNo: draft.orderNo,
+        account: draft.account,
+        task: draft.task,
+        description: draft.description,
+        jira: draft.jira || undefined,
+        pr: draft.pr || undefined,
+        jiraIssueType: draft.jiraIssueType || undefined,
+      })
+      setLastUsed({ client: draft.client, orderNo: draft.orderNo, account: draft.account })
+      onSaved?.(saved)
+      reset()
+      setDurationMins('')
+    } catch {
+      setSaveError('Fehler beim Speichern.')
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -169,7 +175,8 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
           <Field label="JIRA-Ticket" mono value={draft.jira} onChange={v => setField('jira', v)} />
           <Field label="Pull-Request" mono value={draft.pr} onChange={v => setField('pr', v)} />
           <div className={styles.actions}>
-            <Button variant="ghost" type="button" onClick={() => { reset(); setDurationMins('') }}><X size={13} /> Abbrechen</Button>
+            {saveError && <span role="alert" style={{ fontSize: '0.8125rem', color: 'var(--clr-error, #d32f2f)' }}>{saveError}</span>}
+            <Button variant="ghost" type="button" onClick={() => { reset(); setDurationMins(''); setSaveError(null) }}><X size={13} /> Abbrechen</Button>
             <Button variant="primary" type="submit"><Check size={13} /> Speichern</Button>
           </div>
         </div>

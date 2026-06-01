@@ -16,7 +16,7 @@ import { exportTimeEntriesToCsv, importTimeEntriesFromCsv } from '../utils/csv'
 import { exportToJson, importFromJson } from '../utils/backup'
 import { getAllDayRecords, saveDayRecord } from '../services/firestoreDayRecords'
 import { isDuplicate } from '../utils/dedup'
-import { setLastUsed } from '../features/new-entry/suggestions'
+import { getLastUsed, setLastUsed } from '../features/new-entry/suggestions'
 import type { TimeEntry } from '../types/entry'
 import type { DayRecord } from '../types/dayRecord'
 import { useGlobalShortcuts } from '../hooks/useGlobalShortcuts'
@@ -54,6 +54,13 @@ export default function ErfassungPage() {
       setEntries(loaded)
       setDayRecords(records)
       setIsLoading(false)
+      if (loaded.length > 0) {
+        const current = getLastUsed()
+        if (!current.client && !current.orderNo && !current.account) {
+          const recent = loaded[0]
+          setLastUsed({ client: recent.client, orderNo: recent.orderNo, account: recent.account })
+        }
+      }
     }).catch(() => {
       setLoadError('Einträge konnten nicht geladen werden.')
       setIsLoading(false)
@@ -230,10 +237,14 @@ export default function ErfassungPage() {
   }
 
   async function handleSave(updated: TimeEntry) {
-    const stored = await updateTimeEntry(updated.id, updated)
-    if (stored) {
-      setEntries(prev => prev.map(e => e.id === updated.id ? stored : e))
-      setEditingEntry(null)
+    try {
+      const stored = await updateTimeEntry(updated.id, updated)
+      if (stored) {
+        setEntries(prev => prev.map(e => e.id === updated.id ? stored : e))
+        setEditingEntry(null)
+      }
+    } catch {
+      setCsvMessage('Fehler beim Speichern des Eintrags.')
     }
   }
 
