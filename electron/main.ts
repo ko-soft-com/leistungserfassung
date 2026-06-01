@@ -96,7 +96,7 @@ function createTray(win: BrowserWindow): Tray {
     { type: 'separator' },
     {
       label: 'Beenden',
-      click: () => app.exit(),
+      click: () => app.quit(),
     },
   ])
   tray.setContextMenu(menu)
