@@ -24,8 +24,14 @@ import { useGlobalShortcuts } from '../hooks/useGlobalShortcuts'
 import HelpDialog from '../components/HelpDialog'
 import styles from './ErfassungPage.module.css'
 
-const byDateDesc = (a: TimeEntry, b: TimeEntry): number =>
-  b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt)
+const byDateDesc = (a: TimeEntry, b: TimeEntry): number => {
+  const dateDiff = b.date.localeCompare(a.date)
+  if (dateDiff !== 0) return dateDiff
+  if (a.start && b.start) return b.start.localeCompare(a.start)
+  if (a.start) return 1
+  if (b.start) return -1
+  return b.createdAt.localeCompare(a.createdAt)
+}
 
 function localISO(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0')
