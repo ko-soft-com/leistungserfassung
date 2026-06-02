@@ -22,7 +22,7 @@
     "publish:mac": "electron-vite build && electron-builder --mac --publish always",
     "publish:win": "electron-vite build && electron-builder --win --publish always",
     "release-mac:patch": "npm version patch && npm run publish:mac",
-    "release:minor": "npm version minor && npm run publish:mac"
+    "release-mac:minor": "npm version minor && npm run publish:mac"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
