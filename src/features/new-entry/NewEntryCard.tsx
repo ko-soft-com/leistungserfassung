@@ -8,8 +8,8 @@ import Button from '../../components/Button'
 import { saveTimeEntry } from '../../services/firestoreTimeEntries'
 import { useToastStore } from '../../stores/toast'
 import type { TimeEntry } from '../../types/entry'
-import { TASK_TYPES } from '../../types/entry'
 import IssueTypeSelector from '../../components/IssueTypeSelector'
+import TaskTypeSelector from '../../components/TaskTypeSelector'
 import styles from './NewEntryCard.module.css'
 import { useElapsedTime } from '../../hooks/useElapsedTime'
 
@@ -130,19 +130,7 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
             suggestion={lastUsed.account ? 'letzte' : undefined}
             onSuggestionClick={lastUsed.account ? () => setField('account', lastUsed.account) : undefined}
           />
-          <div className={styles.taskSelect}>
-            <label className={styles.taskLabel} htmlFor="task-select">Aufgabe</label>
-            <select
-              id="task-select"
-              className={styles.taskInput}
-              value={draft.task}
-              onChange={e => setField('task', e.target.value as typeof TASK_TYPES[number])}
-            >
-              {TASK_TYPES.map(t => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
-          </div>
+          <TaskTypeSelector value={draft.task} onChange={v => setField('task', v)} name="new-task" />
           <Field label="Start" mono type="time" value={draft.start ?? ''} onChange={v => { setField('start', v || null); setDurationMins('') }} error={errors.start} />
           <Field label="Ende" mono type="time" value={draft.end} onChange={v => { setField('end', v); setDurationMins('') }} error={errors.end} />
           <div className={styles.taskSelect}>

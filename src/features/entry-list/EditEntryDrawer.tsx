@@ -6,6 +6,7 @@ import { durationMinutes } from '../../data/format'
 import Field from '../../components/Field'
 import Button from '../../components/Button'
 import IssueTypeSelector from '../../components/IssueTypeSelector'
+import TaskTypeSelector from '../../components/TaskTypeSelector'
 import styles from './EditEntryDrawer.module.css'
 
 interface EditEntryDrawerProps {
@@ -110,6 +111,7 @@ export default function EditEntryDrawer({ entry, onSave, onClose }: EditEntryDra
               <Field id="edit-ende" label="Ende" mono type="time" value={draft.end ?? ''} onChange={handleEndChange} />
               <Field id="edit-dauer" label="Dauer" mono placeholder="H:MM" value={durationStr} onChange={handleDurationChange} />
             </div>
+            <TaskTypeSelector value={draft.task} onChange={v => setField('task', v)} name="edit-task" />
             <Field id="edit-beschreibung" label="Beschreibung" multiline value={draft.description} onChange={v => setField('description', v)} />
             <div className={styles.refRow}>
               <Field id="edit-jira" label="JIRA-Ticket" mono value={draft.jira ?? ''} onChange={v => setField('jira', v || undefined)} />
