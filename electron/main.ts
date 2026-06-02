@@ -40,6 +40,8 @@ function saveWindowState(win: BrowserWindow): void {
   }
 }
 
+let isQuitting = false
+
 function createWindow(): BrowserWindow {
   const state = loadWindowState()
 
@@ -65,6 +67,10 @@ function createWindow(): BrowserWindow {
   win.on('move', () => saveWindowState(win))
 
   win.on('close', (e) => {
+    if (isQuitting) {
+      saveWindowState(win)
+      return
+    }
     e.preventDefault()
     saveWindowState(win)
     win.hide()
@@ -150,6 +156,10 @@ app.whenReady().then(() => {
     win.show()
     win.focus()
   })
+})
+
+app.on('before-quit', () => {
+  isQuitting = true
 })
 
 app.on('window-all-closed', () => {
