@@ -51,14 +51,12 @@ describe('NewEntryCard', () => {
     expect(clientInput).toHaveValue('')
   })
 
-  it('renders Aufgabe as a select with all task type options', () => {
+  it('renders task type selector with all options', () => {
     render(<NewEntryCard />)
-    const aufgabeSelect = screen.getByLabelText(/Aufgabe/i)
-    expect(aufgabeSelect.tagName).toBe('SELECT')
-    expect(screen.getByRole('option', { name: 'Feature' })).toBeInTheDocument()
-    expect(screen.getByRole('option', { name: 'Bug-Fixing' })).toBeInTheDocument()
-    expect(screen.getByRole('option', { name: 'Review' })).toBeInTheDocument()
-    expect(screen.getByRole('option', { name: 'Meeting' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Bug-Fixing')).toBeInTheDocument()
+    expect(screen.getByLabelText('Feature')).toBeInTheDocument()
+    expect(screen.getByLabelText('Review')).toBeInTheDocument()
+    expect(screen.getByLabelText('Meeting')).toBeInTheDocument()
   })
 
   it('calls onSaved with the new entry after a valid save', async () => {
