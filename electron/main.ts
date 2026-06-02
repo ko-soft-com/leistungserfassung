@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, nativeImage } from 'electron'
+import { app, BrowserWindow, Tray, Menu, nativeImage, ipcMain } from 'electron'
 import { join } from 'path'
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import updater from 'electron-updater'
@@ -131,25 +131,85 @@ function createTray(win: BrowserWindow): Tray {
   return tray
 }
 
-function setupAutoUpdater(tray: Tray, win: BrowserWindow): void {
-  if (!app.isPackaged) return
+function sendUpdateStatus(win: BrowserWindow, status: object): void {
+  if (!win.isDestroyed()) win.webContents.send('update-status', status)
+}
 
+function setupAutoUpdater(tray: Tray, win: BrowserWindow): void {
   autoUpdater.autoDownload = true
   autoUpdater.autoInstallOnAppQuit = true
 
-  autoUpdater.on('update-downloaded', () => {
+  autoUpdater.on('checking-for-update', () =>
+    sendUpdateStatus(win, { type: 'checking' }),
+  )
+  autoUpdater.on('update-available', (info) =>
+    sendUpdateStatus(win, { type: 'available', version: info.version }),
+  )
+  autoUpdater.on('update-not-available', (info) =>
+    sendUpdateStatus(win, { type: 'not-available', version: info.version }),
+  )
+  autoUpdater.on('download-progress', (p) =>
+    sendUpdateStatus(win, { type: 'downloading', percent: Math.round(p.percent) }),
+  )
+  autoUpdater.on('update-downloaded', (info) => {
+    sendUpdateStatus(win, { type: 'downloaded', version: info.version })
     tray.setContextMenu(buildTrayMenu(win, true))
     tray.setToolTip('Leistungserfassung – Update bereit')
   })
+  autoUpdater.on('error', (err) =>
+    sendUpdateStatus(win, { type: 'error', message: err.message }),
+  )
 
-  autoUpdater.checkForUpdates().catch(() => {
-    // ignore network errors silently
+  ipcMain.on('check-for-updates', () => {
+    if (!app.isPackaged) {
+      sendUpdateStatus(win, { type: 'dev-mode' })
+      return
+    }
+    autoUpdater.checkForUpdates().catch(() => {})
   })
+
+  ipcMain.on('install-update', () => autoUpdater.quitAndInstall())
+
+  if (app.isPackaged) {
+    autoUpdater.checkForUpdates().catch(() => {})
+  }
+}
+
+function createAppMenu(win: BrowserWindow): void {
+  const template: Electron.MenuItemConstructorOptions[] = [
+    {
+      label: app.name,
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideOthers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit' },
+      ],
+    },
+    {
+      label: 'Hilfe',
+      submenu: [
+        {
+          label: 'Nach Updates suchen…',
+          click: () => {
+            win.show()
+            win.focus()
+            win.webContents.send('trigger-update-check')
+          },
+        },
+      ],
+    },
+  ]
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 }
 
 app.whenReady().then(() => {
   const win = createWindow()
   const tray = createTray(win)
+  createAppMenu(win)
   setupAutoUpdater(tray, win)
 
   app.on('activate', () => {

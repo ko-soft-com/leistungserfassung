@@ -1,0 +1,106 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 200;
+}
+
+.content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--color-surface, #fff);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  padding: 28px 32px 24px;
+  width: 380px;
+  max-width: 90vw;
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text, #1a1a1a);
+  margin: 0;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 40px;
+}
+
+.message {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text, #1a1a1a);
+  line-height: 1.5;
+}
+
+.version {
+  color: var(--color-text-muted, #666);
+}
+
+.error {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #c0392b;
+  line-height: 1.5;
+}
+
+.progressTrack {
+  height: 6px;
+  background: var(--color-border, #e0e0e0);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background: var(--color-primary, #2563eb);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.percent {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #666);
+  text-align: right;
+}
+
+.installBtn {
+  padding: 8px 16px;
+  background: var(--color-primary, #2563eb);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.installBtn:hover {
+  opacity: 0.9;
+}
+
+.closeBtn {
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px solid var(--color-border, #d0d0d0);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: var(--color-text, #1a1a1a);
+  align-self: flex-end;
+}
+
+.closeBtn:hover {
+  background: var(--color-surface-hover, #f5f5f5);
+}
