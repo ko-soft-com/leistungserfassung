@@ -105,4 +105,26 @@ describe('EditEntryDrawer', () => {
     await user.click(screen.getByText('Speichern'))
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ jiraIssueType: 'Story' }))
   })
+
+  it('renders all four task type options', () => {
+    render(<EditEntryDrawer entry={entry} onSave={() => {}} onClose={() => {}} />)
+    expect(screen.getByLabelText('Bug-Fixing')).toBeInTheDocument()
+    expect(screen.getByLabelText('Feature')).toBeInTheDocument()
+    expect(screen.getByLabelText('Review')).toBeInTheDocument()
+    expect(screen.getByLabelText('Meeting')).toBeInTheDocument()
+  })
+
+  it('renders current task as checked', () => {
+    render(<EditEntryDrawer entry={entry} onSave={() => {}} onClose={() => {}} />)
+    expect(screen.getByLabelText<HTMLInputElement>('Feature').checked).toBe(true)
+  })
+
+  it('saves changed task type when Speichern is clicked', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    render(<EditEntryDrawer entry={entry} onSave={onSave} onClose={() => {}} />)
+    await user.click(screen.getByLabelText('Bug-Fixing'))
+    await user.click(screen.getByText('Speichern'))
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ task: 'Bug-Fixing' }))
+  })
 })

@@ -1,0 +1,37 @@
+.row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-sm, 5px);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid var(--border, #e7e5e4);
+  background: transparent;
+  color: var(--muted, #78716c);
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
+}
+
+.label input[type='radio'] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Selected states — use same tokens as Pill */
+.label.selected[data-task='Bug-Fixing'] { background: var(--task-bug-bg);  color: var(--task-bug-fg);  border-color: var(--task-bug-fg); }
+.label.selected[data-task='Feature']    { background: var(--task-feat-bg); color: var(--task-feat-fg); border-color: var(--task-feat-fg); }
+.label.selected[data-task='Review']     { background: var(--task-rev-bg);  color: var(--task-rev-fg);  border-color: var(--task-rev-fg); }
+.label.selected[data-task='Meeting']    { background: var(--task-meet-bg); color: var(--task-meet-fg); border-color: var(--task-meet-fg); }
+
+/* Hover for unselected */
+.label:not(.selected):hover { background: var(--hover, #f5f5f4); color: var(--body, #44403c); }
