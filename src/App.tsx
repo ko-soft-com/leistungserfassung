@@ -17,27 +17,26 @@ const queryClient = new QueryClient()
 function useUpdateModal() {
   const [open, setOpen] = useState(false)
   const [status, setStatus] = useState<UpdateStatus | null>(null)
-  const api = window.electronAPI
 
   useEffect(() => {
+    const api = window.electronAPI
     if (!api) return
-    const offStatus = api.onUpdateStatus((s) => setStatus(s))
-    const offTrigger = api.onTriggerUpdateCheck(() => {
+    api.onUpdateStatus((s) => setStatus(s as UpdateStatus))
+    api.onTriggerUpdateCheck(() => {
       setStatus(null)
       setOpen(true)
       api.checkForUpdates()
     })
-    return () => { offStatus(); offTrigger() }
-  }, [api])
+  }, [])
 
   function openAndCheck() {
     setStatus(null)
     setOpen(true)
-    api?.checkForUpdates()
+    window.electronAPI?.checkForUpdates()
   }
 
   function install() {
-    api?.installUpdate()
+    window.electronAPI?.installUpdate()
   }
 
   return { open, status, openAndCheck, install, close: () => setOpen(false) }
