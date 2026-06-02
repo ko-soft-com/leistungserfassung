@@ -12,17 +12,36 @@ extraResources:
     to: .
 
 mac:
-  icon: build/icon.icns
+  icon: resources/icon.icns
   category: public.app-category.productivity
   target:
     - target: dmg
+      arch:
+        - x64
+        - arm64
     - target: zip
+      arch:
+        - x64
+        - arm64
+
+dmg:
+  title: Leistungserfassung ${version}
 
 win:
-  icon: build/icon.ico
+  icon: resources/icon.ico
   target:
     - target: nsis
+      arch:
+        - x64
 
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Leistungserfassung
+
+publish:
+  provider: github
+  owner: Taegug
+  repo: leistungserfassung

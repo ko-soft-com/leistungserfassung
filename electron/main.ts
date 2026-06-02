@@ -1,6 +1,8 @@
 import { app, BrowserWindow, Tray, Menu, nativeImage } from 'electron'
 import { join } from 'path'
 import { existsSync, readFileSync, writeFileSync } from 'fs'
+import updater from 'electron-updater'
+const { autoUpdater } = updater
 
 interface WindowState {
   x?: number
@@ -77,15 +79,8 @@ function getTrayIconPath(): string {
     : join(__dirname, '../../resources/tray-icon.png')
 }
 
-function createTray(win: BrowserWindow): Tray {
-  const icon = nativeImage.createFromPath(getTrayIconPath())
-  const tray = new Tray(
-    process.platform === 'darwin' ? icon.resize({ width: 16, height: 16 }) : icon,
-  )
-
-  tray.setToolTip('Leistungserfassung')
-
-  const menu = Menu.buildFromTemplate([
+function buildTrayMenu(win: BrowserWindow, updateReady = false): Menu {
+  const items: Electron.MenuItemConstructorOptions[] = [
     {
       label: 'Leistungserfassung anzeigen',
       click: () => {
@@ -94,12 +89,29 @@ function createTray(win: BrowserWindow): Tray {
       },
     },
     { type: 'separator' },
-    {
-      label: 'Beenden',
-      click: () => app.quit(),
-    },
-  ])
-  tray.setContextMenu(menu)
+  ]
+
+  if (updateReady) {
+    items.push({
+      label: 'Update installieren und neu starten',
+      click: () => autoUpdater.quitAndInstall(),
+    })
+    items.push({ type: 'separator' })
+  }
+
+  items.push({ label: 'Beenden', click: () => app.quit() })
+
+  return Menu.buildFromTemplate(items)
+}
+
+function createTray(win: BrowserWindow): Tray {
+  const icon = nativeImage.createFromPath(getTrayIconPath())
+  const tray = new Tray(
+    process.platform === 'darwin' ? icon.resize({ width: 16, height: 16 }) : icon,
+  )
+
+  tray.setToolTip('Leistungserfassung')
+  tray.setContextMenu(buildTrayMenu(win))
 
   tray.on('click', () => {
     if (win.isVisible()) {
@@ -113,9 +125,26 @@ function createTray(win: BrowserWindow): Tray {
   return tray
 }
 
+function setupAutoUpdater(tray: Tray, win: BrowserWindow): void {
+  if (!app.isPackaged) return
+
+  autoUpdater.autoDownload = true
+  autoUpdater.autoInstallOnAppQuit = true
+
+  autoUpdater.on('update-downloaded', () => {
+    tray.setContextMenu(buildTrayMenu(win, true))
+    tray.setToolTip('Leistungserfassung – Update bereit')
+  })
+
+  autoUpdater.checkForUpdates().catch(() => {
+    // ignore network errors silently
+  })
+}
+
 app.whenReady().then(() => {
   const win = createWindow()
-  createTray(win)
+  const tray = createTray(win)
+  setupAutoUpdater(tray, win)
 
   app.on('activate', () => {
     win.show()

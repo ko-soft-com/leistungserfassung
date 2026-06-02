@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react'
-import { collection, getDocs, limit, query } from 'firebase/firestore'
-import { db } from '../services/firebase'
 
 export type FirestoreStatus = 'connected' | 'offline' | 'checking'
 
@@ -19,7 +17,10 @@ export function useFirestoreStatus(): FirestoreStatus {
       }
       if (!cancelled) setStatus('checking')
       try {
-        await getDocs(query(collection(db, 'eintraege'), limit(1)))
+        await fetch('https://www.gstatic.com/firebasejs/releases.json', {
+          method: 'HEAD',
+          mode: 'no-cors',
+        })
         if (!cancelled) setStatus('connected')
       } catch {
         if (!cancelled) setStatus('offline')
