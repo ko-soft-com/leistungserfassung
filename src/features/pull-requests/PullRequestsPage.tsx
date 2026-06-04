@@ -8,12 +8,15 @@ import type { PullRequest, PrStatus } from '../../types/pullRequest'
 import { PR_STATUSES } from '../../types/pullRequest'
 import type { TimeEntry } from '../../types/entry'
 import styles from './PullRequestsPage.module.css'
+import { useToastStore } from '../../stores/toast'
 
 export default function PullRequestsPage() {
   const [prs, setPrs] = useState<PullRequest[]>([])
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+
+  const addToast = useToastStore(s => s.addToast)
 
   const [name, setName] = useState('')
   const [status, setStatus] = useState<PrStatus>('Open')
@@ -46,18 +49,21 @@ export default function PullRequestsPage() {
       return
     }
     setNameError('')
-
-    if (editingId) {
-      await updatePullRequest(editingId, { name: name.trim(), status, kommentar })
-      const now = new Date().toISOString()
-      setPrs(prev =>
-        prev.map(p => p.id === editingId ? { ...p, name: name.trim(), status, kommentar, updatedAt: now } : p)
-      )
-    } else {
-      const saved = await savePullRequest({ name: name.trim(), status, kommentar })
-      setPrs(prev => [saved, ...prev])
+    try {
+      if (editingId) {
+        await updatePullRequest(editingId, { name: name.trim(), status, kommentar })
+        const now = new Date().toISOString()
+        setPrs(prev =>
+          prev.map(p => p.id === editingId ? { ...p, name: name.trim(), status, kommentar, updatedAt: now } : p)
+        )
+      } else {
+        const saved = await savePullRequest({ name: name.trim(), status, kommentar })
+        setPrs(prev => [saved, ...prev])
+      }
+      resetForm()
+    } catch {
+      addToast('error', 'Fehler beim Speichern. Bitte erneut versuchen.')
     }
-    resetForm()
   }
 
   function handleEdit(pr: PullRequest) {
@@ -68,8 +74,12 @@ export default function PullRequestsPage() {
   }
 
   async function handleDelete(id: string) {
-    await deletePullRequest(id)
-    setPrs(prev => prev.filter(p => p.id !== id))
+    try {
+      await deletePullRequest(id)
+      setPrs(prev => prev.filter(p => p.id !== id))
+    } catch {
+      addToast('error', 'Fehler beim Löschen. Bitte erneut versuchen.')
+    }
   }
 
   return (

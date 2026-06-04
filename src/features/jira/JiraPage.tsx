@@ -8,12 +8,15 @@ import type { JiraTicket, JiraStatus } from '../../types/jiraTicket'
 import { JIRA_STATUSES } from '../../types/jiraTicket'
 import type { TimeEntry } from '../../types/entry'
 import styles from './JiraPage.module.css'
+import { useToastStore } from '../../stores/toast'
 
 export default function JiraPage() {
   const [tickets, setTickets] = useState<JiraTicket[]>([])
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+
+  const addToast = useToastStore(s => s.addToast)
 
   const [name, setName] = useState('')
   const [status, setStatus] = useState<JiraStatus>('Offen')
@@ -46,18 +49,21 @@ export default function JiraPage() {
       return
     }
     setNameError('')
-
-    if (editingId) {
-      await updateJiraTicket(editingId, { name: name.trim(), status, kommentar })
-      const now = new Date().toISOString()
-      setTickets(prev =>
-        prev.map(t => t.id === editingId ? { ...t, name: name.trim(), status, kommentar, updatedAt: now } : t)
-      )
-    } else {
-      const saved = await saveJiraTicket({ name: name.trim(), status, kommentar })
-      setTickets(prev => [saved, ...prev])
+    try {
+      if (editingId) {
+        await updateJiraTicket(editingId, { name: name.trim(), status, kommentar })
+        const now = new Date().toISOString()
+        setTickets(prev =>
+          prev.map(t => t.id === editingId ? { ...t, name: name.trim(), status, kommentar, updatedAt: now } : t)
+        )
+      } else {
+        const saved = await saveJiraTicket({ name: name.trim(), status, kommentar })
+        setTickets(prev => [saved, ...prev])
+      }
+      resetForm()
+    } catch {
+      addToast('error', 'Fehler beim Speichern. Bitte erneut versuchen.')
     }
-    resetForm()
   }
 
   function handleEdit(ticket: JiraTicket) {
@@ -68,8 +74,12 @@ export default function JiraPage() {
   }
 
   async function handleDelete(id: string) {
-    await deleteJiraTicket(id)
-    setTickets(prev => prev.filter(t => t.id !== id))
+    try {
+      await deleteJiraTicket(id)
+      setTickets(prev => prev.filter(t => t.id !== id))
+    } catch {
+      addToast('error', 'Fehler beim Löschen. Bitte erneut versuchen.')
+    }
   }
 
   return (
