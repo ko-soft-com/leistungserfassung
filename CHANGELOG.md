@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-06-04
+
+### Added
+- Jira-Ticket-Verwaltung: eigene Seite mit CRUD (Name, Status, Kommentar), erreichbar über Sidebar-Navigation
+- Pull-Request-Verwaltung: eigene Seite mit CRUD (Name, Status, Kommentar), erreichbar über Sidebar-Navigation
+- Sidebar-Navigation mit drei Einträgen (Zeiterfassung, Jira-Tickets, Pull Requests)
+- Zeiteintrags-Verknüpfung: Jira-Tickets und PRs zeigen gebuchte Stunden und Eintrags-Historie beim Aufklappen
+- Status-Werte Jira: Offen, In Progress, In Code Review, Done
+- Status-Werte PRs: Draft, Open, Merged, Closed
+
+## [1.5.0]
+
 ### Added
 - [LEIS-30] Docker-Image (Multi-Stage: node:22-alpine → nginx:1.27-alpine) mit Security-Headers, Gzip und SPA-Routing; GitLab CI baut und pusht das Image in die Registry; Portainer-Stack in `deploy/`
 - [LEIS-18] CSV-Export und -Import: Einträge als CSV herunterladen oder einlesen (Datensicherung, Browser-Transfer)
