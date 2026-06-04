@@ -7,10 +7,12 @@ import Field from '../../components/Field'
 import Button from '../../components/Button'
 import IssueTypeSelector from '../../components/IssueTypeSelector'
 import TaskTypeSelector from '../../components/TaskTypeSelector'
+import { buildSuggestions } from '../../features/new-entry/suggestions'
 import styles from './EditEntryDrawer.module.css'
 
 interface EditEntryDrawerProps {
   entry: TimeEntry
+  entries?: TimeEntry[]
   onSave: (updated: TimeEntry) => void
   onClose: () => void
 }
@@ -45,8 +47,9 @@ function diffMinutes(start: string, end: string): number {
   return diff < 0 ? diff + 24 * 60 : diff
 }
 
-export default function EditEntryDrawer({ entry, onSave, onClose }: EditEntryDrawerProps) {
+export default function EditEntryDrawer({ entry, entries = [], onSave, onClose }: EditEntryDrawerProps) {
   const [draft, setDraft] = useState({ ...entry })
+  const sugg = buildSuggestions(entries)
   const [durationStr, setDurationStr] = useState(() => {
     const mins = durationMinutes(entry)
     return mins > 0 ? fmtDuration(mins) : ''
@@ -103,9 +106,9 @@ export default function EditEntryDrawer({ entry, onSave, onClose }: EditEntryDra
 
           <div className={styles.body}>
             <Field id="edit-date" label="Datum" type="date" value={draft.date} onChange={v => setField('date', v)} />
-            <Field id="edit-auftraggeber" label="Auftraggeber" required value={draft.client} onChange={v => setField('client', v)} />
-            <Field id="edit-orderNo" label="Auftragsnr." required value={draft.orderNo} onChange={v => setField('orderNo', v)} />
-            <Field id="edit-zeitkonto" label="Zeitkonto" required value={draft.account} onChange={v => setField('account', v)} />
+            <Field id="edit-auftraggeber" label="Auftraggeber" required value={draft.client} onChange={v => setField('client', v)} suggestions={sugg.client} />
+            <Field id="edit-orderNo" label="Auftragsnr." required value={draft.orderNo} onChange={v => setField('orderNo', v)} suggestions={sugg.orderNo} />
+            <Field id="edit-zeitkonto" label="Zeitkonto" required value={draft.account} onChange={v => setField('account', v)} suggestions={sugg.account} />
             <div className={styles.timeRow}>
               <Field id="edit-start" label="Start" mono type="time" value={draft.start ?? ''} onChange={handleStartChange} />
               <Field id="edit-ende" label="Ende" mono type="time" value={draft.end ?? ''} onChange={handleEndChange} />
@@ -114,8 +117,8 @@ export default function EditEntryDrawer({ entry, onSave, onClose }: EditEntryDra
             <TaskTypeSelector value={draft.task} onChange={v => setField('task', v)} name="edit-task" />
             <Field id="edit-beschreibung" label="Beschreibung" multiline value={draft.description} onChange={v => setField('description', v)} />
             <div className={styles.refRow}>
-              <Field id="edit-jira" label="JIRA-Ticket" mono value={draft.jira ?? ''} onChange={v => setField('jira', v || undefined)} />
-              <Field id="edit-pr" label="Pull-Request" mono value={draft.pr ?? ''} onChange={v => setField('pr', v || undefined)} />
+              <Field id="edit-jira" label="JIRA-Ticket" mono value={draft.jira ?? ''} onChange={v => setField('jira', v || undefined)} suggestions={sugg.jira} />
+              <Field id="edit-pr" label="Pull-Request" mono value={draft.pr ?? ''} onChange={v => setField('pr', v || undefined)} suggestions={sugg.pr} />
             </div>
             <IssueTypeSelector
               value={draft.jiraIssueType}

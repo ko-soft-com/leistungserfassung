@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Plus, Play, Square, Check, X } from 'lucide-react'
 import { useDraft, roundTo5 } from './useDraft'
 import { useTimerStore } from '../../stores/timer'
-import { getLastUsed, setLastUsed } from './suggestions'
+import { getLastUsed, setLastUsed, buildSuggestions } from './suggestions'
 import Field from '../../components/Field'
 import Button from '../../components/Button'
 import { saveTimeEntry } from '../../services/firestoreTimeEntries'
@@ -15,13 +15,15 @@ import { useElapsedTime } from '../../hooks/useElapsedTime'
 
 interface NewEntryCardProps {
   onSaved?: (entry: TimeEntry) => void
+  entries?: TimeEntry[]
 }
 
-export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
+export default function NewEntryCard({ onSaved, entries = [] }: NewEntryCardProps = {}) {
   const { draft, setField, errors, validate, reset } = useDraft()
   const [durationMins, setDurationMins] = useState('')
   const addToast = useToastStore(s => s.addToast)
   const lastUsed = getLastUsed()
+  const sugg = buildSuggestions(entries)
   const { activeTimer, startTimer, stopTimer } = useTimerStore()
   const elapsed = useElapsedTime(activeTimer?.startedAt ?? null)
 
@@ -113,6 +115,7 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
             error={errors.client}
             suggestion={lastUsed.client ? 'letzte' : undefined}
             onSuggestionClick={lastUsed.client ? () => setField('client', lastUsed.client) : undefined}
+            suggestions={sugg.client}
           />
           <Field
             label="Auftragsnr." required
@@ -121,6 +124,7 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
             error={errors.orderNo}
             suggestion={lastUsed.orderNo ? 'letzte' : undefined}
             onSuggestionClick={lastUsed.orderNo ? () => setField('orderNo', lastUsed.orderNo) : undefined}
+            suggestions={sugg.orderNo}
           />
           <Field
             label="Zeitkonto" required
@@ -129,6 +133,7 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
             error={errors.account}
             suggestion={lastUsed.account ? 'letzte' : undefined}
             onSuggestionClick={lastUsed.account ? () => setField('account', lastUsed.account) : undefined}
+            suggestions={sugg.account}
           />
           <TaskTypeSelector value={draft.task} onChange={v => setField('task', v)} name="new-task" />
           <Field label="Start" mono type="time" value={draft.start ?? ''} onChange={v => { setField('start', v || null); setDurationMins('') }} error={errors.start} />
@@ -161,8 +166,8 @@ export default function NewEntryCard({ onSaved }: NewEntryCardProps = {}) {
 
         <div className={styles.row2}>
           <Field label="Beschreibung" multiline rows={2} value={draft.description} onChange={v => setField('description', v)} error={errors.description} />
-          <Field label="JIRA-Ticket" mono value={draft.jira} onChange={v => setField('jira', v)} />
-          <Field label="Pull-Request" mono value={draft.pr} onChange={v => setField('pr', v)} />
+          <Field label="JIRA-Ticket" mono value={draft.jira} onChange={v => setField('jira', v)} suggestions={sugg.jira} />
+          <Field label="Pull-Request" mono value={draft.pr} onChange={v => setField('pr', v)} suggestions={sugg.pr} />
           <div className={styles.actions}>
             <Button variant="ghost" type="button" onClick={() => { reset(); setDurationMins('') }}><X size={13} /> Abbrechen</Button>
             <Button variant="primary" type="submit"><Check size={13} /> Speichern</Button>

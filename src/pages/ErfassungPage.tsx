@@ -416,7 +416,7 @@ export default function ErfassungPage() {
         </p>
       )}
 
-      <NewEntryCard onSaved={handleSaved} />
+      <NewEntryCard onSaved={handleSaved} entries={entries} />
 
       <Toolbar
         range={range}
@@ -440,6 +440,7 @@ export default function ErfassungPage() {
       {editingEntry && (
         <EditEntryDrawer
           entry={editingEntry}
+          entries={entries}
           onSave={handleSave}
           onClose={() => setEditingEntry(null)}
         />

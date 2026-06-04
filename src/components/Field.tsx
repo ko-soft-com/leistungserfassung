@@ -15,10 +15,12 @@ interface FieldProps {
   id?: string
   rows?: number
   type?: string
+  suggestions?: readonly string[]
 }
 
-export default function Field({ label, value, onChange, required, mono, suggestion, onSuggestionClick, error, multiline, readOnly, placeholder, id, rows, type }: FieldProps) {
+export default function Field({ label, value, onChange, required, mono, suggestion, onSuggestionClick, error, multiline, readOnly, placeholder, id, rows, type, suggestions }: FieldProps) {
   const inputId = id ?? label.toLowerCase().replace(/\s+/g, '-')
+  const listId = suggestions && suggestions.length > 0 ? `${inputId}-list` : undefined
   const cls = [styles.input, mono ? styles.mono : '', error ? styles.inputError : ''].filter(Boolean).join(' ')
   return (
     <div className={styles.wrapper}>
@@ -47,9 +49,15 @@ export default function Field({ label, value, onChange, required, mono, suggesti
             onChange={e => onChange(e.target.value)}
             readOnly={readOnly}
             placeholder={placeholder}
+            list={listId}
             aria-invalid={error ? 'true' : undefined}
             aria-describedby={error ? `${inputId}-error` : undefined}
           />
+        )}
+        {listId && (
+          <datalist id={listId}>
+            {suggestions!.map(s => <option key={s} value={s} />)}
+          </datalist>
         )}
         {suggestion && (
           onSuggestionClick

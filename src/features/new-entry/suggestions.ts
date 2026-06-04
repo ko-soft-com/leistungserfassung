@@ -1,3 +1,20 @@
+import type { TimeEntry } from '../../types/entry'
+
+function uniq(arr: string[]): string[] {
+  return [...new Set(arr.filter(Boolean))].sort()
+}
+
+export function buildSuggestions(entries: TimeEntry[]) {
+  return {
+    client:      uniq(entries.map(e => e.client)),
+    orderNo:     uniq(entries.map(e => e.orderNo)),
+    account:     uniq(entries.map(e => e.account)),
+    description: uniq(entries.map(e => e.description).filter(d => d.length > 1)),
+    jira:        uniq(entries.map(e => e.jira ?? '')),
+    pr:          uniq(entries.map(e => e.pr ?? '')),
+  }
+}
+
 const KEYS = {
   client: 'timesheet.lastClient',
   orderNo: 'timesheet.lastOrderNo',
