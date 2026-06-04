@@ -126,3 +126,9 @@
   font-size: 13px;
   color: var(--muted);
 }
+
+.loadError {
+  padding: 16px;
+  font-size: 13px;
+  color: #c0392b;
+}

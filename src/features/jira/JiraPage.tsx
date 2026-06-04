@@ -13,6 +13,7 @@ export default function JiraPage() {
   const [tickets, setTickets] = useState<JiraTicket[]>([])
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   const [name, setName] = useState('')
   const [status, setStatus] = useState<JiraStatus>('Offen')
@@ -24,6 +25,9 @@ export default function JiraPage() {
     Promise.all([getJiraTickets(), getTimeEntries()]).then(([t, e]) => {
       setTickets(t)
       setTimeEntries(e)
+      setIsLoading(false)
+    }).catch(() => {
+      setLoadError('Tickets konnten nicht geladen werden.')
       setIsLoading(false)
     })
   }, [])
@@ -134,6 +138,7 @@ export default function JiraPage() {
           <span>Aktionen</span>
         </div>
         {isLoading && <p className={styles.loading}>Laden…</p>}
+        {loadError && <p role="alert" className={styles.loadError}>{loadError}</p>}
         {!isLoading && tickets.length === 0 && (
           <p className={styles.empty}>Noch keine Tickets vorhanden.</p>
         )}
