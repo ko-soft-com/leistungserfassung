@@ -165,7 +165,7 @@ export default function NewEntryCard({ onSaved, entries = [] }: NewEntryCardProp
         </div>
 
         <div className={styles.row2}>
-          <Field label="Beschreibung" multiline rows={2} value={draft.description} onChange={v => setField('description', v)} error={errors.description} />
+          <Field label="Beschreibung" value={draft.description} onChange={v => setField('description', v)} error={errors.description} suggestions={sugg.description} />
           <Field label="JIRA-Ticket" mono value={draft.jira} onChange={v => setField('jira', v)} suggestions={sugg.jira} />
           <Field label="Pull-Request" mono value={draft.pr} onChange={v => setField('pr', v)} suggestions={sugg.pr} />
           <div className={styles.actions}>
