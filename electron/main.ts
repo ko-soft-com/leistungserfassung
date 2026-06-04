@@ -54,6 +54,7 @@ function createWindow(): BrowserWindow {
     minHeight: 600,
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
+      sandbox: false,
     },
   })
 
