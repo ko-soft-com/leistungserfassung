@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import AppHeader from './features/header/AppHeader'
+import AppSidebar from './features/header/AppSidebar'
 import ErfassungPage from './pages/ErfassungPage'
+import JiraPage from './features/jira/JiraPage'
+import PullRequestsPage from './features/pull-requests/PullRequestsPage'
 import AppFooter from './features/footer/AppFooter'
 import ToastContainer from './components/ToastContainer'
 import UpdateModal from './components/UpdateModal'
@@ -12,12 +15,15 @@ import { useStopwatchNotification } from './hooks/useStopwatchNotification'
 import { useElectronUpdater } from './hooks/useElectronUpdater'
 import styles from './App.module.css'
 
+type Page = 'erfassung' | 'jira' | 'prs'
+
 const queryClient = new QueryClient()
 
 export default function App() {
   useStopwatchNotification()
   const { user, loading } = useAuth()
   const [authView, setAuthView] = useState<'login' | 'register'>('login')
+  const [currentPage, setCurrentPage] = useState<Page>('erfassung')
   const update = useElectronUpdater()
 
   if (loading) {
@@ -35,7 +41,10 @@ export default function App() {
       <div className={styles.shell}>
         <AppHeader />
         <div className={styles.body}>
-          <ErfassungPage />
+          <AppSidebar currentPage={currentPage} onNavigate={setCurrentPage} />
+          {currentPage === 'erfassung' && <ErfassungPage />}
+          {currentPage === 'jira' && <JiraPage />}
+          {currentPage === 'prs' && <PullRequestsPage />}
         </div>
         <AppFooter />
         <ToastContainer />
