@@ -1,0 +1,50 @@
+import {
+  collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy,
+} from 'firebase/firestore'
+import { db, auth } from './firebase'
+import type { JiraTicket } from '../types/jiraTicket'
+
+function requireUid(): string {
+  const uid = auth.currentUser?.uid
+  if (!uid) throw new Error('Nicht authentifiziert')
+  return uid
+}
+
+function ticketsCol(uid: string) {
+  return collection(db, 'users', uid, 'jiraTickets')
+}
+
+function ticketDoc(uid: string, id: string) {
+  return doc(db, 'users', uid, 'jiraTickets', id)
+}
+
+export async function getJiraTickets(): Promise<JiraTicket[]> {
+  const uid = requireUid()
+  const q = query(ticketsCol(uid), orderBy('createdAt', 'desc'))
+  const snapshot = await getDocs(q)
+  return snapshot.docs.map(d => ({ ...d.data(), id: d.id }) as JiraTicket)
+}
+
+export async function saveJiraTicket(
+  data: Omit<JiraTicket, 'id' | 'createdAt' | 'updatedAt'>,
+): Promise<JiraTicket> {
+  const uid = requireUid()
+  const now = new Date().toISOString()
+  const payload = { ...data, createdAt: now, updatedAt: now }
+  const ref = await addDoc(ticketsCol(uid), payload)
+  return { ...payload, id: ref.id }
+}
+
+export async function updateJiraTicket(
+  id: string,
+  data: Partial<Omit<JiraTicket, 'id' | 'createdAt' | 'updatedAt'>>,
+): Promise<void> {
+  const uid = requireUid()
+  const now = new Date().toISOString()
+  await updateDoc(ticketDoc(uid, id), { ...data, updatedAt: now })
+}
+
+export async function deleteJiraTicket(id: string): Promise<void> {
+  const uid = requireUid()
+  await deleteDoc(ticketDoc(uid, id))
+}
