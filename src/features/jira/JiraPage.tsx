@@ -139,7 +139,7 @@ export default function JiraPage() {
         </div>
         {isLoading && <p className={styles.loading}>Laden…</p>}
         {loadError && <p role="alert" className={styles.loadError}>{loadError}</p>}
-        {!isLoading && tickets.length === 0 && (
+        {!isLoading && !loadError && tickets.length === 0 && (
           <p className={styles.empty}>Noch keine Tickets vorhanden.</p>
         )}
         {tickets.map(ticket => (

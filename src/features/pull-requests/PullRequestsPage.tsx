@@ -138,8 +138,8 @@ export default function PullRequestsPage() {
           <span>Aktionen</span>
         </div>
         {isLoading && <p className={styles.loading}>Laden…</p>}
-        {loadError && <p role="alert" style={{ color: 'var(--danger)', margin: '0.5rem 0', fontSize: '13px' }}>{loadError}</p>}
-        {!isLoading && prs.length === 0 && (
+        {loadError && <p role="alert" className={styles.loadError}>{loadError}</p>}
+        {!isLoading && !loadError && prs.length === 0 && (
           <p className={styles.empty}>Noch keine Pull Requests vorhanden.</p>
         )}
         {prs.map(pr => (

@@ -126,3 +126,9 @@
   font-size: 13px;
   color: var(--muted);
 }
+
+.loadError {
+  color: var(--danger);
+  margin: 0.5rem 0;
+  font-size: 13px;
+}
