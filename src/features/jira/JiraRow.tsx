@@ -41,6 +41,7 @@ export default function JiraRow({ ticket, timeEntries, onEdit, onDelete }: JiraR
             className={styles.iconBtn}
             onClick={() => setExpanded(e => !e)}
             aria-label="Buchungen anzeigen"
+            aria-expanded={expanded}
           >
             <ChevronDown
               size={14}

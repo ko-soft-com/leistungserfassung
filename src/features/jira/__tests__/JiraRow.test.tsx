@@ -48,7 +48,7 @@ describe('JiraRow', () => {
     render(<JiraRow ticket={ticket} timeEntries={[matchingEntry]} onEdit={vi.fn()} onDelete={vi.fn()} />)
     fireEvent.click(screen.getByRole('button', { name: 'Buchungen anzeigen' }))
     expect(screen.getByText(/Gesamt:/)).toBeInTheDocument()
-    expect(screen.getAllByText(/1:00h/).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText(/1:00h/)).toHaveLength(2)
   })
 
   it('calls onEdit with ticket when Bearbeiten is clicked', () => {
