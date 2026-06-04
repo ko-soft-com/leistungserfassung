@@ -26,6 +26,7 @@ export default function JiraRow({ ticket, timeEntries, onEdit, onDelete }: JiraR
     e.jira && ticket.name.toLowerCase().includes(e.jira.toLowerCase())
   )
   const totalMins = matched.reduce((sum, e) => sum + durationMinutes(e), 0)
+  const panelId = `jira-row-${ticket.id}`
 
   return (
     <div className={styles.row}>
@@ -42,6 +43,7 @@ export default function JiraRow({ ticket, timeEntries, onEdit, onDelete }: JiraR
             onClick={() => setExpanded(e => !e)}
             aria-label="Buchungen anzeigen"
             aria-expanded={expanded}
+            aria-controls={panelId}
           >
             <ChevronDown
               size={14}
@@ -67,7 +69,7 @@ export default function JiraRow({ ticket, timeEntries, onEdit, onDelete }: JiraR
         </div>
       </div>
       {expanded && (
-        <div className={styles.expanded}>
+        <div id={panelId} className={styles.expanded}>
           {matched.length === 0 ? (
             <p className={styles.noEntries}>Keine Buchungen gefunden</p>
           ) : (
