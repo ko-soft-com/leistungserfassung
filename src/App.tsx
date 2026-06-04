@@ -13,9 +13,8 @@ import RegisterPage from './pages/RegisterPage'
 import { useAuth } from './contexts/AuthContext'
 import { useStopwatchNotification } from './hooks/useStopwatchNotification'
 import { useElectronUpdater } from './hooks/useElectronUpdater'
+import type { Page } from './types/page'
 import styles from './App.module.css'
-
-type Page = 'erfassung' | 'jira' | 'prs'
 
 const queryClient = new QueryClient()
 

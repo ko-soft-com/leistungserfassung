@@ -1,14 +1,14 @@
+import type { ReactNode } from 'react'
 import { Clock, Ticket, GitPullRequest } from 'lucide-react'
+import type { Page } from '../../types/page'
 import styles from './AppSidebar.module.css'
-
-type Page = 'erfassung' | 'jira' | 'prs'
 
 interface AppSidebarProps {
   currentPage: Page
   onNavigate: (page: Page) => void
 }
 
-const NAV_ITEMS: { page: Page; icon: React.ReactNode; label: string }[] = [
+const NAV_ITEMS: { page: Page; icon: ReactNode; label: string }[] = [
   { page: 'erfassung', icon: <Clock size={18} />, label: 'Zeiterfassung' },
   { page: 'jira',      icon: <Ticket size={18} />, label: 'Jira-Tickets' },
   { page: 'prs',       icon: <GitPullRequest size={18} />, label: 'Pull Requests' },
