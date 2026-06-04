@@ -75,6 +75,7 @@ export default function JiraRow({ ticket, timeEntries, onEdit, onDelete }: JiraR
               {matched.map(e => (
                 <div key={e.id} className={styles.entryLine}>
                   <span>{fmtDateDE(e.date)}</span>
+                  <span>{fmtH(durationMinutes(e))}</span>
                   <span>{e.description}</span>
                 </div>
               ))}
