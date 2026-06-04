@@ -1,0 +1,100 @@
+.row {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.rowMain {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+}
+
+.name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+}
+
+.kommentar {
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.statusDraft  { background: var(--hover); color: var(--muted); }
+.statusOpen   { background: var(--accent-soft); color: var(--accent-text); }
+.statusMerged { background: var(--purple-soft); color: var(--purple); }
+.statusClosed { background: #fef2f2; color: var(--danger); }
+
+.actions {
+  display: flex;
+  gap: 4px;
+}
+
+.iconBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  line-height: 0;
+}
+
+.iconBtn:hover { background: var(--hover); color: var(--text); }
+
+.chevron {
+  transition: transform 0.15s;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.expanded {
+  padding: 10px 16px 14px 16px;
+  background: var(--surface-2);
+  border-top: 1px solid var(--border-soft);
+}
+
+.totalLine {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.entryLine {
+  font-size: 12px;
+  color: var(--body);
+  padding: 2px 0;
+  display: flex;
+  gap: 8px;
+}
+
+.noEntries {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+}
