@@ -39,3 +39,18 @@ coverage/
 # Electron build output
 out/
 release/
+
+# Local data / exports
+*.csv
+*.json
+!package.json
+!package-lock.json
+!tsconfig*.json
+!firebase*.json
+!firestore*.json
+
+# Dev plans / session artefacts
+docs/superpowers/
+CLAUDE_UI_Testbericht.md
+test_protocol_claude.md
+e2e/remote-site.spec.ts
