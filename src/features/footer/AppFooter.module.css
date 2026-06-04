@@ -39,3 +39,22 @@
   flex-shrink: 0;
   transition: background 0.3s ease;
 }
+
+.updateBadge {
+  font-size: 11px;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: default;
+}
+
+.updateOk   { color: var(--clr-status-ok, #22c55e); }
+.updateError { color: var(--clr-status-err, #ef4444); }
+
+.updateReady {
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 500;
+}

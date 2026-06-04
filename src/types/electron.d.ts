@@ -10,8 +10,6 @@ export type UpdateStatus =
 interface ElectronAPI {
   checkForUpdates: () => void
   installUpdate: () => void
-  onUpdateStatus: (cb: (status: UpdateStatus) => void) => void
-  onTriggerUpdateCheck: (cb: () => void) => void
 }
 
 declare global {
