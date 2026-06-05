@@ -191,6 +191,18 @@ function createAppMenu(win: BrowserWindow): void {
       ],
     },
     {
+      label: 'Bearbeiten',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'selectAll' },
+      ],
+    },
+    {
       label: 'Hilfe',
       submenu: [
         {
