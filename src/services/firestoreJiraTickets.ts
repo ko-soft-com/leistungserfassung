@@ -26,6 +26,8 @@ function migrateTicket(raw: Record<string, unknown>, id: string): JiraTicket {
   }
   data.nummer ??= ''
   data.titel ??= ''
+  data.issueType ??= 'Task'
+  data.beschreibung ??= ''
   return data as unknown as JiraTicket
 }
 

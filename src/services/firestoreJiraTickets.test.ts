@@ -30,7 +30,9 @@ function makeTicket(overrides: Partial<JiraTicket> = {}): JiraTicket {
     id: 'ticket-1',
     nummer: 'AP-123',
     titel: 'Login fix',
+    issueType: 'Task',
     status: 'Offen',
+    beschreibung: '',
     kommentar: '',
     createdAt: '2026-06-04T10:00:00.000Z',
     updatedAt: '2026-06-04T10:00:00.000Z',
@@ -64,7 +66,10 @@ describe('getJiraTickets', () => {
 describe('saveJiraTicket', () => {
   it('calls addDoc and returns ticket with firestore id', async () => {
     vi.mocked(addDoc).mockResolvedValueOnce({ id: 'new-id' } as any)
-    const result = await saveJiraTicket({ nummer: 'AP-1', titel: 'Test', status: 'Offen', kommentar: '' })
+    const result = await saveJiraTicket({
+      nummer: 'AP-1', titel: 'Test', issueType: 'Task',
+      status: 'Offen', beschreibung: '', kommentar: '',
+    })
     expect(addDoc).toHaveBeenCalledOnce()
     expect(result.id).toBe('new-id')
     expect(result.nummer).toBe('AP-1')
