@@ -6,7 +6,8 @@ import { getJiraTickets, saveJiraTicket, updateJiraTicket, deleteJiraTicket } fr
 import { getTimeEntries } from '../../services/firestoreTimeEntries'
 import type { JiraTicket, JiraStatus } from '../../types/jiraTicket'
 import { JIRA_STATUSES } from '../../types/jiraTicket'
-import type { TimeEntry } from '../../types/entry'
+import type { JiraIssueType, TimeEntry } from '../../types/entry'
+import { JIRA_ISSUE_TYPES } from '../../types/entry'
 import styles from './JiraPage.module.css'
 import { useToastStore } from '../../stores/toast'
 
@@ -20,7 +21,9 @@ export default function JiraPage() {
 
   const [nummer, setNummer] = useState('')
   const [titel, setTitel] = useState('')
+  const [issueType, setIssueType] = useState<JiraIssueType>('Task')
   const [status, setStatus] = useState<JiraStatus>('Offen')
+  const [beschreibung, setBeschreibung] = useState('')
   const [kommentar, setKommentar] = useState('')
   const [nummerError, setNummerError] = useState('')
   const [titelError, setTitelError] = useState('')
@@ -41,7 +44,9 @@ export default function JiraPage() {
     setEditingId(null)
     setNummer('')
     setTitel('')
+    setIssueType('Task')
     setStatus('Offen')
+    setBeschreibung('')
     setKommentar('')
     setNummerError('')
     setTitelError('')
@@ -54,13 +59,18 @@ export default function JiraPage() {
     if (!valid) return
     try {
       if (editingId) {
-        await updateJiraTicket(editingId, { nummer: nummer.trim(), titel: titel.trim(), status, kommentar })
+        await updateJiraTicket(editingId, {
+          nummer: nummer.trim(), titel: titel.trim(), issueType, status, beschreibung, kommentar,
+        })
         const now = new Date().toISOString()
-        setTickets(prev =>
-          prev.map(t => t.id === editingId ? { ...t, nummer: nummer.trim(), titel: titel.trim(), status, kommentar, updatedAt: now } : t)
-        )
+        setTickets(prev => prev.map(t => t.id === editingId
+          ? { ...t, nummer: nummer.trim(), titel: titel.trim(), issueType, status, beschreibung, kommentar, updatedAt: now }
+          : t
+        ))
       } else {
-        const saved = await saveJiraTicket({ nummer: nummer.trim(), titel: titel.trim(), status, kommentar })
+        const saved = await saveJiraTicket({
+          nummer: nummer.trim(), titel: titel.trim(), issueType, status, beschreibung, kommentar,
+        })
         setTickets(prev => [saved, ...prev])
       }
       resetForm()
@@ -73,7 +83,9 @@ export default function JiraPage() {
     setEditingId(ticket.id)
     setNummer(ticket.nummer)
     setTitel(ticket.titel)
+    setIssueType(ticket.issueType)
     setStatus(ticket.status)
+    setBeschreibung(ticket.beschreibung)
     setKommentar(ticket.kommentar)
   }
 
@@ -109,6 +121,18 @@ export default function JiraPage() {
         </div>
 
         <div className={styles.formField}>
+          <label htmlFor="jira-issueType" className={styles.formLabel}>Typ</label>
+          <select
+            id="jira-issueType"
+            className={styles.formSelect}
+            value={issueType}
+            onChange={e => setIssueType(e.target.value as JiraIssueType)}
+          >
+            {JIRA_ISSUE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </div>
+
+        <div className={styles.formField}>
           <label htmlFor="jira-titel" className={styles.formLabel}>Titel *</label>
           <input
             id="jira-titel"
@@ -131,6 +155,19 @@ export default function JiraPage() {
           >
             {JIRA_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
+        </div>
+
+        <div className={styles.formField}>
+          <label htmlFor="jira-beschreibung" className={styles.formLabel}>Beschreibung</label>
+          <textarea
+            id="jira-beschreibung"
+            className={styles.formInput}
+            value={beschreibung}
+            onChange={e => setBeschreibung(e.target.value)}
+            placeholder="Optional"
+            rows={2}
+            style={{ resize: 'vertical', minWidth: 200, fontFamily: 'var(--font-sans)', fontSize: 13 }}
+          />
         </div>
 
         <div className={styles.formField}>
@@ -161,6 +198,7 @@ export default function JiraPage() {
       <div className={styles.table}>
         <div className={styles.tableHeader}>
           <span>Nummer</span>
+          <span>Typ</span>
           <span>Titel</span>
           <span>Status</span>
           <span>Kommentar</span>
