@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { Pencil, Trash2, ChevronDown } from 'lucide-react'
-import { format } from 'date-fns'
 import type { PullRequest, PrStatus } from '../../types/pullRequest'
 import type { TimeEntry } from '../../types/entry'
-import { durationMinutes, fmtH, fmtDateDE } from '../../data/format'
+import { durationMinutes, fmtH, fmtDateDE, fmtTimestampDE } from '../../data/format'
 import styles from './PullRequestRow.module.css'
 
 const STATUS_CLASS: Record<PrStatus, string> = {
@@ -93,10 +92,10 @@ export default function PullRequestRow({ pr, timeEntries, onEdit, onDelete }: Pu
           {sortedHistory.length === 0 ? (
             <p className={styles.noEntries}>Noch keine Statusänderungen</p>
           ) : (
-            sortedHistory.map((entry, i) => (
-              <div key={i} className={styles.historyLine}>
+            sortedHistory.map((entry) => (
+              <div key={entry.timestamp} className={styles.historyLine}>
                 <span className={styles.historyTimestamp}>
-                  {format(new Date(entry.timestamp), 'dd.MM.yyyy HH:mm')}
+                  {fmtTimestampDE(entry.timestamp)}
                 </span>
                 <span>{entry.von} → {entry.nach}</span>
               </div>

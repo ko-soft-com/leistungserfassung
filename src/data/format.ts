@@ -16,6 +16,10 @@ export function fmtDateDE(isoDate: string): string {
   return format(new Date(isoDate + 'T00:00:00'), 'dd.MM.yyyy')
 }
 
+export function fmtTimestampDE(isoString: string): string {
+  return format(new Date(isoString), 'dd.MM.yyyy HH:mm', { locale: de })
+}
+
 export function fmtDayLabel(isoDate: string): string {
   const d = new Date(isoDate + 'T00:00:00')
   const weekday = format(d, 'EEEE', { locale: de })
