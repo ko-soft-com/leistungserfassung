@@ -4,10 +4,18 @@
 
 .rowMain {
   display: grid;
-  grid-template-columns: 1fr auto auto auto;
+  grid-template-columns: auto 1fr auto auto auto;
   align-items: center;
   gap: 12px;
   padding: 10px 16px;
+}
+
+.nummer {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  white-space: nowrap;
 }
 
 .name {

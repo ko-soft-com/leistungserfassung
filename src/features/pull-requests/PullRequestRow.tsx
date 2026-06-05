@@ -22,19 +22,17 @@ interface PullRequestRowProps {
 export default function PullRequestRow({ pr, timeEntries, onEdit, onDelete }: PullRequestRowProps) {
   const [expanded, setExpanded] = useState(false)
 
-  const matched = timeEntries.filter(e => {
-    if (!e.pr) return false
-    const prLower = e.pr.toLowerCase()
-    const nameLower = pr.name.toLowerCase()
-    return nameLower === prLower || nameLower.startsWith(prLower + ' ')
-  })
+  const matched = timeEntries.filter(e =>
+    e.pr && pr.nummer.toLowerCase() === e.pr.toLowerCase()
+  )
   const totalMins = matched.reduce((sum, e) => sum + durationMinutes(e), 0)
   const panelId = `pr-row-${pr.id}`
 
   return (
     <div className={styles.row}>
       <div className={styles.rowMain}>
-        <span className={styles.name}>{pr.name}</span>
+        <span className={styles.nummer}>{pr.nummer}</span>
+        <span className={styles.name}>{pr.titel}</span>
         <span className={[styles.statusPill, STATUS_CLASS[pr.status]].join(' ')}>
           {pr.status}
         </span>

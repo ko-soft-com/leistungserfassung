@@ -18,10 +18,12 @@ export default function JiraPage() {
 
   const addToast = useToastStore(s => s.addToast)
 
-  const [name, setName] = useState('')
+  const [nummer, setNummer] = useState('')
+  const [titel, setTitel] = useState('')
   const [status, setStatus] = useState<JiraStatus>('Offen')
   const [kommentar, setKommentar] = useState('')
-  const [nameError, setNameError] = useState('')
+  const [nummerError, setNummerError] = useState('')
+  const [titelError, setTitelError] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -37,27 +39,28 @@ export default function JiraPage() {
 
   function resetForm() {
     setEditingId(null)
-    setName('')
+    setNummer('')
+    setTitel('')
     setStatus('Offen')
     setKommentar('')
-    setNameError('')
+    setNummerError('')
+    setTitelError('')
   }
 
   async function handleSubmit() {
-    if (!name.trim()) {
-      setNameError('Name ist erforderlich')
-      return
-    }
-    setNameError('')
+    let valid = true
+    if (!nummer.trim()) { setNummerError('Nummer ist erforderlich'); valid = false } else setNummerError('')
+    if (!titel.trim()) { setTitelError('Titel ist erforderlich'); valid = false } else setTitelError('')
+    if (!valid) return
     try {
       if (editingId) {
-        await updateJiraTicket(editingId, { name: name.trim(), status, kommentar })
+        await updateJiraTicket(editingId, { nummer: nummer.trim(), titel: titel.trim(), status, kommentar })
         const now = new Date().toISOString()
         setTickets(prev =>
-          prev.map(t => t.id === editingId ? { ...t, name: name.trim(), status, kommentar, updatedAt: now } : t)
+          prev.map(t => t.id === editingId ? { ...t, nummer: nummer.trim(), titel: titel.trim(), status, kommentar, updatedAt: now } : t)
         )
       } else {
-        const saved = await saveJiraTicket({ name: name.trim(), status, kommentar })
+        const saved = await saveJiraTicket({ nummer: nummer.trim(), titel: titel.trim(), status, kommentar })
         setTickets(prev => [saved, ...prev])
       }
       resetForm()
@@ -68,7 +71,8 @@ export default function JiraPage() {
 
   function handleEdit(ticket: JiraTicket) {
     setEditingId(ticket.id)
-    setName(ticket.name)
+    setNummer(ticket.nummer)
+    setTitel(ticket.titel)
     setStatus(ticket.status)
     setKommentar(ticket.kommentar)
   }
@@ -91,16 +95,30 @@ export default function JiraPage() {
 
       <div className={styles.formCard}>
         <div className={styles.formField}>
-          <label htmlFor="jira-name" className={styles.formLabel}>Name *</label>
+          <label htmlFor="jira-nummer" className={styles.formLabel}>Nummer *</label>
           <input
-            id="jira-name"
-            aria-label="Name"
-            className={[styles.formInput, nameError ? styles.error : ''].filter(Boolean).join(' ')}
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder="AP-123 Kurzbeschreibung"
+            id="jira-nummer"
+            aria-label="Nummer"
+            className={[styles.formInput, styles.formInputMono, nummerError ? styles.error : ''].filter(Boolean).join(' ')}
+            value={nummer}
+            onChange={e => setNummer(e.target.value)}
+            placeholder="AP-123"
+            style={{ minWidth: 100, maxWidth: 120 }}
           />
-          {nameError && <span className={styles.errorText}>{nameError}</span>}
+          {nummerError && <span className={styles.errorText}>{nummerError}</span>}
+        </div>
+
+        <div className={styles.formField}>
+          <label htmlFor="jira-titel" className={styles.formLabel}>Titel *</label>
+          <input
+            id="jira-titel"
+            aria-label="Titel"
+            className={[styles.formInput, titelError ? styles.error : ''].filter(Boolean).join(' ')}
+            value={titel}
+            onChange={e => setTitel(e.target.value)}
+            placeholder="Kurzbeschreibung"
+          />
+          {titelError && <span className={styles.errorText}>{titelError}</span>}
         </div>
 
         <div className={styles.formField}>
@@ -142,7 +160,8 @@ export default function JiraPage() {
 
       <div className={styles.table}>
         <div className={styles.tableHeader}>
-          <span>Name</span>
+          <span>Nummer</span>
+          <span>Titel</span>
           <span>Status</span>
           <span>Kommentar</span>
           <span>Aktionen</span>

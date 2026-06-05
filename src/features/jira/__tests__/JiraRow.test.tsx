@@ -6,7 +6,8 @@ import type { TimeEntry } from '../../../types/entry'
 
 const ticket: JiraTicket = {
   id: 't-1',
-  name: 'AP-123 Login fix',
+  nummer: 'AP-123',
+  titel: 'Login fix',
   status: 'In Progress',
   kommentar: 'Dringend',
   createdAt: '2026-06-04T10:00:00.000Z',
@@ -26,9 +27,10 @@ const noMatchEntry: TimeEntry = {
 }
 
 describe('JiraRow', () => {
-  it('renders ticket name, status and kommentar', () => {
+  it('renders ticket nummer, titel, status and kommentar', () => {
     render(<JiraRow ticket={ticket} timeEntries={[]} onEdit={vi.fn()} onDelete={vi.fn()} />)
-    expect(screen.getByText('AP-123 Login fix')).toBeInTheDocument()
+    expect(screen.getByText('AP-123')).toBeInTheDocument()
+    expect(screen.getByText('Login fix')).toBeInTheDocument()
     expect(screen.getByText('In Progress')).toBeInTheDocument()
     expect(screen.getByText('Dringend')).toBeInTheDocument()
   })

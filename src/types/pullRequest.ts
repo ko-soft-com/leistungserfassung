@@ -9,7 +9,8 @@ export const PR_STATUSES: readonly PrStatus[] = [
 
 export interface PullRequest {
   id: string
-  name: string
+  nummer: string
+  titel: string
   status: PrStatus
   kommentar: string
   createdAt: string

@@ -65,6 +65,8 @@
 
 .formInput.error { border-color: var(--danger); }
 
+.formInputMono { font-family: var(--font-mono); }
+
 .formSelect {
   height: 32px;
   padding: 0 10px;

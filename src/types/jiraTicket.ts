@@ -9,7 +9,8 @@ export const JIRA_STATUSES: readonly JiraStatus[] = [
 
 export interface JiraTicket {
   id: string
-  name: string
+  nummer: string
+  titel: string
   status: JiraStatus
   kommentar: string
   createdAt: string

@@ -19,7 +19,8 @@ import JiraPage from '../JiraPage'
 
 const ticket: JiraTicket = {
   id: 't-1',
-  name: 'AP-123 Login fix',
+  nummer: 'AP-123',
+  titel: 'Login fix',
   status: 'Offen',
   kommentar: 'Prio 1',
   createdAt: '2026-06-04T10:00:00.000Z',
@@ -40,33 +41,37 @@ describe('JiraPage', () => {
 
   it('shows loaded tickets', async () => {
     render(<JiraPage />)
-    await waitFor(() => expect(screen.getByText('AP-123 Login fix')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('AP-123')).toBeInTheDocument())
+    expect(screen.getByText('Login fix')).toBeInTheDocument()
   })
 
-  it('shows name error when submitting empty form', async () => {
+  it('shows validation errors when submitting empty form', async () => {
     vi.mocked(getJiraTickets).mockResolvedValue([])
     render(<JiraPage />)
     await waitFor(() => expect(screen.queryByText('Laden…')).not.toBeInTheDocument())
     fireEvent.click(screen.getByRole('button', { name: 'Speichern' }))
-    expect(screen.getByText('Name ist erforderlich')).toBeInTheDocument()
+    expect(screen.getByText('Nummer ist erforderlich')).toBeInTheDocument()
+    expect(screen.getByText('Titel ist erforderlich')).toBeInTheDocument()
   })
 
   it('saves a new ticket and shows it in the list', async () => {
     vi.mocked(getJiraTickets).mockResolvedValue([])
-    const newTicket: JiraTicket = { ...ticket, id: 'new-id', name: 'AP-456 New' }
+    const newTicket: JiraTicket = { ...ticket, id: 'new-id', nummer: 'AP-456', titel: 'New Feature' }
     vi.mocked(saveJiraTicket).mockResolvedValue(newTicket)
     render(<JiraPage />)
     await waitFor(() => expect(screen.queryByText('Laden…')).not.toBeInTheDocument())
-    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'AP-456 New' } })
+    fireEvent.change(screen.getByLabelText('Nummer'), { target: { value: 'AP-456' } })
+    fireEvent.change(screen.getByLabelText('Titel'), { target: { value: 'New Feature' } })
     fireEvent.click(screen.getByRole('button', { name: 'Speichern' }))
-    await waitFor(() => expect(screen.getByText('AP-456 New')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('AP-456')).toBeInTheDocument())
+    expect(screen.getByText('New Feature')).toBeInTheDocument()
   })
 
   it('removes ticket from list when Löschen is clicked', async () => {
     vi.mocked(deleteJiraTicket).mockResolvedValue(undefined)
     render(<JiraPage />)
-    await waitFor(() => expect(screen.getByText('AP-123 Login fix')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('AP-123')).toBeInTheDocument())
     fireEvent.click(screen.getByRole('button', { name: 'Löschen' }))
-    await waitFor(() => expect(screen.queryByText('AP-123 Login fix')).not.toBeInTheDocument())
+    await waitFor(() => expect(screen.queryByText('AP-123')).not.toBeInTheDocument())
   })
 })

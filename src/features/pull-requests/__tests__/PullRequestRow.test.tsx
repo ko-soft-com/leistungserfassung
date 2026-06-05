@@ -6,7 +6,8 @@ import type { TimeEntry } from '../../../types/entry'
 
 const pr: PullRequest = {
   id: 'pr-1',
-  name: 'fix: SSO redirect',
+  nummer: '42',
+  titel: 'fix: SSO redirect',
   status: 'Open',
   kommentar: 'Wartet auf Review',
   createdAt: '2026-06-04T10:00:00.000Z',
@@ -17,17 +18,18 @@ const matchingEntry: TimeEntry = {
   id: 'e-1', date: '2026-06-04', start: '09:00', end: '11:00',
   client: 'Kunde A', orderNo: 'AU-01', account: 'Dev',
   task: 'Review', description: 'Review SSO',
-  pr: 'fix: SSO redirect',
+  pr: '42',
   createdAt: '2026-06-04T09:00:00.000Z', updatedAt: '2026-06-04T09:00:00.000Z',
 }
 
 const noMatchEntry: TimeEntry = {
-  ...matchingEntry, id: 'e-2', pr: 'other-pr',
+  ...matchingEntry, id: 'e-2', pr: '99',
 }
 
 describe('PullRequestRow', () => {
-  it('renders PR name, status and kommentar', () => {
+  it('renders PR nummer, titel, status and kommentar', () => {
     render(<PullRequestRow pr={pr} timeEntries={[]} onEdit={vi.fn()} onDelete={vi.fn()} />)
+    expect(screen.getByText('42')).toBeInTheDocument()
     expect(screen.getByText('fix: SSO redirect')).toBeInTheDocument()
     expect(screen.getByText('Open')).toBeInTheDocument()
     expect(screen.getByText('Wartet auf Review')).toBeInTheDocument()

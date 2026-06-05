@@ -28,7 +28,8 @@ import {
 function makeTicket(overrides: Partial<JiraTicket> = {}): JiraTicket {
   return {
     id: 'ticket-1',
-    name: 'AP-123 Login fix',
+    nummer: 'AP-123',
+    titel: 'Login fix',
     status: 'Offen',
     kommentar: '',
     createdAt: '2026-06-04T10:00:00.000Z',
@@ -55,17 +56,18 @@ describe('getJiraTickets', () => {
     } as any)
     const result = await getJiraTickets()
     expect(result[0].id).toBe('firestore-id')
-    expect(result[0].name).toBe('AP-123 Login fix')
+    expect(result[0].nummer).toBe('AP-123')
+    expect(result[0].titel).toBe('Login fix')
   })
 })
 
 describe('saveJiraTicket', () => {
   it('calls addDoc and returns ticket with firestore id', async () => {
     vi.mocked(addDoc).mockResolvedValueOnce({ id: 'new-id' } as any)
-    const result = await saveJiraTicket({ name: 'AP-1', status: 'Offen', kommentar: '' })
+    const result = await saveJiraTicket({ nummer: 'AP-1', titel: 'Test', status: 'Offen', kommentar: '' })
     expect(addDoc).toHaveBeenCalledOnce()
     expect(result.id).toBe('new-id')
-    expect(result.name).toBe('AP-1')
+    expect(result.nummer).toBe('AP-1')
     expect(result.createdAt).toBeTruthy()
   })
 })

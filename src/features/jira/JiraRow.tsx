@@ -22,19 +22,17 @@ interface JiraRowProps {
 export default function JiraRow({ ticket, timeEntries, onEdit, onDelete }: JiraRowProps) {
   const [expanded, setExpanded] = useState(false)
 
-  const matched = timeEntries.filter(e => {
-    if (!e.jira) return false
-    const jiraLower = e.jira.toLowerCase()
-    const nameLower = ticket.name.toLowerCase()
-    return nameLower === jiraLower || nameLower.startsWith(jiraLower + ' ')
-  })
+  const matched = timeEntries.filter(e =>
+    e.jira && ticket.nummer.toLowerCase() === e.jira.toLowerCase()
+  )
   const totalMins = matched.reduce((sum, e) => sum + durationMinutes(e), 0)
   const panelId = `jira-row-${ticket.id}`
 
   return (
     <div className={styles.row}>
       <div className={styles.rowMain}>
-        <span className={styles.name}>{ticket.name}</span>
+        <span className={styles.nummer}>{ticket.nummer}</span>
+        <span className={styles.name}>{ticket.titel}</span>
         <span className={[styles.statusPill, STATUS_CLASS[ticket.status]].join(' ')}>
           {ticket.status}
         </span>

@@ -18,10 +18,12 @@ export default function PullRequestsPage() {
 
   const addToast = useToastStore(s => s.addToast)
 
-  const [name, setName] = useState('')
+  const [nummer, setNummer] = useState('')
+  const [titel, setTitel] = useState('')
   const [status, setStatus] = useState<PrStatus>('Open')
   const [kommentar, setKommentar] = useState('')
-  const [nameError, setNameError] = useState('')
+  const [nummerError, setNummerError] = useState('')
+  const [titelError, setTitelError] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -37,27 +39,28 @@ export default function PullRequestsPage() {
 
   function resetForm() {
     setEditingId(null)
-    setName('')
+    setNummer('')
+    setTitel('')
     setStatus('Open')
     setKommentar('')
-    setNameError('')
+    setNummerError('')
+    setTitelError('')
   }
 
   async function handleSubmit() {
-    if (!name.trim()) {
-      setNameError('Name ist erforderlich')
-      return
-    }
-    setNameError('')
+    let valid = true
+    if (!nummer.trim()) { setNummerError('Nummer ist erforderlich'); valid = false } else setNummerError('')
+    if (!titel.trim()) { setTitelError('Titel ist erforderlich'); valid = false } else setTitelError('')
+    if (!valid) return
     try {
       if (editingId) {
-        await updatePullRequest(editingId, { name: name.trim(), status, kommentar })
+        await updatePullRequest(editingId, { nummer: nummer.trim(), titel: titel.trim(), status, kommentar })
         const now = new Date().toISOString()
         setPrs(prev =>
-          prev.map(p => p.id === editingId ? { ...p, name: name.trim(), status, kommentar, updatedAt: now } : p)
+          prev.map(p => p.id === editingId ? { ...p, nummer: nummer.trim(), titel: titel.trim(), status, kommentar, updatedAt: now } : p)
         )
       } else {
-        const saved = await savePullRequest({ name: name.trim(), status, kommentar })
+        const saved = await savePullRequest({ nummer: nummer.trim(), titel: titel.trim(), status, kommentar })
         setPrs(prev => [saved, ...prev])
       }
       resetForm()
@@ -68,7 +71,8 @@ export default function PullRequestsPage() {
 
   function handleEdit(pr: PullRequest) {
     setEditingId(pr.id)
-    setName(pr.name)
+    setNummer(pr.nummer)
+    setTitel(pr.titel)
     setStatus(pr.status)
     setKommentar(pr.kommentar)
   }
@@ -91,16 +95,30 @@ export default function PullRequestsPage() {
 
       <div className={styles.formCard}>
         <div className={styles.formField}>
-          <label htmlFor="pr-name" className={styles.formLabel}>Name *</label>
+          <label htmlFor="pr-nummer" className={styles.formLabel}>Nummer *</label>
           <input
-            id="pr-name"
-            aria-label="Name"
-            className={[styles.formInput, nameError ? styles.error : ''].filter(Boolean).join(' ')}
-            value={name}
-            onChange={e => setName(e.target.value)}
+            id="pr-nummer"
+            aria-label="Nummer"
+            className={[styles.formInput, styles.formInputMono, nummerError ? styles.error : ''].filter(Boolean).join(' ')}
+            value={nummer}
+            onChange={e => setNummer(e.target.value)}
+            placeholder="42"
+            style={{ minWidth: 80, maxWidth: 100 }}
+          />
+          {nummerError && <span className={styles.errorText}>{nummerError}</span>}
+        </div>
+
+        <div className={styles.formField}>
+          <label htmlFor="pr-titel" className={styles.formLabel}>Titel *</label>
+          <input
+            id="pr-titel"
+            aria-label="Titel"
+            className={[styles.formInput, titelError ? styles.error : ''].filter(Boolean).join(' ')}
+            value={titel}
+            onChange={e => setTitel(e.target.value)}
             placeholder="fix: kurzbeschreibung"
           />
-          {nameError && <span className={styles.errorText}>{nameError}</span>}
+          {titelError && <span className={styles.errorText}>{titelError}</span>}
         </div>
 
         <div className={styles.formField}>
@@ -142,7 +160,8 @@ export default function PullRequestsPage() {
 
       <div className={styles.table}>
         <div className={styles.tableHeader}>
-          <span>Name</span>
+          <span>Nummer</span>
+          <span>Titel</span>
           <span>Status</span>
           <span>Kommentar</span>
           <span>Aktionen</span>
