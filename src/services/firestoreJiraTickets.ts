@@ -43,7 +43,13 @@ export async function saveJiraTicket(
 ): Promise<JiraTicket> {
   const uid = requireUid()
   const now = new Date().toISOString()
-  const payload = { ...data, createdAt: now, updatedAt: now }
+  const payload = {
+    ...data,
+    issueType: data.issueType ?? 'Task',
+    beschreibung: data.beschreibung ?? '',
+    createdAt: now,
+    updatedAt: now,
+  }
   const ref = await addDoc(ticketsCol(uid), payload)
   return { ...payload, id: ref.id }
 }
