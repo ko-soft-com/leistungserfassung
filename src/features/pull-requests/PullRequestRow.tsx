@@ -1,15 +1,17 @@
 import { useState } from 'react'
 import { Pencil, Trash2, ChevronDown } from 'lucide-react'
+import { format } from 'date-fns'
 import type { PullRequest, PrStatus } from '../../types/pullRequest'
 import type { TimeEntry } from '../../types/entry'
 import { durationMinutes, fmtH, fmtDateDE } from '../../data/format'
 import styles from './PullRequestRow.module.css'
 
 const STATUS_CLASS: Record<PrStatus, string> = {
-  'Draft':  styles.statusDraft,
-  'Open':   styles.statusOpen,
-  'Merged': styles.statusMerged,
-  'Closed': styles.statusClosed,
+  'Draft':              styles.statusDraft,
+  'Open':               styles.statusOpen,
+  'Review in Progress': styles.statusReviewInProgress,
+  'Merged':             styles.statusMerged,
+  'Closed':             styles.statusClosed,
 }
 
 interface PullRequestRowProps {
@@ -27,12 +29,14 @@ export default function PullRequestRow({ pr, timeEntries, onEdit, onDelete }: Pu
   )
   const totalMins = matched.reduce((sum, e) => sum + durationMinutes(e), 0)
   const panelId = `pr-row-${pr.id}`
+  const sortedHistory = [...(pr.history ?? [])].reverse()
 
   return (
     <div className={styles.row}>
       <div className={styles.rowMain}>
         <span className={styles.nummer}>{pr.nummer}</span>
         <span className={styles.name}>{pr.titel}</span>
+        <span className={styles.reviewer}>{pr.reviewer}</span>
         <span className={[styles.statusPill, STATUS_CLASS[pr.status]].join(' ')}>
           {pr.status}
         </span>
@@ -84,6 +88,19 @@ export default function PullRequestRow({ pr, timeEntries, onEdit, onDelete }: Pu
                 </div>
               ))}
             </>
+          )}
+          <p className={styles.historySectionTitle}>Statusverlauf</p>
+          {sortedHistory.length === 0 ? (
+            <p className={styles.noEntries}>Noch keine Statusänderungen</p>
+          ) : (
+            sortedHistory.map((entry, i) => (
+              <div key={i} className={styles.historyLine}>
+                <span className={styles.historyTimestamp}>
+                  {format(new Date(entry.timestamp), 'dd.MM.yyyy HH:mm')}
+                </span>
+                <span>{entry.von} → {entry.nach}</span>
+              </div>
+            ))
           )}
         </div>
       )}

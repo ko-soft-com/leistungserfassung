@@ -4,7 +4,7 @@
 
 .rowMain {
   display: grid;
-  grid-template-columns: auto 1fr auto auto auto;
+  grid-template-columns: auto 1fr auto auto auto auto;
   align-items: center;
   gap: 12px;
   padding: 10px 16px;
@@ -48,10 +48,11 @@
   white-space: nowrap;
 }
 
-.statusDraft  { background: var(--hover); color: var(--muted); }
-.statusOpen   { background: var(--accent-soft); color: var(--accent-text); }
-.statusMerged { background: var(--purple-soft); color: var(--purple); }
-.statusClosed { background: #fef2f2; color: var(--danger); }
+.statusDraft            { background: var(--hover); color: var(--muted); }
+.statusOpen             { background: var(--accent-soft); color: var(--accent-text); }
+.statusReviewInProgress { background: #eff6ff; color: var(--info); }
+.statusMerged           { background: var(--purple-soft); color: var(--purple); }
+.statusClosed           { background: #fef2f2; color: var(--danger); }
 
 .actions {
   display: flex;
@@ -105,4 +106,32 @@
   font-size: 12px;
   color: var(--muted);
   font-style: italic;
+}
+
+.reviewer {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.historySectionTitle {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--muted);
+  margin: 10px 0 4px;
+}
+
+.historyLine {
+  font-size: 12px;
+  color: var(--body);
+  padding: 2px 0;
+  display: flex;
+  gap: 8px;
+}
+
+.historyTimestamp {
+  color: var(--muted);
+  white-space: nowrap;
 }
