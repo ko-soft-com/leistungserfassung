@@ -4,7 +4,7 @@ import Button from '../../components/Button'
 import PullRequestRow from './PullRequestRow'
 import { getPullRequests, savePullRequest, updatePullRequest, deletePullRequest } from '../../services/firestorePullRequests'
 import { getTimeEntries } from '../../services/firestoreTimeEntries'
-import type { PullRequest, PrStatus } from '../../types/pullRequest'
+import type { PullRequest, PrStatus, PrHistoryEntry } from '../../types/pullRequest'
 import { PR_STATUSES } from '../../types/pullRequest'
 import type { TimeEntry } from '../../types/entry'
 import styles from './PullRequestsPage.module.css'
@@ -21,10 +21,12 @@ export default function PullRequestsPage() {
   const [nummer, setNummer] = useState('')
   const [titel, setTitel] = useState('')
   const [status, setStatus] = useState<PrStatus>('Open')
+  const [reviewer, setReviewer] = useState('')
   const [kommentar, setKommentar] = useState('')
   const [nummerError, setNummerError] = useState('')
   const [titelError, setTitelError] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [originalStatus, setOriginalStatus] = useState<PrStatus>('Open')
 
   useEffect(() => {
     Promise.all([getPullRequests(), getTimeEntries()]).then(([p, e]) => {
@@ -42,9 +44,11 @@ export default function PullRequestsPage() {
     setNummer('')
     setTitel('')
     setStatus('Open')
+    setReviewer('')
     setKommentar('')
     setNummerError('')
     setTitelError('')
+    setOriginalStatus('Open')
   }
 
   async function handleSubmit() {
@@ -54,13 +58,26 @@ export default function PullRequestsPage() {
     if (!valid) return
     try {
       if (editingId) {
-        await updatePullRequest(editingId, { nummer: nummer.trim(), titel: titel.trim(), status, kommentar })
+        const existing = prs.find(p => p.id === editingId)
+        const existingHistory: PrHistoryEntry[] = existing?.history ?? []
+        const newEntry: PrHistoryEntry[] = status !== originalStatus
+          ? [{ timestamp: new Date().toISOString(), von: originalStatus, nach: status }]
+          : []
+        const history = [...existingHistory, ...newEntry]
+        await updatePullRequest(editingId, {
+          nummer: nummer.trim(), titel: titel.trim(), status,
+          reviewer: reviewer.trim(), kommentar, history,
+        })
         const now = new Date().toISOString()
-        setPrs(prev =>
-          prev.map(p => p.id === editingId ? { ...p, nummer: nummer.trim(), titel: titel.trim(), status, kommentar, updatedAt: now } : p)
-        )
+        setPrs(prev => prev.map(p => p.id === editingId
+          ? { ...p, nummer: nummer.trim(), titel: titel.trim(), status, reviewer: reviewer.trim(), kommentar, history, updatedAt: now }
+          : p
+        ))
       } else {
-        const saved = await savePullRequest({ nummer: nummer.trim(), titel: titel.trim(), status, kommentar })
+        const saved = await savePullRequest({
+          nummer: nummer.trim(), titel: titel.trim(), status,
+          reviewer: reviewer.trim(), kommentar, history: [],
+        })
         setPrs(prev => [saved, ...prev])
       }
       resetForm()
@@ -74,6 +91,8 @@ export default function PullRequestsPage() {
     setNummer(pr.nummer)
     setTitel(pr.titel)
     setStatus(pr.status)
+    setOriginalStatus(pr.status)
+    setReviewer(pr.reviewer)
     setKommentar(pr.kommentar)
   }
 
@@ -122,6 +141,19 @@ export default function PullRequestsPage() {
         </div>
 
         <div className={styles.formField}>
+          <label htmlFor="pr-reviewer" className={styles.formLabel}>Reviewer</label>
+          <input
+            id="pr-reviewer"
+            aria-label="Reviewer"
+            className={styles.formInput}
+            value={reviewer}
+            onChange={e => setReviewer(e.target.value)}
+            placeholder="Optional"
+            style={{ minWidth: 120 }}
+          />
+        </div>
+
+        <div className={styles.formField}>
           <label htmlFor="pr-status" className={styles.formLabel}>Status</label>
           <select
             id="pr-status"
@@ -162,6 +194,7 @@ export default function PullRequestsPage() {
         <div className={styles.tableHeader}>
           <span>Nummer</span>
           <span>Titel</span>
+          <span>Reviewer</span>
           <span>Status</span>
           <span>Kommentar</span>
           <span>Aktionen</span>
