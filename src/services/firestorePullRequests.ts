@@ -26,6 +26,8 @@ function migratePr(raw: Record<string, unknown>, id: string): PullRequest {
   }
   data.nummer ??= ''
   data.titel ??= ''
+  data.reviewer ??= ''
+  data.history ??= []
   return data as unknown as PullRequest
 }
 
@@ -41,7 +43,13 @@ export async function savePullRequest(
 ): Promise<PullRequest> {
   const uid = requireUid()
   const now = new Date().toISOString()
-  const payload = { ...data, createdAt: now, updatedAt: now }
+  const payload = {
+    ...data,
+    reviewer: data.reviewer ?? '',
+    history: data.history ?? [],
+    createdAt: now,
+    updatedAt: now,
+  }
   const ref = await addDoc(prsCol(uid), payload)
   return { ...payload, id: ref.id }
 }

@@ -31,7 +31,9 @@ function makePr(overrides: Partial<PullRequest> = {}): PullRequest {
     nummer: '42',
     titel: 'fix: SSO redirect',
     status: 'Open',
+    reviewer: '',
     kommentar: '',
+    history: [],
     createdAt: '2026-06-04T10:00:00.000Z',
     updatedAt: '2026-06-04T10:00:00.000Z',
     ...overrides,
@@ -62,7 +64,10 @@ describe('getPullRequests', () => {
 describe('savePullRequest', () => {
   it('calls addDoc and returns PR with firestore id', async () => {
     vi.mocked(addDoc).mockResolvedValueOnce({ id: 'new-pr-id' } as any)
-    const result = await savePullRequest({ nummer: '1', titel: 'fix: login', status: 'Open', kommentar: '' })
+    const result = await savePullRequest({
+      nummer: '1', titel: 'fix: login', status: 'Open',
+      reviewer: '', kommentar: '', history: [],
+    })
     expect(addDoc).toHaveBeenCalledOnce()
     expect(result.id).toBe('new-pr-id')
     expect(result.createdAt).toBeTruthy()
