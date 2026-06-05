@@ -8,7 +8,9 @@ const ticket: JiraTicket = {
   id: 't-1',
   nummer: 'AP-123',
   titel: 'Login fix',
+  issueType: 'Story',
   status: 'In Progress',
+  beschreibung: 'Benutzer können sich nicht einloggen wenn SSO aktiv ist.',
   kommentar: 'Dringend',
   createdAt: '2026-06-04T10:00:00.000Z',
   updatedAt: '2026-06-04T10:00:00.000Z',
@@ -22,14 +24,13 @@ const matchingEntry: TimeEntry = {
   createdAt: '2026-06-04T09:00:00.000Z', updatedAt: '2026-06-04T09:00:00.000Z',
 }
 
-const noMatchEntry: TimeEntry = {
-  ...matchingEntry, id: 'e-2', jira: 'AP-999',
-}
+const noMatchEntry: TimeEntry = { ...matchingEntry, id: 'e-2', jira: 'AP-999' }
 
 describe('JiraRow', () => {
-  it('renders ticket nummer, titel, status and kommentar', () => {
+  it('renders ticket nummer, issueType, titel, status and kommentar', () => {
     render(<JiraRow ticket={ticket} timeEntries={[]} onEdit={vi.fn()} onDelete={vi.fn()} />)
     expect(screen.getByText('AP-123')).toBeInTheDocument()
+    expect(screen.getByText('Story')).toBeInTheDocument()
     expect(screen.getByText('Login fix')).toBeInTheDocument()
     expect(screen.getByText('In Progress')).toBeInTheDocument()
     expect(screen.getByText('Dringend')).toBeInTheDocument()
@@ -38,6 +39,19 @@ describe('JiraRow', () => {
   it('shows expand button', () => {
     render(<JiraRow ticket={ticket} timeEntries={[]} onEdit={vi.fn()} onDelete={vi.fn()} />)
     expect(screen.getByRole('button', { name: 'Buchungen anzeigen' })).toBeInTheDocument()
+  })
+
+  it('shows beschreibung when expanded', () => {
+    render(<JiraRow ticket={ticket} timeEntries={[]} onEdit={vi.fn()} onDelete={vi.fn()} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Buchungen anzeigen' }))
+    expect(screen.getByText('Benutzer können sich nicht einloggen wenn SSO aktiv ist.')).toBeInTheDocument()
+  })
+
+  it('does not show beschreibung section when beschreibung is empty', () => {
+    const ticketNoBeschreibung = { ...ticket, beschreibung: '' }
+    render(<JiraRow ticket={ticketNoBeschreibung} timeEntries={[]} onEdit={vi.fn()} onDelete={vi.fn()} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Buchungen anzeigen' }))
+    expect(screen.queryByText('Beschreibung')).not.toBeInTheDocument()
   })
 
   it('shows "Keine Buchungen gefunden" when expanded with no matching entries', () => {

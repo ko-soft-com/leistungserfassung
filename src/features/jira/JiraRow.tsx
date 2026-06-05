@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Pencil, Trash2, ChevronDown } from 'lucide-react'
 import type { JiraTicket, JiraStatus } from '../../types/jiraTicket'
-import type { TimeEntry } from '../../types/entry'
+import type { JiraIssueType, TimeEntry } from '../../types/entry'
 import { durationMinutes, fmtH, fmtDateDE } from '../../data/format'
 import styles from './JiraRow.module.css'
 
@@ -10,6 +10,12 @@ const STATUS_CLASS: Record<JiraStatus, string> = {
   'In Progress':    styles.statusInProgress,
   'In Code Review': styles.statusInCodeReview,
   'Done':           styles.statusDone,
+}
+
+const ISSUE_TYPE_CLASS: Record<JiraIssueType, string> = {
+  'Epic':  styles.issueTypeEpic,
+  'Story': styles.issueTypeStory,
+  'Task':  styles.issueTypeTask,
 }
 
 interface JiraRowProps {
@@ -32,6 +38,9 @@ export default function JiraRow({ ticket, timeEntries, onEdit, onDelete }: JiraR
     <div className={styles.row}>
       <div className={styles.rowMain}>
         <span className={styles.nummer}>{ticket.nummer}</span>
+        <span className={[styles.issueTypePill, ISSUE_TYPE_CLASS[ticket.issueType]].join(' ')}>
+          {ticket.issueType}
+        </span>
         <span className={styles.name}>{ticket.titel}</span>
         <span className={[styles.statusPill, STATUS_CLASS[ticket.status]].join(' ')}>
           {ticket.status}
@@ -71,6 +80,12 @@ export default function JiraRow({ ticket, timeEntries, onEdit, onDelete }: JiraR
       </div>
       {expanded && (
         <div id={panelId} className={styles.expanded}>
+          {ticket.beschreibung && (
+            <>
+              <p className={styles.beschreibungTitle}>Beschreibung</p>
+              <p className={styles.beschreibungText}>{ticket.beschreibung}</p>
+            </>
+          )}
           {matched.length === 0 ? (
             <p className={styles.noEntries}>Keine Buchungen gefunden</p>
           ) : (
