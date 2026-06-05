@@ -18,11 +18,22 @@ function ticketDoc(uid: string, id: string) {
   return doc(db, 'users', uid, 'jiraTickets', id)
 }
 
+function migrateTicket(raw: Record<string, unknown>, id: string): JiraTicket {
+  const data = { ...raw, id } as Record<string, unknown> & { id: string }
+  if (!data.nummer && !data.titel && data.name) {
+    data.nummer = ''
+    data.titel = data.name as string
+  }
+  data.nummer ??= ''
+  data.titel ??= ''
+  return data as unknown as JiraTicket
+}
+
 export async function getJiraTickets(): Promise<JiraTicket[]> {
   const uid = requireUid()
   const q = query(ticketsCol(uid), orderBy('createdAt', 'desc'))
   const snapshot = await getDocs(q)
-  return snapshot.docs.map(d => ({ ...d.data(), id: d.id }) as JiraTicket)
+  return snapshot.docs.map(d => migrateTicket(d.data() as Record<string, unknown>, d.id))
 }
 
 export async function saveJiraTicket(

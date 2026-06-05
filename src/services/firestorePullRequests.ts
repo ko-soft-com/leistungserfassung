@@ -18,11 +18,22 @@ function prDoc(uid: string, id: string) {
   return doc(db, 'users', uid, 'pullRequests', id)
 }
 
+function migratePr(raw: Record<string, unknown>, id: string): PullRequest {
+  const data = { ...raw, id } as Record<string, unknown> & { id: string }
+  if (!data.nummer && !data.titel && data.name) {
+    data.nummer = ''
+    data.titel = data.name as string
+  }
+  data.nummer ??= ''
+  data.titel ??= ''
+  return data as unknown as PullRequest
+}
+
 export async function getPullRequests(): Promise<PullRequest[]> {
   const uid = requireUid()
   const q = query(prsCol(uid), orderBy('createdAt', 'desc'))
   const snapshot = await getDocs(q)
-  return snapshot.docs.map(d => ({ ...d.data(), id: d.id }) as PullRequest)
+  return snapshot.docs.map(d => migratePr(d.data() as Record<string, unknown>, d.id))
 }
 
 export async function savePullRequest(
