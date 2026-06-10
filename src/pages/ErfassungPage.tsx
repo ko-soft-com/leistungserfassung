@@ -217,6 +217,11 @@ export default function ErfassungPage() {
 
   // ── KPI computation ────────────────────────────────────────────────────────
   const todayStr = localISO(today)
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(today)
+    d.setDate(today.getDate() - i)
+    return localISO(d)
+  })
   const todayMins = entries
     .filter(e => e.date === todayStr)
     .reduce((sum, e) => sum + durationMinutes(e), 0)
@@ -435,6 +440,7 @@ export default function ErfassungPage() {
         onDuplicate={handleDuplicate}
         dayRecords={dayRecords}
         onDayRecordChange={(record) => setDayRecords(prev => ({ ...prev, [record.date]: record }))}
+        visibleDates={last7Days}
       />
 
       {editingEntry && (
