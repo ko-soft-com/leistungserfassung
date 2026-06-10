@@ -63,4 +63,19 @@ describe('EntryTable', () => {
     expect(screen.getByLabelText('von')).toBeInTheDocument()
     expect(screen.getByLabelText('bis')).toBeInTheDocument()
   })
+
+  it('renders DayPresenceRow for a date in visibleDates even with no entries', () => {
+    render(
+      <EntryTable
+        entries={[]}
+        onEdit={() => {}}
+        onDelete={() => {}}
+        visibleDates={['2026-06-09']}
+      />
+    )
+    expect(screen.queryByText('Noch keine Zeiten erfasst')).not.toBeInTheDocument()
+    expect(screen.getByText(/09\.06\.2026/)).toBeInTheDocument()
+    expect(screen.getByLabelText('von')).toBeInTheDocument()
+    expect(screen.getByLabelText('bis')).toBeInTheDocument()
+  })
 })

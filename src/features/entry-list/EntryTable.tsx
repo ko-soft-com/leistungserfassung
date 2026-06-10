@@ -14,10 +14,12 @@ interface EntryTableProps {
   onDuplicate?: (id: string) => void
   dayRecords?: Record<string, DayRecord>
   onDayRecordChange?: (record: DayRecord) => void
+  visibleDates?: string[]
 }
 
-function groupByDate(entries: TimeEntry[]): [string, TimeEntry[]][] {
+function groupByDate(entries: TimeEntry[], visibleDates: string[] = []): [string, TimeEntry[]][] {
   const map = new Map<string, TimeEntry[]>()
+  for (const d of visibleDates) map.set(d, [])
   for (const e of entries) {
     const arr = map.get(e.date) ?? []
     arr.push(e)
@@ -30,10 +32,10 @@ function isEntryIncomplete(e: TimeEntry): boolean {
   return !e.start || !e.end || !e.client || !e.orderNo || !e.account || !e.description
 }
 
-export default function EntryTable({ entries, onEdit, onDelete, onDuplicate, dayRecords, onDayRecordChange }: EntryTableProps) {
+export default function EntryTable({ entries, onEdit, onDelete, onDuplicate, dayRecords, onDayRecordChange, visibleDates = [] }: EntryTableProps) {
   const { collapsedDays, toggleDay } = useUIStore()
 
-  if (entries.length === 0) {
+  if (entries.length === 0 && visibleDates.length === 0) {
     return (
       <div className={styles.empty}>
         <p>Noch keine Zeiten erfasst</p>
@@ -41,7 +43,7 @@ export default function EntryTable({ entries, onEdit, onDelete, onDuplicate, day
     )
   }
 
-  const groups = groupByDate(entries)
+  const groups = groupByDate(entries, visibleDates)
 
   return (
     <div className={styles.container}>
@@ -58,11 +60,11 @@ export default function EntryTable({ entries, onEdit, onDelete, onDuplicate, day
               onToggle={() => toggleDay(date)}
             />
             <DayPresenceRow
-                date={date}
-                bookedMinutes={totalMins}
-                initialRecord={dayRecords?.[date] ?? null}
-                onSaved={onDayRecordChange}
-              />
+              date={date}
+              bookedMinutes={totalMins}
+              initialRecord={dayRecords?.[date] ?? null}
+              onSaved={onDayRecordChange}
+            />
             <div id={`day-${date}`} hidden={isCollapsed}>
               {dayEntries.map(e => (
                 <EntryRow
