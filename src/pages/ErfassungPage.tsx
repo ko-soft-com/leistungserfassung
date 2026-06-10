@@ -440,7 +440,7 @@ export default function ErfassungPage() {
         onDuplicate={handleDuplicate}
         dayRecords={dayRecords}
         onDayRecordChange={(record) => setDayRecords(prev => ({ ...prev, [record.date]: record }))}
-        visibleDates={last7Days}
+        visibleDates={isLoading ? [] : last7Days}
       />
 
       {editingEntry && (
