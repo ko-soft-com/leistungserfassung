@@ -20,6 +20,7 @@ function taskDoc(uid: string, id: string) {
 
 function migrateTask(raw: Record<string, unknown>, id: string): Task {
   const data = { ...raw, id } as Record<string, unknown> & { id: string }
+  data.titel ??= ''
   data.beschreibung ??= ''
   data.status ??= 'Geplant'
   data.startedAt ??= null

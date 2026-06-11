@@ -64,6 +64,7 @@ describe('getTasks', () => {
       docs: [{ id: 'old-id', data: () => ({ titel: 'Alte Aufgabe' }) }],
     } as any)
     const result = await getTasks()
+    expect(result[0].titel).toBe('Alte Aufgabe')
     expect(result[0].beschreibung).toBe('')
     expect(result[0].status).toBe('Geplant')
     expect(result[0].history).toEqual([])
