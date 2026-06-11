@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { format, getISOWeek } from 'date-fns'
 import { de } from 'date-fns/locale'
 import { Download, Upload } from 'lucide-react'
@@ -8,7 +8,7 @@ import NewEntryCard from '../features/new-entry/NewEntryCard'
 import Toolbar from '../features/filters/Toolbar'
 import EntryTable from '../features/entry-list/EntryTable'
 import EditEntryDrawer from '../features/entry-list/EditEntryDrawer'
-import { applyFilter } from '../data/filter'
+import { applyFilter, localISO } from '../data/filter'
 import { durationMinutes, fmtH } from '../data/format'
 import type { Range } from '../data/filter'
 import { getTimeEntries, saveTimeEntry, updateTimeEntry, deleteTimeEntry } from '../services/firestoreTimeEntries'
@@ -33,10 +33,6 @@ const byDateDesc = (a: TimeEntry, b: TimeEntry): number => {
   return b.createdAt.localeCompare(a.createdAt)
 }
 
-function localISO(d: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-}
 
 export default function ErfassungPage() {
   const today = new Date()
@@ -217,11 +213,11 @@ export default function ErfassungPage() {
 
   // ── KPI computation ────────────────────────────────────────────────────────
   const todayStr = localISO(today)
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
+  const last7Days = useMemo(() => Array.from({ length: 7 }, (_, i) => {
     const d = new Date(today)
     d.setDate(today.getDate() - i)
     return localISO(d)
-  })
+  }), [])
   const todayMins = entries
     .filter(e => e.date === todayStr)
     .reduce((sum, e) => sum + durationMinutes(e), 0)

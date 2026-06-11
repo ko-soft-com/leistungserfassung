@@ -35,15 +35,15 @@ function isEntryIncomplete(e: TimeEntry): boolean {
 export default function EntryTable({ entries, onEdit, onDelete, onDuplicate, dayRecords, onDayRecordChange, visibleDates = [] }: EntryTableProps) {
   const { collapsedDays, toggleDay } = useUIStore()
 
-  if (entries.length === 0 && visibleDates.length === 0) {
+  const groups = groupByDate(entries, visibleDates)
+
+  if (groups.length === 0) {
     return (
       <div className={styles.empty}>
         <p>Noch keine Zeiten erfasst</p>
       </div>
     )
   }
-
-  const groups = groupByDate(entries, visibleDates)
 
   return (
     <div className={styles.container}>
