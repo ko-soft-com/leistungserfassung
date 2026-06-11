@@ -1,1 +1,1 @@
-export type Page = 'erfassung' | 'jira' | 'prs'
+export type Page = 'erfassung' | 'jira' | 'prs' | 'tasks'

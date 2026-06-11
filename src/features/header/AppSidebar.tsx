@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Clock, Ticket, GitPullRequest } from 'lucide-react'
+import { Clock, Ticket, GitPullRequest, CheckSquare } from 'lucide-react'
 import type { Page } from '../../types/page'
 import styles from './AppSidebar.module.css'
 
@@ -9,9 +9,10 @@ interface AppSidebarProps {
 }
 
 const NAV_ITEMS: { page: Page; icon: ReactNode; label: string }[] = [
-  { page: 'erfassung', icon: <Clock size={18} />, label: 'Zeiterfassung' },
-  { page: 'jira',      icon: <Ticket size={18} />, label: 'Jira-Tickets' },
+  { page: 'erfassung', icon: <Clock size={18} />,         label: 'Zeiterfassung' },
+  { page: 'jira',      icon: <Ticket size={18} />,        label: 'Jira-Tickets' },
   { page: 'prs',       icon: <GitPullRequest size={18} />, label: 'Pull Requests' },
+  { page: 'tasks',     icon: <CheckSquare size={18} />,   label: 'Aufgaben' },
 ]
 
 export default function AppSidebar({ currentPage, onNavigate }: AppSidebarProps) {

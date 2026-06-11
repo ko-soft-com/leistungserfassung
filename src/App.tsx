@@ -5,6 +5,7 @@ import AppSidebar from './features/header/AppSidebar'
 import ErfassungPage from './pages/ErfassungPage'
 import JiraPage from './features/jira/JiraPage'
 import PullRequestsPage from './features/pull-requests/PullRequestsPage'
+import TasksPage from './features/tasks/TasksPage'
 import AppFooter from './features/footer/AppFooter'
 import ToastContainer from './components/ToastContainer'
 import UpdateModal from './components/UpdateModal'
@@ -44,6 +45,7 @@ export default function App() {
           {currentPage === 'erfassung' && <ErfassungPage />}
           {currentPage === 'jira' && <JiraPage />}
           {currentPage === 'prs' && <PullRequestsPage />}
+          {currentPage === 'tasks' && <TasksPage />}
         </div>
         <AppFooter />
         <ToastContainer />
