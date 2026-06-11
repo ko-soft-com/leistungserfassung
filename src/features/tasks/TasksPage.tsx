@@ -43,6 +43,7 @@ export default function TasksPage() {
   const [endTime, setEndTime] = useState('')
   const [jiraTicketId, setJiraTicketId] = useState('')
   const [pullRequestId, setPullRequestId] = useState('')
+  const [faelligkeitsdatum, setFaelligkeitsdatum] = useState('')
   const [titelError, setTitelError] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [originalStatus, setOriginalStatus] = useState<TaskStatus>('Geplant')
@@ -68,6 +69,7 @@ export default function TasksPage() {
     setEndTime('')
     setJiraTicketId('')
     setPullRequestId('')
+    setFaelligkeitsdatum('')
     setTitelError('')
     setOriginalStatus('Geplant')
   }
@@ -89,11 +91,12 @@ export default function TasksPage() {
           titel: titel.trim(), beschreibung, status, startedAt, endedAt,
           jiraTicketId: jiraTicketId || null,
           pullRequestId: pullRequestId || null,
+          faelligkeitsdatum: faelligkeitsdatum.trim() || null,
           history,
         })
         const now = new Date().toISOString()
         setTasks(prev => prev.map(t => t.id === editingId
-          ? { ...t, titel: titel.trim(), beschreibung, status, startedAt, endedAt, jiraTicketId: jiraTicketId || null, pullRequestId: pullRequestId || null, history, updatedAt: now }
+          ? { ...t, titel: titel.trim(), beschreibung, status, startedAt, endedAt, jiraTicketId: jiraTicketId || null, pullRequestId: pullRequestId || null, faelligkeitsdatum: faelligkeitsdatum.trim() || null, history, updatedAt: now }
           : t
         ))
       } else {
@@ -101,6 +104,7 @@ export default function TasksPage() {
           titel: titel.trim(), beschreibung, status, startedAt, endedAt,
           jiraTicketId: jiraTicketId || null,
           pullRequestId: pullRequestId || null,
+          faelligkeitsdatum: faelligkeitsdatum.trim() || null,
           history: [],
         })
         setTasks(prev => [saved, ...prev])
@@ -121,6 +125,7 @@ export default function TasksPage() {
     setEndTime(fromISO(task.endedAt))
     setJiraTicketId(task.jiraTicketId ?? '')
     setPullRequestId(task.pullRequestId ?? '')
+    setFaelligkeitsdatum(task.faelligkeitsdatum ?? '')
   }
 
   async function handleDelete(id: string) {
@@ -281,6 +286,17 @@ export default function TasksPage() {
           />
         </div>
 
+        <div className={styles.formField}>
+          <label htmlFor="task-faelligkeitsdatum" className={styles.formLabel}>Fälligkeit</label>
+          <input
+            id="task-faelligkeitsdatum"
+            type="date"
+            value={faelligkeitsdatum}
+            onChange={e => setFaelligkeitsdatum(e.target.value)}
+            className={styles.formInput}
+          />
+        </div>
+
         <Button variant="primary" onClick={handleSubmit} aria-label="Speichern">
           <Plus size={14} /> {editingId ? 'Aktualisieren' : 'Speichern'}
         </Button>
@@ -302,6 +318,7 @@ export default function TasksPage() {
           <span>Zeitraum</span>
           <span>Jira</span>
           <span>PR</span>
+          <span>Fälligkeit</span>
           <span>Aktionen</span>
         </div>
         {isLoading && <p className={styles.loading}>Laden…</p>}

@@ -4,6 +4,7 @@ import type { Task, TaskStatus } from '../../types/task'
 import type { JiraTicket } from '../../types/jiraTicket'
 import type { PullRequest } from '../../types/pullRequest'
 import { fmtTimestampDE } from '../../data/format'
+import DueDatePill from '../../components/DueDatePill'
 import styles from './TaskRow.module.css'
 
 const STATUS_CLASS: Record<TaskStatus, string> = {
@@ -45,6 +46,7 @@ export default function TaskRow({ task, jiraTickets, pullRequests, onEdit, onDel
         <span className={styles.zeitraum}>{fmtTime(task.startedAt)} → {fmtTime(task.endedAt)}</span>
         <span className={styles.linkPill}>{linkedJira ? linkedJira.nummer : ''}</span>
         <span className={styles.linkPill}>{linkedPr ? `#${linkedPr.nummer}` : ''}</span>
+        <DueDatePill date={task.faelligkeitsdatum} />
         <div className={styles.actions}>
           {!task.startedAt && (
             <button type="button" className={styles.iconBtn} onClick={() => onQuickStart(task.id)} aria-label="Starten">
