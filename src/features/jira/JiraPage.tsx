@@ -25,6 +25,7 @@ export default function JiraPage() {
   const [status, setStatus] = useState<JiraStatus>('Offen')
   const [beschreibung, setBeschreibung] = useState('')
   const [kommentar, setKommentar] = useState('')
+  const [faelligkeitsdatum, setFaelligkeitsdatum] = useState('')
   const [nummerError, setNummerError] = useState('')
   const [titelError, setTitelError] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -48,6 +49,7 @@ export default function JiraPage() {
     setStatus('Offen')
     setBeschreibung('')
     setKommentar('')
+    setFaelligkeitsdatum('')
     setNummerError('')
     setTitelError('')
   }
@@ -60,16 +62,16 @@ export default function JiraPage() {
     try {
       if (editingId) {
         await updateJiraTicket(editingId, {
-          nummer: nummer.trim(), titel: titel.trim(), issueType, status, beschreibung, kommentar,
+          nummer: nummer.trim(), titel: titel.trim(), issueType, status, beschreibung, kommentar, faelligkeitsdatum: faelligkeitsdatum.trim() || null,
         })
         const now = new Date().toISOString()
         setTickets(prev => prev.map(t => t.id === editingId
-          ? { ...t, nummer: nummer.trim(), titel: titel.trim(), issueType, status, beschreibung, kommentar, updatedAt: now }
+          ? { ...t, nummer: nummer.trim(), titel: titel.trim(), issueType, status, beschreibung, kommentar, faelligkeitsdatum: faelligkeitsdatum.trim() || null, updatedAt: now }
           : t
         ))
       } else {
         const saved = await saveJiraTicket({
-          nummer: nummer.trim(), titel: titel.trim(), issueType, status, beschreibung, kommentar,
+          nummer: nummer.trim(), titel: titel.trim(), issueType, status, beschreibung, kommentar, faelligkeitsdatum: faelligkeitsdatum.trim() || null,
         })
         setTickets(prev => [saved, ...prev])
       }
@@ -87,6 +89,7 @@ export default function JiraPage() {
     setStatus(ticket.status)
     setBeschreibung(ticket.beschreibung)
     setKommentar(ticket.kommentar)
+    setFaelligkeitsdatum(ticket.faelligkeitsdatum ?? '')
   }
 
   async function handleDelete(id: string) {
@@ -181,6 +184,17 @@ export default function JiraPage() {
           />
         </div>
 
+        <div className={styles.formField}>
+          <label htmlFor="jira-faelligkeitsdatum" className={styles.formLabel}>Fälligkeit</label>
+          <input
+            id="jira-faelligkeitsdatum"
+            type="date"
+            value={faelligkeitsdatum}
+            onChange={e => setFaelligkeitsdatum(e.target.value)}
+            className={styles.formInput}
+          />
+        </div>
+
         <Button variant="primary" onClick={handleSubmit} aria-label="Speichern">
           <Plus size={14} /> {editingId ? 'Aktualisieren' : 'Speichern'}
         </Button>
@@ -201,6 +215,7 @@ export default function JiraPage() {
           <span>Typ</span>
           <span>Titel</span>
           <span>Status</span>
+          <span>Fälligkeit</span>
           <span>Kommentar</span>
           <span>Aktionen</span>
         </div>

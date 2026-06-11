@@ -104,7 +104,7 @@
 
 .tableHeader {
   display: grid;
-  grid-template-columns: 1fr auto auto auto;
+  grid-template-columns: 1fr auto auto auto auto;
   gap: 12px;
   padding: 8px 16px;
   background: var(--surface-2);

@@ -3,6 +3,7 @@ import { Pencil, Trash2, ChevronDown } from 'lucide-react'
 import type { JiraTicket, JiraStatus } from '../../types/jiraTicket'
 import type { JiraIssueType, TimeEntry } from '../../types/entry'
 import { durationMinutes, fmtH, fmtDateDE } from '../../data/format'
+import DueDatePill from '../../components/DueDatePill'
 import styles from './JiraRow.module.css'
 
 const STATUS_CLASS: Record<JiraStatus, string> = {
@@ -45,6 +46,7 @@ export default function JiraRow({ ticket, timeEntries, onEdit, onDelete }: JiraR
         <span className={[styles.statusPill, STATUS_CLASS[ticket.status]].join(' ')}>
           {ticket.status}
         </span>
+        <DueDatePill date={ticket.faelligkeitsdatum} />
         <span className={styles.kommentar}>{ticket.kommentar}</span>
         <div className={styles.actions}>
           <button
