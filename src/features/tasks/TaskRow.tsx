@@ -24,7 +24,8 @@ interface TaskRowProps {
 
 function fmtTime(iso: string | null): string {
   if (!iso) return '–'
-  return iso.slice(11, 16)
+  const d = new Date(iso)
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
 export default function TaskRow({ task, jiraTickets, pullRequests, onEdit, onDelete, onQuickStart, onQuickStop }: TaskRowProps) {
