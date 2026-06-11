@@ -47,7 +47,6 @@
   color: var(--muted);
   font-family: var(--font-mono);
   white-space: nowrap;
-  min-width: 60px;
 }
 
 .actions {
@@ -90,7 +89,7 @@
   text-transform: uppercase;
   letter-spacing: 0.4px;
   color: var(--muted);
-  margin: 0 0 4px;
+  margin: 10px 0 4px;
 }
 
 .historyLine {
