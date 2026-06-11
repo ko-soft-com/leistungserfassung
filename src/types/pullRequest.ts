@@ -22,6 +22,7 @@ export interface PullRequest {
   reviewer: string
   kommentar: string
   history: PrHistoryEntry[]
+  faelligkeitsdatum: string | null
   createdAt: string
   updatedAt: string
 }

@@ -28,6 +28,7 @@ function migrateTask(raw: Record<string, unknown>, id: string): Task {
   data.jiraTicketId ??= null
   data.pullRequestId ??= null
   data.history ??= []
+  data.faelligkeitsdatum ??= null
   return data as unknown as Task
 }
 

@@ -31,6 +31,7 @@ function makeTask(overrides: Partial<Task> = {}): Task {
     jiraTicketId: null,
     pullRequestId: null,
     history: [],
+    faelligkeitsdatum: null,
     createdAt: '2026-06-11T08:00:00.000Z',
     updatedAt: '2026-06-11T08:00:00.000Z',
     ...overrides,

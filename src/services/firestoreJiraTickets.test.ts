@@ -34,6 +34,7 @@ function makeTicket(overrides: Partial<JiraTicket> = {}): JiraTicket {
     status: 'Offen',
     beschreibung: '',
     kommentar: '',
+    faelligkeitsdatum: null,
     createdAt: '2026-06-04T10:00:00.000Z',
     updatedAt: '2026-06-04T10:00:00.000Z',
     ...overrides,

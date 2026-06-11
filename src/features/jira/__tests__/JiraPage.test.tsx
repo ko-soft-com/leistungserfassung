@@ -25,6 +25,7 @@ const ticket: JiraTicket = {
   status: 'Offen',
   beschreibung: '',
   kommentar: 'Prio 1',
+  faelligkeitsdatum: null,
   createdAt: '2026-06-04T10:00:00.000Z',
   updatedAt: '2026-06-04T10:00:00.000Z',
 }

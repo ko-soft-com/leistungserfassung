@@ -28,6 +28,7 @@ function migratePr(raw: Record<string, unknown>, id: string): PullRequest {
   data.titel ??= ''
   data.reviewer ??= ''
   data.history ??= []
+  data.faelligkeitsdatum ??= null
   return data as unknown as PullRequest
 }
 

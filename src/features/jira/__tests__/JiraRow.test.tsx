@@ -12,6 +12,7 @@ const ticket: JiraTicket = {
   status: 'In Progress',
   beschreibung: 'Benutzer können sich nicht einloggen wenn SSO aktiv ist.',
   kommentar: 'Dringend',
+  faelligkeitsdatum: null,
   createdAt: '2026-06-04T10:00:00.000Z',
   updatedAt: '2026-06-04T10:00:00.000Z',
 }

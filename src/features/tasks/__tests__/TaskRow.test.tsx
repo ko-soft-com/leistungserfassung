@@ -15,6 +15,7 @@ const task: Task = {
   jiraTicketId: null,
   pullRequestId: null,
   history: [],
+  faelligkeitsdatum: null,
   createdAt: '2026-06-11T08:00:00.000Z',
   updatedAt: '2026-06-11T08:00:00.000Z',
 }
@@ -89,6 +90,7 @@ describe('TaskRow', () => {
     const jira: JiraTicket = {
       id: 'j-1', nummer: 'AP-123', titel: 'Login fix', issueType: 'Task',
       status: 'In Progress', beschreibung: '', kommentar: '',
+      faelligkeitsdatum: null,
       createdAt: '', updatedAt: '',
     }
     const taskWithJira = { ...task, jiraTicketId: 'j-1' }
@@ -99,7 +101,7 @@ describe('TaskRow', () => {
   it('shows pr nummer pill when linked', () => {
     const pr: PullRequest = {
       id: 'pr-1', nummer: '42', titel: 'fix: SSO', status: 'Open',
-      reviewer: '', kommentar: '', history: [], createdAt: '', updatedAt: '',
+      reviewer: '', kommentar: '', history: [], faelligkeitsdatum: null, createdAt: '', updatedAt: '',
     }
     const taskWithPr = { ...task, pullRequestId: 'pr-1' }
     render(<TaskRow task={taskWithPr} {...defaultProps} pullRequests={[pr]} />)

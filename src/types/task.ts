@@ -18,6 +18,7 @@ export interface Task {
   jiraTicketId: string | null
   pullRequestId: string | null
   history: TaskHistoryEntry[]
+  faelligkeitsdatum: string | null
   createdAt: string
   updatedAt: string
 }

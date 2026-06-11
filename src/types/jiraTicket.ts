@@ -19,6 +19,7 @@ export interface JiraTicket {
   status: JiraStatus
   beschreibung: string
   kommentar: string
+  faelligkeitsdatum: string | null
   createdAt: string
   updatedAt: string
 }
