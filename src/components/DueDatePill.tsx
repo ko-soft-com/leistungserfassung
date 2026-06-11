@@ -1,3 +1,4 @@
+import { localISO } from '../data/filter'
 import { fmtDateDE } from '../data/format'
 import styles from './DueDatePill.module.css'
 
@@ -6,9 +7,7 @@ interface DueDatePillProps {
 }
 
 function isOverdue(date: string): boolean {
-  const now = new Date()
-  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-  return date < todayStr
+  return date < localISO(new Date())
 }
 
 export default function DueDatePill({ date }: DueDatePillProps) {

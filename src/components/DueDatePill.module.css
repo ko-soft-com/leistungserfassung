@@ -11,6 +11,6 @@
 }
 
 .overdue {
-  background: #fee2e2;
-  color: #dc2626;
+  background: var(--task-bug-bg);
+  color: var(--danger);
 }
