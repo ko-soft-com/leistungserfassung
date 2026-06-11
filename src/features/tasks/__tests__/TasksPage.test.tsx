@@ -108,4 +108,18 @@ describe('TasksPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Starten' }))
     await waitFor(() => expect(screen.getByText('In Arbeit')).toBeInTheDocument())
   })
+
+  it('quick-stops a running task and updates its status to Fertig', async () => {
+    const runningTask: Task = {
+      ...task,
+      status: 'In Arbeit',
+      startedAt: '2026-06-11T08:00:00.000Z',
+    }
+    vi.mocked(getTasks).mockResolvedValue([runningTask])
+    vi.mocked(updateTask).mockResolvedValue(undefined)
+    render(<TasksPage />)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Stoppen' })).toBeInTheDocument())
+    fireEvent.click(screen.getByRole('button', { name: 'Stoppen' }))
+    await waitFor(() => expect(screen.getByText('Fertig')).toBeInTheDocument())
+  })
 })

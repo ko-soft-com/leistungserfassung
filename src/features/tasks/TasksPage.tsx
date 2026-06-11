@@ -14,13 +14,17 @@ import styles from './TasksPage.module.css'
 
 function toISO(timeStr: string): string | null {
   if (!timeStr) return null
-  const today = new Date().toISOString().slice(0, 10)
-  return new Date(`${today}T${timeStr}:00`).toISOString()
+  const now = new Date()
+  const yyyy = now.getFullYear()
+  const mm = String(now.getMonth() + 1).padStart(2, '0')
+  const dd = String(now.getDate()).padStart(2, '0')
+  return new Date(`${yyyy}-${mm}-${dd}T${timeStr}:00`).toISOString()
 }
 
 function fromISO(iso: string | null): string {
   if (!iso) return ''
-  return iso.slice(11, 16)
+  const d = new Date(iso)
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
 export default function TasksPage() {
@@ -132,6 +136,7 @@ export default function TasksPage() {
     try {
       const existing = tasks.find(t => t.id === id)
       if (!existing) return
+      if (existing.startedAt) return
       const now = new Date().toISOString()
       const newEntries: TaskHistoryEntry[] = existing.status !== 'In Arbeit'
         ? [{ timestamp: now, von: existing.status, nach: 'In Arbeit' }]
@@ -151,6 +156,7 @@ export default function TasksPage() {
     try {
       const existing = tasks.find(t => t.id === id)
       if (!existing) return
+      if (existing.endedAt) return
       const now = new Date().toISOString()
       const newEntries: TaskHistoryEntry[] = existing.status !== 'Fertig'
         ? [{ timestamp: now, von: existing.status, nach: 'Fertig' }]
