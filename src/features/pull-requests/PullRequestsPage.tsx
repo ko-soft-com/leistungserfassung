@@ -23,6 +23,7 @@ export default function PullRequestsPage() {
   const [status, setStatus] = useState<PrStatus>('Open')
   const [reviewer, setReviewer] = useState('')
   const [kommentar, setKommentar] = useState('')
+  const [faelligkeitsdatum, setFaelligkeitsdatum] = useState('')
   const [nummerError, setNummerError] = useState('')
   const [titelError, setTitelError] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -46,6 +47,7 @@ export default function PullRequestsPage() {
     setStatus('Open')
     setReviewer('')
     setKommentar('')
+    setFaelligkeitsdatum('')
     setNummerError('')
     setTitelError('')
     setOriginalStatus('Open')
@@ -66,17 +68,17 @@ export default function PullRequestsPage() {
         const history = [...existingHistory, ...newEntry]
         await updatePullRequest(editingId, {
           nummer: nummer.trim(), titel: titel.trim(), status,
-          reviewer: reviewer.trim(), kommentar, history,
+          reviewer: reviewer.trim(), kommentar, faelligkeitsdatum: faelligkeitsdatum.trim() || null, history,
         })
         const now = new Date().toISOString()
         setPrs(prev => prev.map(p => p.id === editingId
-          ? { ...p, nummer: nummer.trim(), titel: titel.trim(), status, reviewer: reviewer.trim(), kommentar, history, updatedAt: now }
+          ? { ...p, nummer: nummer.trim(), titel: titel.trim(), status, reviewer: reviewer.trim(), kommentar, faelligkeitsdatum: faelligkeitsdatum.trim() || null, history, updatedAt: now }
           : p
         ))
       } else {
         const saved = await savePullRequest({
           nummer: nummer.trim(), titel: titel.trim(), status,
-          reviewer: reviewer.trim(), kommentar, history: [],
+          reviewer: reviewer.trim(), kommentar, faelligkeitsdatum: faelligkeitsdatum.trim() || null, history: [],
         })
         setPrs(prev => [saved, ...prev])
       }
@@ -94,6 +96,7 @@ export default function PullRequestsPage() {
     setOriginalStatus(pr.status)
     setReviewer(pr.reviewer)
     setKommentar(pr.kommentar)
+    setFaelligkeitsdatum(pr.faelligkeitsdatum ?? '')
   }
 
   async function handleDelete(id: string) {
@@ -176,6 +179,17 @@ export default function PullRequestsPage() {
           />
         </div>
 
+        <div className={styles.formField}>
+          <label htmlFor="pr-faelligkeitsdatum" className={styles.formLabel}>Fälligkeit</label>
+          <input
+            id="pr-faelligkeitsdatum"
+            type="date"
+            value={faelligkeitsdatum}
+            onChange={e => setFaelligkeitsdatum(e.target.value)}
+            className={styles.formInput}
+          />
+        </div>
+
         <Button variant="primary" onClick={handleSubmit} aria-label="Speichern">
           <Plus size={14} /> {editingId ? 'Aktualisieren' : 'Speichern'}
         </Button>
@@ -196,6 +210,7 @@ export default function PullRequestsPage() {
           <span>Titel</span>
           <span>Reviewer</span>
           <span>Status</span>
+          <span>Fälligkeit</span>
           <span>Kommentar</span>
           <span>Aktionen</span>
         </div>

@@ -4,6 +4,7 @@ import type { PullRequest, PrStatus } from '../../types/pullRequest'
 import type { TimeEntry } from '../../types/entry'
 import { durationMinutes, fmtH, fmtDateDE, fmtTimestampDE } from '../../data/format'
 import styles from './PullRequestRow.module.css'
+import DueDatePill from '../../components/DueDatePill'
 
 const STATUS_CLASS: Record<PrStatus, string> = {
   'Draft':              styles.statusDraft,
@@ -39,6 +40,7 @@ export default function PullRequestRow({ pr, timeEntries, onEdit, onDelete }: Pu
         <span className={[styles.statusPill, STATUS_CLASS[pr.status]].join(' ')}>
           {pr.status}
         </span>
+        <DueDatePill date={pr.faelligkeitsdatum} />
         <span className={styles.kommentar}>{pr.kommentar}</span>
         <div className={styles.actions}>
           <button
