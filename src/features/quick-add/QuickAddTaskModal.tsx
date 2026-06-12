@@ -61,7 +61,7 @@ export default function QuickAddTaskModal({ onClose }: Props) {
         setPullRequests(p)
         setTasks(t)
       }
-    })
+    }).catch(() => {})
     return () => {
       isMounted = false
       dialog?.removeEventListener('close', handleClose)
