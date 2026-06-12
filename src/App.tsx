@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import AppHeader from './features/header/AppHeader'
+import QuickAddBar from './features/quick-add/QuickAddBar'
 import AppSidebar from './features/header/AppSidebar'
 import ErfassungPage from './pages/ErfassungPage'
 import JiraPage from './features/jira/JiraPage'
@@ -40,6 +41,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <div className={styles.shell}>
         <AppHeader />
+        <QuickAddBar />
         <div className={styles.body}>
           <AppSidebar currentPage={currentPage} onNavigate={setCurrentPage} />
           {currentPage === 'erfassung' && <ErfassungPage />}
