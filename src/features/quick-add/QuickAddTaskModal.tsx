@@ -55,13 +55,12 @@ export default function QuickAddTaskModal({ onClose }: Props) {
     dialog?.showModal()
     const handleClose = () => onCloseRef.current()
     dialog?.addEventListener('close', handleClose)
-    Promise.all([getJiraTickets(), getPullRequests(), getTasks()]).then(([j, p, t]) => {
-      if (isMounted) {
-        setJiraTickets(j)
-        setPullRequests(p)
-        setTasks(t)
-      }
-    }).catch(() => {})
+    Promise.allSettled([getJiraTickets(), getPullRequests(), getTasks()]).then(([j, p, t]) => {
+      if (!isMounted) return
+      if (j.status === 'fulfilled') setJiraTickets(j.value)
+      if (p.status === 'fulfilled') setPullRequests(p.value)
+      if (t.status === 'fulfilled') setTasks(t.value)
+    })
     return () => {
       isMounted = false
       dialog?.removeEventListener('close', handleClose)
