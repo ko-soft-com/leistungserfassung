@@ -57,6 +57,7 @@ export default function QuickAddPrModal({ onClose }: Props) {
       close()
     } catch {
       addToast('error', 'Fehler beim Speichern. Bitte erneut versuchen.')
+    } finally {
       setSaving(false)
     }
   }

@@ -58,6 +58,7 @@ export default function QuickAddJiraModal({ onClose }: Props) {
       close()
     } catch {
       addToast('error', 'Fehler beim Speichern. Bitte erneut versuchen.')
+    } finally {
       setSaving(false)
     }
   }
