@@ -9,6 +9,7 @@ import { PR_STATUSES } from '../../types/pullRequest'
 import type { TimeEntry } from '../../types/entry'
 import styles from './PullRequestsPage.module.css'
 import { useToastStore } from '../../stores/toast'
+import { useRefreshStore } from '../../stores/refresh'
 
 export default function PullRequestsPage() {
   const [prs, setPrs] = useState<PullRequest[]>([])
@@ -17,6 +18,7 @@ export default function PullRequestsPage() {
   const [loadError, setLoadError] = useState<string | null>(null)
 
   const addToast = useToastStore(s => s.addToast)
+  const prVersion = useRefreshStore(s => s.prVersion)
 
   const [nummer, setNummer] = useState('')
   const [titel, setTitel] = useState('')
@@ -38,7 +40,7 @@ export default function PullRequestsPage() {
       setLoadError('Pull Requests konnten nicht geladen werden.')
       setIsLoading(false)
     })
-  }, [])
+  }, [prVersion])
 
   function resetForm() {
     setEditingId(null)

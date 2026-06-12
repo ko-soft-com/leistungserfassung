@@ -18,6 +18,7 @@ import { getAllDayRecords, saveDayRecord, migrateDayRecord } from '../services/f
 import { isDuplicate } from '../utils/dedup'
 import { getLastUsed, setLastUsed } from '../features/new-entry/suggestions'
 import { useToastStore } from '../stores/toast'
+import { useRefreshStore } from '../stores/refresh'
 import type { TimeEntry } from '../types/entry'
 import type { DayRecord } from '../types/dayRecord'
 import { useGlobalShortcuts } from '../hooks/useGlobalShortcuts'
@@ -52,6 +53,9 @@ export default function ErfassungPage() {
   const [pendingDelete, setPendingDelete] = useState<{ id: string; entry: TimeEntry; timer: ReturnType<typeof setTimeout> } | null>(null)
   const [showHelp, setShowHelp] = useState(false)
 
+  const addToast = useToastStore(s => s.addToast)
+  const zeitVersion = useRefreshStore(s => s.zeitVersion)
+
   useEffect(() => {
     Promise.all([getTimeEntries(), getAllDayRecords()]).then(([loaded, records]) => {
       setEntries(loaded)
@@ -68,9 +72,7 @@ export default function ErfassungPage() {
       setLoadError('Einträge konnten nicht geladen werden.')
       setIsLoading(false)
     })
-  }, [])
-
-  const addToast = useToastStore(s => s.addToast)
+  }, [zeitVersion])
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const jsonFileInputRef = useRef<HTMLInputElement>(null)

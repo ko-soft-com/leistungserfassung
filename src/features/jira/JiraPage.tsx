@@ -10,6 +10,7 @@ import type { JiraIssueType, TimeEntry } from '../../types/entry'
 import { JIRA_ISSUE_TYPES } from '../../types/entry'
 import styles from './JiraPage.module.css'
 import { useToastStore } from '../../stores/toast'
+import { useRefreshStore } from '../../stores/refresh'
 
 export default function JiraPage() {
   const [tickets, setTickets] = useState<JiraTicket[]>([])
@@ -18,6 +19,7 @@ export default function JiraPage() {
   const [loadError, setLoadError] = useState<string | null>(null)
 
   const addToast = useToastStore(s => s.addToast)
+  const jiraVersion = useRefreshStore(s => s.jiraVersion)
 
   const [nummer, setNummer] = useState('')
   const [titel, setTitel] = useState('')
@@ -39,7 +41,7 @@ export default function JiraPage() {
       setLoadError('Tickets konnten nicht geladen werden.')
       setIsLoading(false)
     })
-  }, [])
+  }, [jiraVersion])
 
   function resetForm() {
     setEditingId(null)

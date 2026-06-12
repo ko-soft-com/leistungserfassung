@@ -10,6 +10,7 @@ import { TASK_STATUSES } from '../../types/task'
 import type { JiraTicket } from '../../types/jiraTicket'
 import type { PullRequest } from '../../types/pullRequest'
 import { useToastStore } from '../../stores/toast'
+import { useRefreshStore } from '../../stores/refresh'
 import styles from './TasksPage.module.css'
 
 function toISO(timeStr: string): string | null {
@@ -35,6 +36,7 @@ export default function TasksPage() {
   const [loadError, setLoadError] = useState<string | null>(null)
 
   const addToast = useToastStore(s => s.addToast)
+  const taskVersion = useRefreshStore(s => s.taskVersion)
 
   const [titel, setTitel] = useState('')
   const [beschreibung, setBeschreibung] = useState('')
@@ -58,7 +60,7 @@ export default function TasksPage() {
       setLoadError('Aufgaben konnten nicht geladen werden.')
       setIsLoading(false)
     })
-  }, [])
+  }, [taskVersion])
 
   function resetForm() {
     setEditingId(null)
