@@ -7,13 +7,17 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = vi.fn()
 })
 
-const { mockSave, mockIncrement, mockToast } = vi.hoisted(() => ({
+const { mockSave, mockGetPrs, mockIncrement, mockToast } = vi.hoisted(() => ({
   mockSave:      vi.fn(),
+  mockGetPrs:    vi.fn().mockResolvedValue([]),
   mockIncrement: vi.fn(),
   mockToast:     vi.fn(),
 }))
 
-vi.mock('../../../services/firestorePullRequests', () => ({ savePullRequest: mockSave }))
+vi.mock('../../../services/firestorePullRequests', () => ({
+  savePullRequest: mockSave,
+  getPullRequests: mockGetPrs,
+}))
 vi.mock('../../../stores/refresh', () => ({
   useRefreshStore: (sel: (s: { incrementPr: () => void }) => unknown) =>
     sel({ incrementPr: mockIncrement }),
@@ -63,5 +67,24 @@ describe('QuickAddPrModal', () => {
     const { container } = render(<QuickAddPrModal onClose={onClose} />)
     fireEvent(container.querySelector('dialog')!, new Event('close'))
     expect(onClose).toHaveBeenCalled()
+  })
+
+  it('shows nummer, titel and reviewer suggestions from existing PRs', async () => {
+    mockGetPrs.mockResolvedValueOnce([
+      {
+        id: '1', nummer: '99', titel: 'Add OAuth', status: 'Open',
+        reviewer: 'alice', kommentar: '', history: [],
+        faelligkeitsdatum: null, createdAt: '', updatedAt: '',
+      },
+    ])
+    render(<QuickAddPrModal onClose={vi.fn()} />)
+    await waitFor(() => {
+      const nummerOpts   = document.querySelectorAll('#qa-pr-nummer-list option')
+      const titelOpts    = document.querySelectorAll('#qa-pr-titel-list option')
+      const reviewerOpts = document.querySelectorAll('#qa-pr-reviewer-list option')
+      expect(Array.from(nummerOpts).some(o => o.getAttribute('value') === '99')).toBe(true)
+      expect(Array.from(titelOpts).some(o => o.getAttribute('value') === 'Add OAuth')).toBe(true)
+      expect(Array.from(reviewerOpts).some(o => o.getAttribute('value') === 'alice')).toBe(true)
+    })
   })
 })
