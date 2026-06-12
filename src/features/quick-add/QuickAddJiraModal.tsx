@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import Button from '../../components/Button'
-import { saveJiraTicket } from '../../services/firestoreJiraTickets'
+import { saveJiraTicket, getJiraTickets } from '../../services/firestoreJiraTickets'
 import { useRefreshStore } from '../../stores/refresh'
 import { useToastStore } from '../../stores/toast'
-import type { JiraStatus } from '../../types/jiraTicket'
+import type { JiraStatus, JiraTicket } from '../../types/jiraTicket'
 import { JIRA_STATUSES } from '../../types/jiraTicket'
 import type { JiraIssueType } from '../../types/entry'
 import { JIRA_ISSUE_TYPES } from '../../types/entry'
 import styles from './QuickAddJiraModal.module.css'
+
+function uniq(arr: string[]): string[] {
+  return [...new Set(arr.filter(Boolean))].sort()
+}
 
 interface Props { onClose: () => void }
 
@@ -27,16 +31,22 @@ export default function QuickAddJiraModal({ onClose }: Props) {
   const [nummerError, setNummerError] = useState('')
   const [titelError, setTitelError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [existing, setExisting] = useState<JiraTicket[]>([])
 
   const incrementJira = useRefreshStore(s => s.incrementJira)
   const addToast      = useToastStore(s => s.addToast)
 
   useEffect(() => {
+    let isMounted = true
     const dialog = dialogRef.current
     dialog?.showModal()
     const handleClose = () => onCloseRef.current()
     dialog?.addEventListener('close', handleClose)
-    return () => dialog?.removeEventListener('close', handleClose)
+    getJiraTickets().then(t => { if (isMounted) setExisting(t) }).catch(() => {})
+    return () => {
+      isMounted = false
+      dialog?.removeEventListener('close', handleClose)
+    }
   }, [])
 
   function close() { dialogRef.current?.close() }
@@ -74,12 +84,12 @@ export default function QuickAddJiraModal({ onClose }: Props) {
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="qa-jira-nummer">Nummer *</label>
-          <input id="qa-jira-nummer" className={styles.input} value={nummer} onChange={e => setNummer(e.target.value)} />
+          <input id="qa-jira-nummer" className={styles.input} value={nummer} onChange={e => setNummer(e.target.value)} list="qa-jira-nummer-list" />
           {nummerError && <span className={styles.error}>{nummerError}</span>}
         </div>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="qa-jira-titel">Titel *</label>
-          <input id="qa-jira-titel" className={styles.input} value={titel} onChange={e => setTitel(e.target.value)} />
+          <input id="qa-jira-titel" className={styles.input} value={titel} onChange={e => setTitel(e.target.value)} list="qa-jira-titel-list" />
           {titelError && <span className={styles.error}>{titelError}</span>}
         </div>
         <div className={styles.field}>
@@ -106,6 +116,12 @@ export default function QuickAddJiraModal({ onClose }: Props) {
           <label className={styles.label} htmlFor="qa-jira-kommentar">Kommentar</label>
           <textarea id="qa-jira-kommentar" className={styles.textarea} value={kommentar} onChange={e => setKommentar(e.target.value)} rows={2} />
         </div>
+        <datalist id="qa-jira-nummer-list">
+          {uniq(existing.map(t => t.nummer)).map(v => <option key={v} value={v} />)}
+        </datalist>
+        <datalist id="qa-jira-titel-list">
+          {uniq(existing.map(t => t.titel)).map(v => <option key={v} value={v} />)}
+        </datalist>
         <div className={styles.actions}>
           <Button variant="ghost" type="button" onClick={close}>Abbrechen</Button>
           <Button variant="primary" type="submit" disabled={saving}>Speichern</Button>

@@ -7,13 +7,17 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = vi.fn()
 })
 
-const { mockSave, mockIncrement, mockToast } = vi.hoisted(() => ({
+const { mockSave, mockGetJira, mockIncrement, mockToast } = vi.hoisted(() => ({
   mockSave:      vi.fn(),
+  mockGetJira:   vi.fn().mockResolvedValue([]),
   mockIncrement: vi.fn(),
   mockToast:     vi.fn(),
 }))
 
-vi.mock('../../../services/firestoreJiraTickets', () => ({ saveJiraTicket: mockSave }))
+vi.mock('../../../services/firestoreJiraTickets', () => ({
+  saveJiraTicket: mockSave,
+  getJiraTickets: mockGetJira,
+}))
 vi.mock('../../../stores/refresh', () => ({
   useRefreshStore: (sel: (s: { incrementJira: () => void }) => unknown) =>
     sel({ incrementJira: mockIncrement }),
@@ -63,5 +67,22 @@ describe('QuickAddJiraModal', () => {
     const { container } = render(<QuickAddJiraModal onClose={onClose} />)
     fireEvent(container.querySelector('dialog')!, new Event('close'))
     expect(onClose).toHaveBeenCalled()
+  })
+
+  it('shows nummer and titel suggestions from existing tickets', async () => {
+    mockGetJira.mockResolvedValueOnce([
+      {
+        id: '1', nummer: 'AP-123', titel: 'Login Feature',
+        issueType: 'Task', status: 'Offen', beschreibung: '',
+        kommentar: '', faelligkeitsdatum: null, createdAt: '', updatedAt: '',
+      },
+    ])
+    render(<QuickAddJiraModal onClose={vi.fn()} />)
+    await waitFor(() => {
+      const nummerOpts = document.querySelectorAll('#qa-jira-nummer-list option')
+      expect(Array.from(nummerOpts).some(o => o.getAttribute('value') === 'AP-123')).toBe(true)
+    })
+    const titelOpts = document.querySelectorAll('#qa-jira-titel-list option')
+    expect(Array.from(titelOpts).some(o => o.getAttribute('value') === 'Login Feature')).toBe(true)
   })
 })
