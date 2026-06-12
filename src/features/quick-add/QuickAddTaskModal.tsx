@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import Button from '../../components/Button'
-import { saveTask } from '../../services/firestoreTasks'
+import { saveTask, getTasks } from '../../services/firestoreTasks'
 import { getJiraTickets } from '../../services/firestoreJiraTickets'
 import { getPullRequests } from '../../services/firestorePullRequests'
 import { useRefreshStore } from '../../stores/refresh'
 import { useToastStore } from '../../stores/toast'
-import type { TaskStatus } from '../../types/task'
+import type { TaskStatus, Task } from '../../types/task'
 import { TASK_STATUSES } from '../../types/task'
 import type { JiraTicket } from '../../types/jiraTicket'
 import type { PullRequest } from '../../types/pullRequest'
@@ -19,6 +19,10 @@ function toISO(timeStr: string): string | null {
   const mm = String(now.getMonth() + 1).padStart(2, '0')
   const dd = String(now.getDate()).padStart(2, '0')
   return new Date(`${yyyy}-${mm}-${dd}T${timeStr}:00`).toISOString()
+}
+
+function uniq(arr: string[]): string[] {
+  return [...new Set(arr.filter(Boolean))].sort()
 }
 
 interface Props { onClose: () => void }
@@ -40,6 +44,7 @@ export default function QuickAddTaskModal({ onClose }: Props) {
   const [saving, setSaving] = useState(false)
   const [jiraTickets, setJiraTickets] = useState<JiraTicket[]>([])
   const [pullRequests, setPullRequests] = useState<PullRequest[]>([])
+  const [tasks, setTasks] = useState<Task[]>([])
 
   const incrementTask = useRefreshStore(s => s.incrementTask)
   const addToast      = useToastStore(s => s.addToast)
@@ -50,10 +55,11 @@ export default function QuickAddTaskModal({ onClose }: Props) {
     dialog?.showModal()
     const handleClose = () => onCloseRef.current()
     dialog?.addEventListener('close', handleClose)
-    Promise.all([getJiraTickets(), getPullRequests()]).then(([j, p]) => {
+    Promise.all([getJiraTickets(), getPullRequests(), getTasks()]).then(([j, p, t]) => {
       if (isMounted) {
         setJiraTickets(j)
         setPullRequests(p)
+        setTasks(t)
       }
     })
     return () => {
@@ -98,7 +104,7 @@ export default function QuickAddTaskModal({ onClose }: Props) {
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="qa-task-titel">Titel *</label>
-          <input id="qa-task-titel" className={styles.input} value={titel} onChange={e => setTitel(e.target.value)} />
+          <input id="qa-task-titel" className={styles.input} value={titel} onChange={e => setTitel(e.target.value)} list="qa-task-titel-list" />
           {titelError && <span className={styles.error}>{titelError}</span>}
         </div>
         <div className={styles.field}>
@@ -139,6 +145,9 @@ export default function QuickAddTaskModal({ onClose }: Props) {
           <label className={styles.label} htmlFor="qa-task-beschreibung">Beschreibung</label>
           <textarea id="qa-task-beschreibung" className={styles.textarea} value={beschreibung} onChange={e => setBeschreibung(e.target.value)} rows={3} />
         </div>
+        <datalist id="qa-task-titel-list">
+          {uniq(tasks.map(t => t.titel)).map(v => <option key={v} value={v} />)}
+        </datalist>
         <div className={styles.actions}>
           <Button variant="ghost" type="button" onClick={close}>Abbrechen</Button>
           <Button variant="primary" type="submit" disabled={saving}>Speichern</Button>

@@ -7,15 +7,16 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = vi.fn()
 })
 
-const { mockSave, mockIncrement, mockToast, mockGetJira, mockGetPrs } = vi.hoisted(() => ({
+const { mockSave, mockIncrement, mockToast, mockGetJira, mockGetPrs, mockGetTasks } = vi.hoisted(() => ({
   mockSave:      vi.fn(),
   mockIncrement: vi.fn(),
   mockToast:     vi.fn(),
   mockGetJira:   vi.fn().mockResolvedValue([]),
   mockGetPrs:    vi.fn().mockResolvedValue([]),
+  mockGetTasks:  vi.fn().mockResolvedValue([]),
 }))
 
-vi.mock('../../../services/firestoreTasks', () => ({ saveTask: mockSave }))
+vi.mock('../../../services/firestoreTasks', () => ({ saveTask: mockSave, getTasks: mockGetTasks }))
 vi.mock('../../../services/firestoreJiraTickets', () => ({ getJiraTickets: mockGetJira }))
 vi.mock('../../../services/firestorePullRequests', () => ({ getPullRequests: mockGetPrs }))
 vi.mock('../../../stores/refresh', () => ({
@@ -68,5 +69,20 @@ describe('QuickAddTaskModal', () => {
     const { container } = render(<QuickAddTaskModal onClose={onClose} />)
     fireEvent(container.querySelector('dialog')!, new Event('close'))
     expect(onClose).toHaveBeenCalled()
+  })
+
+  it('shows titel suggestions from existing tasks', async () => {
+    mockGetTasks.mockResolvedValueOnce([
+      {
+        id: '1', titel: 'Deploy to staging', beschreibung: '', status: 'Geplant',
+        startedAt: null, endedAt: null, jiraTicketId: null, pullRequestId: null,
+        history: [], faelligkeitsdatum: null, createdAt: '', updatedAt: '',
+      },
+    ])
+    render(<QuickAddTaskModal onClose={vi.fn()} />)
+    await waitFor(() => {
+      const opts = document.querySelectorAll('#qa-task-titel-list option')
+      expect(Array.from(opts).some(o => o.getAttribute('value') === 'Deploy to staging')).toBe(true)
+    })
   })
 })
