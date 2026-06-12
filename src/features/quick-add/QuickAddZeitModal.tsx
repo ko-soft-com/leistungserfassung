@@ -5,7 +5,8 @@ import Field from '../../components/Field'
 import IssueTypeSelector from '../../components/IssueTypeSelector'
 import TaskTypeSelector from '../../components/TaskTypeSelector'
 import { useDraft } from '../new-entry/useDraft'
-import { saveTimeEntry } from '../../services/firestoreTimeEntries'
+import { buildSuggestions } from '../new-entry/suggestions'
+import { saveTimeEntry, getTimeEntries } from '../../services/firestoreTimeEntries'
 import { useRefreshStore } from '../../stores/refresh'
 import { useToastStore } from '../../stores/toast'
 import styles from './QuickAddZeitModal.module.css'
@@ -19,16 +20,24 @@ export default function QuickAddZeitModal({ onClose }: Props) {
 
   const { draft, setField, errors, validate, reset } = useDraft()
   const [saving, setSaving] = useState(false)
+  const [sugg, setSugg] = useState<ReturnType<typeof buildSuggestions>>({
+    client: [], orderNo: [], account: [], description: [], jira: [], pr: [],
+  })
 
   const incrementZeit = useRefreshStore(s => s.incrementZeit)
   const addToast      = useToastStore(s => s.addToast)
 
   useEffect(() => {
+    let isMounted = true
     const dialog = dialogRef.current
     dialog?.showModal()
     const handleClose = () => onCloseRef.current()
     dialog?.addEventListener('close', handleClose)
-    return () => dialog?.removeEventListener('close', handleClose)
+    getTimeEntries().then(entries => { if (isMounted) setSugg(buildSuggestions(entries)) }).catch(() => {})
+    return () => {
+      isMounted = false
+      dialog?.removeEventListener('close', handleClose)
+    }
   }, [])
 
   function close() { dialogRef.current?.close() }
@@ -71,9 +80,9 @@ export default function QuickAddZeitModal({ onClose }: Props) {
       </div>
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.row}>
-          <Field label="Auftraggeber" required value={draft.client}  onChange={v => setField('client', v)}  error={errors.client} />
-          <Field label="Auftragsnr."  required value={draft.orderNo} onChange={v => setField('orderNo', v)} error={errors.orderNo} />
-          <Field label="Zeitkonto"    required value={draft.account} onChange={v => setField('account', v)} error={errors.account} />
+          <Field label="Auftraggeber" required value={draft.client}  onChange={v => setField('client', v)}  error={errors.client}  suggestions={sugg.client} />
+          <Field label="Auftragsnr."  required value={draft.orderNo} onChange={v => setField('orderNo', v)} error={errors.orderNo} suggestions={sugg.orderNo} />
+          <Field label="Zeitkonto"    required value={draft.account} onChange={v => setField('account', v)} error={errors.account} suggestions={sugg.account} />
         </div>
         <div className={styles.row}>
           <Field label="Start" mono type="time" value={draft.start ?? ''} onChange={v => setField('start', v || null)} error={errors.start} />
@@ -82,10 +91,10 @@ export default function QuickAddZeitModal({ onClose }: Props) {
         <div className={styles.taskRow}>
           <TaskTypeSelector value={draft.task} onChange={v => setField('task', v)} name="qa-zeit-task" />
         </div>
-        <Field label="Beschreibung" value={draft.description} onChange={v => setField('description', v)} error={errors.description} />
+        <Field label="Beschreibung" value={draft.description} onChange={v => setField('description', v)} error={errors.description} suggestions={sugg.description} />
         <div className={styles.row}>
-          <Field label="JIRA-Ticket"  mono value={draft.jira} onChange={v => setField('jira', v)} />
-          <Field label="Pull-Request" mono value={draft.pr}   onChange={v => setField('pr', v)} />
+          <Field label="JIRA-Ticket"  mono value={draft.jira} onChange={v => setField('jira', v)} suggestions={sugg.jira} />
+          <Field label="Pull-Request" mono value={draft.pr}   onChange={v => setField('pr', v)}   suggestions={sugg.pr} />
         </div>
         <IssueTypeSelector value={draft.jiraIssueType} onChange={v => setField('jiraIssueType', v ?? '')} />
         <div className={styles.actions}>

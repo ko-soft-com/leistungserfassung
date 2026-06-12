@@ -7,13 +7,17 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = vi.fn()
 })
 
-const { mockSave, mockIncrement, mockToast } = vi.hoisted(() => ({
-  mockSave:      vi.fn(),
-  mockIncrement: vi.fn(),
-  mockToast:     vi.fn(),
+const { mockSave, mockIncrement, mockToast, mockGetEntries } = vi.hoisted(() => ({
+  mockSave:       vi.fn(),
+  mockIncrement:  vi.fn(),
+  mockToast:      vi.fn(),
+  mockGetEntries: vi.fn().mockResolvedValue([]),
 }))
 
-vi.mock('../../../services/firestoreTimeEntries', () => ({ saveTimeEntry: mockSave }))
+vi.mock('../../../services/firestoreTimeEntries', () => ({
+  saveTimeEntry:  mockSave,
+  getTimeEntries: mockGetEntries,
+}))
 vi.mock('../../../stores/refresh', () => ({
   useRefreshStore: (sel: (s: { incrementZeit: () => void }) => unknown) =>
     sel({ incrementZeit: mockIncrement }),
@@ -69,5 +73,21 @@ describe('QuickAddZeitModal', () => {
     const { container } = render(<QuickAddZeitModal onClose={onClose} />)
     fireEvent(container.querySelector('dialog')!, new Event('close'))
     expect(onClose).toHaveBeenCalled()
+  })
+
+  it('shows auftraggeber suggestions from existing time entries', async () => {
+    mockGetEntries.mockResolvedValueOnce([
+      {
+        id: '1', client: 'Kunde AG', orderNo: '4711', account: 'Dev',
+        description: 'Some work', jira: 'AP-1', pr: '42',
+        date: '2026-06-12', start: null, end: '', task: 'Feature',
+        jiraIssueType: '', createdAt: '', updatedAt: '',
+      },
+    ])
+    render(<QuickAddZeitModal onClose={vi.fn()} />)
+    await waitFor(() => {
+      const opts = document.querySelectorAll('#auftraggeber-list option')
+      expect(Array.from(opts).some(o => o.getAttribute('value') === 'Kunde AG')).toBe(true)
+    })
   })
 })
