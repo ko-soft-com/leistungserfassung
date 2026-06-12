@@ -20,9 +20,7 @@ export default function QuickAddZeitModal({ onClose }: Props) {
 
   const { draft, setField, errors, validate, reset } = useDraft()
   const [saving, setSaving] = useState(false)
-  const [sugg, setSugg] = useState<ReturnType<typeof buildSuggestions>>({
-    client: [], orderNo: [], account: [], description: [], jira: [], pr: [],
-  })
+  const [sugg, setSugg] = useState(() => buildSuggestions([]))
 
   const incrementZeit = useRefreshStore(s => s.incrementZeit)
   const addToast      = useToastStore(s => s.addToast)
@@ -66,6 +64,7 @@ export default function QuickAddZeitModal({ onClose }: Props) {
       close()
     } catch {
       addToast('error', 'Fehler beim Speichern. Bitte erneut versuchen.')
+    } finally {
       setSaving(false)
     }
   }
