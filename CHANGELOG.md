@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Globale Quick-Add-Leiste unterhalb der AppHeader: Buttons zum schnellen Anlegen von Zeiteinträgen, Jira-Tickets, Pull Requests und Aufgaben ohne Seitenwechsel
+- `QuickAddZeitModal`: vollständiges Zeiterfassungsformular mit `useDraft`-Hook (Auftraggeber, Auftragsnr., Zeitkonto, Start/Ende, Task-Typ, Beschreibung, JIRA-Ticket, PR, Issue-Typ)
+- `QuickAddJiraModal`: vollständiges Jira-Formular (Nummer, Titel, Typ, Status, Fälligkeit, Beschreibung, Kommentar)
+- `QuickAddPrModal`: vollständiges PR-Formular (Nummer, Titel, Status, Reviewer, Fälligkeit, Kommentar)
+- `QuickAddTaskModal`: vollständiges Aufgaben-Formular mit asynchron geladenen Jira/PR-Dropdowns (Titel, Status, Von/Bis, Fälligkeit, Beschreibung)
+- `useRefreshStore`: Zustand-Store mit Versions-Countern je Entity; nach erfolgreichem Speichern im Modal wird die zugehörige Page automatisch neu geladen
+
 ## [1.6.0] - 2026-06-04
 
 ### Added
