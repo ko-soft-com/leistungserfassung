@@ -70,7 +70,7 @@
   font-family: inherit;
 }
 
-.error { font-size: 11px; color: var(--danger, #e53e3e); }
+.error { font-size: 11px; color: var(--danger); }
 
 .row {
   display: grid;

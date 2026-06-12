@@ -45,15 +45,21 @@ export default function QuickAddTaskModal({ onClose }: Props) {
   const addToast      = useToastStore(s => s.addToast)
 
   useEffect(() => {
+    let isMounted = true
     const dialog = dialogRef.current
     dialog?.showModal()
     const handleClose = () => onCloseRef.current()
     dialog?.addEventListener('close', handleClose)
     Promise.all([getJiraTickets(), getPullRequests()]).then(([j, p]) => {
-      setJiraTickets(j)
-      setPullRequests(p)
+      if (isMounted) {
+        setJiraTickets(j)
+        setPullRequests(p)
+      }
     })
-    return () => dialog?.removeEventListener('close', handleClose)
+    return () => {
+      isMounted = false
+      dialog?.removeEventListener('close', handleClose)
+    }
   }, [])
 
   function close() { dialogRef.current?.close() }
@@ -76,6 +82,7 @@ export default function QuickAddTaskModal({ onClose }: Props) {
       close()
     } catch {
       addToast('error', 'Fehler beim Speichern. Bitte erneut versuchen.')
+    } finally {
       setSaving(false)
     }
   }

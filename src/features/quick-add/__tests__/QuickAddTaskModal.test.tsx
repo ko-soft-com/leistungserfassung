@@ -47,6 +47,7 @@ describe('QuickAddTaskModal', () => {
     await waitFor(() => {
       expect(mockSave).toHaveBeenCalledWith(expect.objectContaining({ titel: 'Meine Aufgabe' }))
       expect(mockIncrement).toHaveBeenCalled()
+      expect(HTMLDialogElement.prototype.close).toHaveBeenCalled()
     })
   })
 
@@ -55,7 +56,11 @@ describe('QuickAddTaskModal', () => {
     render(<QuickAddTaskModal onClose={vi.fn()} />)
     fireEvent.change(screen.getByLabelText('Titel *'), { target: { value: 'T' } })
     fireEvent.click(screen.getByText('Speichern'))
-    await waitFor(() => expect(mockToast).toHaveBeenCalledWith('error', expect.any(String)))
+    await waitFor(() => {
+      expect(mockToast).toHaveBeenCalledWith('error', expect.any(String))
+      const btn = screen.getByText('Speichern').closest('button')
+      expect(btn?.disabled).toBe(false)
+    })
   })
 
   it('calls onClose when dialog fires close event', () => {
