@@ -80,9 +80,9 @@ describe('QuickAddJiraModal', () => {
     render(<QuickAddJiraModal onClose={vi.fn()} />)
     await waitFor(() => {
       const nummerOpts = document.querySelectorAll('#qa-jira-nummer-list option')
+      const titelOpts  = document.querySelectorAll('#qa-jira-titel-list option')
       expect(Array.from(nummerOpts).some(o => o.getAttribute('value') === 'AP-123')).toBe(true)
+      expect(Array.from(titelOpts).some(o => o.getAttribute('value') === 'Login Feature')).toBe(true)
     })
-    const titelOpts = document.querySelectorAll('#qa-jira-titel-list option')
-    expect(Array.from(titelOpts).some(o => o.getAttribute('value') === 'Login Feature')).toBe(true)
   })
 })
